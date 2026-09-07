@@ -70,6 +70,7 @@
     };
     logos-liblogos = {
       url = "github:logos-co/logos-liblogos/be221c5749036343909fa0b109edecfb4d329fdd";
+      inputs.default-module-loader.follows = "logos-module-loader-qt";
       inputs.logos-capability-module.follows = "logos-capability-module";
       inputs.logos-cpp-sdk.follows = "logos-cpp-sdk";
       inputs.logos-module.follows = "logos-module";
@@ -108,6 +109,15 @@
       inputs.logos-nix.follows = "logos-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    logos-module-loader-qt = {
+      url = "github:logos-co/logos-module-loader-qt/1eadfec1b401932473e09b59db5989fe2e06d5e1";
+      inputs.logos-cpp-sdk.follows = "logos-cpp-sdk";
+      inputs.logos-module.follows = "logos-module";
+      inputs.logos-nix.follows = "logos-nix";
+      inputs.logos-protocol.follows = "logos-protocol";
+      inputs.logos-qt-sdk.follows = "logos-qt-sdk";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     logos-module-builder = {
       url = "github:logos-co/logos-module-builder/e9c8da45d3cf84e4207ba22d22e23ccccb1cb59a";
       inputs.logos-cpp-sdk.follows = "logos-cpp-sdk";
@@ -123,6 +133,10 @@
       inputs.logos-view-module-runtime.follows = "logos-view-module-runtime";
       inputs.nix-bundle-lgx.follows = "nix-bundle-lgx";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+    logos-modules-state-module = {
+      url = "github:logos-co/logos-modules-state-module/dc13caa80164f2a941f788f4f96af193cd019879";
+      inputs.logos-module-builder.follows = "logos-module-builder";
     };
     nix-bundle-dir = {
       url = "github:logos-co/nix-bundle-dir/4f72d7a64dd83979d771c17161f23ebc9dbedb40";
@@ -162,18 +176,21 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     logos-basecamp = {
-      url = "github:logos-co/logos-basecamp/d68173f73ca500c4eec422f2059585735943b88d";
+      url = "github:logos-co/logos-basecamp/cd0d16b45af9da1fade436a96b51af1020152cb2";
       inputs.logos-capability-module.follows = "logos-capability-module";
       inputs.logos-cpp-sdk.follows = "logos-cpp-sdk";
       inputs.logos-design-system.follows = "logos-design-system";
       inputs.logos-liblogos.follows = "logos-liblogos";
       inputs.logos-module.follows = "logos-module";
+      inputs.logos-module-loader-qt.follows = "logos-module-loader-qt";
+      inputs.logos-modules-state-module.follows = "logos-modules-state-module";
       inputs.logos-nix.follows = "logos-nix";
       inputs.logos-package.follows = "logos-package";
       inputs.logos-package-downloader-module.follows = "logos-package-downloader-module";
       inputs.logos-package-manager.follows = "logos-package-manager";
       inputs.logos-package-manager-module.follows = "logos-package-manager-module";
       inputs.logos-package-manager-ui.follows = "logos-package-manager-ui";
+      inputs.logos-plugin-qt.follows = "logos-plugin-qt";
       inputs.logos-protocol.follows = "logos-protocol";
       inputs.logos-qt-sdk.follows = "logos-qt-sdk";
       inputs.logos-view-module-runtime.follows = "logos-view-module-runtime";
