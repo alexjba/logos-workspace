@@ -288,11 +288,11 @@
       inputs.nix-bundle-lgx.follows = "nix-bundle-lgx";
     };
     logos-libp2p-module = {
-      url = "github:logos-co/logos-libp2p-module/7b4b776b26d96e2a0c794827c77bb6eb89da5100";
+      url = "github:logos-co/logos-libp2p-module/1336d42d4c0a9417a9d3732a49ffa55f277a3407";
       inputs.logos-module-builder.follows = "logos-module-builder";
       inputs.logoscore-cli.follows = "logos-logoscore-cli";
       inputs.package-manager.follows = "logos-package-manager";
-      inputs.libp2p.url = "github:vacp2p/nim-libp2p/7c73484cc0c57a5f649dd3d277cef1c7c4de28f0";
+      inputs.libp2p.url = "github:vacp2p/nim-libp2p/01068c839e3ce4f04cd5307478e50c6816ba472c";
     };
     logos-webview-app = {
       url = "github:logos-co/logos-webview-app/b5d1bb40da6ba550076069a10cf9beaac45aa515";
