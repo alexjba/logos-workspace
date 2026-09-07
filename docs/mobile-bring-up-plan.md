@@ -81,8 +81,11 @@ Nothing Logos-specific is in the closure. What is missing entirely:
 
 ### 5.1 logos-nix
 
-Mirrors the Windows layout. `forAllTargets` grows three pseudo-systems keyed
-like `x86_64-windows`:
+Mirrors the Windows layout, but the mobile pseudo-systems are opt-in:
+`forAllTargets` stays native + `x86_64-windows` (logos-design-system wraps it
+and can only map that one to a build system). Mobile targets live in
+`lib.mobileTargets` / `lib.forAllMobileTargets`, which consumers adopt
+explicitly. Three pseudo-systems, keyed like `x86_64-windows`:
 
 | Pseudo-system | crossSystem | Build platforms |
 |---|---|---|
@@ -93,10 +96,14 @@ like `x86_64-windows`:
 Each package set provides:
 
 - `qt6.{qtbase,qtdeclarative,qtshadertools,qtsvg,qtimageformats?}` cross-built
-  from the nixpkgs `qt6` recipe on the cross pin, via
+  from the nixpkgs `qt6` recipe on the cross pin, exposed flat under
+  `packages.<pseudo-system>.<module>` (flakes reject nested attrsets) and as a
+  full set under `legacyPackages.<build-system>.pkgs<Target>`, via
   `nix/android/cross-overlay.nix` and `nix/ios/cross-overlay.nix`. Android:
   shared libs, per ABI. iOS: static frameworks (Qt's only option).
-- `logosQtCrossCmakeFlags` for the target: `QT_HOST_PATH`,
+- `logosQtCrossCmakeFlags` (appendable `-D` flags only, as on Windows) plus a
+  separate `logosQtCrossToolchainFile` where a toolchain file is needed:
+  `QT_HOST_PATH`,
   `QT_ADDITIONAL_HOST_PACKAGES_PREFIX_PATH`, plus Android
   (`ANDROID_SDK_ROOT`, `ANDROID_NDK_ROOT`, `QT_ANDROID_ABIS`) or iOS
   (`CMAKE_OSX_SYSROOT`, `QT_HOST_PATH`) extras. Basecamp's nix files already
