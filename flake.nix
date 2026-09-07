@@ -360,11 +360,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     logos-test-modules = {
-      url = "github:logos-co/logos-test-modules/fb773a564d16d6a273871a8f0d118008b841a736";
+      url = "github:logos-co/logos-test-modules/07aa8859a6ac1fc554b3c75ba8dcd3e373329f8a";
       inputs.logos-liblogos.follows = "logos-liblogos";
       inputs.logos-logoscore-cli.follows = "logos-logoscore-cli";
       inputs.logos-module-builder.follows = "logos-module-builder";
       inputs.logos-nix.follows = "logos-nix";
+      inputs.logos-plugin-qt.follows = "logos-plugin-qt";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     process-stats = {

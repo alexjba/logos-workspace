@@ -92602,22 +92602,25 @@
         "logos-nix": [
           "logos-nix"
         ],
+        "logos-plugin-qt": [
+          "logos-plugin-qt"
+        ],
         "nixpkgs": [
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1784655731,
-        "narHash": "sha256-8/UIF8wPJP7wJstq6vdrR6R3O0w6I8b/XKYkhDT8bqo=",
+        "lastModified": 1787798393,
+        "narHash": "sha256-6S7HdNHjTfUss5zrfWe4VFTUoWVLHbxu3S8ECcH2qKM=",
         "owner": "logos-co",
         "repo": "logos-test-modules",
-        "rev": "fb773a564d16d6a273871a8f0d118008b841a736",
+        "rev": "07aa8859a6ac1fc554b3c75ba8dcd3e373329f8a",
         "type": "github"
       },
       "original": {
         "owner": "logos-co",
         "repo": "logos-test-modules",
-        "rev": "fb773a564d16d6a273871a8f0d118008b841a736",
+        "rev": "07aa8859a6ac1fc554b3c75ba8dcd3e373329f8a",
         "type": "github"
       }
     },
