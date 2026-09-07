@@ -1252,8 +1252,13 @@ _test_one_repo() {
   outputs=$(_discover_test_outputs "$repo_path" "$system" "$override_flags")
 
   local checks_json test_pkgs_json
-  checks_json=$(echo "$outputs" | sed 's/.*"checks":\([^,}]*\).*/\1/')
-  test_pkgs_json=$(echo "$outputs" | sed 's/.*"testPkgs":\([^}]*\).*/\1/')
+  if command -v jq &>/dev/null; then
+    checks_json=$(echo "$outputs" | jq -c '.checks // []')
+    test_pkgs_json=$(echo "$outputs" | jq -c '.testPkgs // []')
+  else
+    checks_json=$(echo "$outputs" | sed 's/.*"checks":\(\[[^]]*\]\).*/\1/')
+    test_pkgs_json=$(echo "$outputs" | sed 's/.*"testPkgs":\(\[[^]]*\]\).*/\1/')
+  fi
 
   # Build the flake ref for checks and packages.
   # When overrides are active (--local, --auto-local, --workspace), build from the
