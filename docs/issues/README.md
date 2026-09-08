@@ -9,9 +9,9 @@ Intended home: sub-issues of logos-co/logos-basecamp#89 (filling #119 Android,
 | 01 | Bump basecamp to master in the workspace | logos-workspace | – | draft PRs logos-workspace#103, #102 (`ws test` fix + 3 pin moves), logos-test-modules#58 (qml-modules check) |
 | 02 | Hello-QML APK on an Android device from a nix derivation | logos-nix | – | draft PR logos-nix#8, stacked on #7 |
 | 03 | Hello-QML app on the iOS simulator from nix-built static Qt | logos-nix | – | draft PR logos-nix#7 |
-| 04 | Shell preview APK on an Android device | logos-basecamp | 01, 02 | open |
+| 04 | Shell preview APK on an Android device | logos-basecamp | 01, 02 | draft PR logos-basecamp#395 (stacked on #394) |
 | 05 | `ws run logos-basecamp --target android` | logos-workspace | 04 | open |
-| 06 | Shell preview on the iOS simulator | logos-basecamp | 01, 03 | open |
+| 06 | Shell preview on the iOS simulator | logos-basecamp | 01, 03 | draft PR logos-basecamp#394 |
 | 07 | Shell preview on a physical iPhone | logos-nix, logos-basecamp | 06 | open |
 | 08 | `ws run --target ios-sim / ios-device` | logos-workspace | 05, 06 | open |
 | 09 | Android CI: APK on Linux, all ABIs cached | logos-nix, logos-basecamp | 04 | open |
