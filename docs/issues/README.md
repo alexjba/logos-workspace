@@ -17,6 +17,7 @@ Intended home: sub-issues of logos-co/logos-basecamp#89 (filling #119 Android,
 | 09 | Android CI: APK on Linux, all ABIs cached | logos-nix, logos-basecamp | 04 | open |
 | 10 | iOS CI: simulator app on macOS Jenkins, toolchains cached | logos-basecamp | 06 | open |
 | 11 | MOBILE-HANDOFF.md, workspace docs, follow-up backlog | all | 05, 08 | open |
+| 12 | Fold the basecamp Android workarounds into `mkQtAndroidApk` | logos-nix, logos-basecamp | 04 | open |
 
 Build-platform matrix (verification is part of every toolchain slice):
 
