@@ -12,7 +12,7 @@ Intended home: sub-issues of logos-co/logos-basecamp#89 (filling #119 Android,
 | 04 | Shell preview APK on an Android device | logos-basecamp | 01, 02 | draft PR logos-basecamp#395 (stacked on #394) |
 | 05 | `ws run logos-basecamp --target android` | logos-workspace | 04 | open |
 | 06 | Shell preview on the iOS simulator | logos-basecamp | 01, 03 | draft PR logos-basecamp#394 |
-| 07 | Shell preview on a physical iPhone | logos-nix, logos-basecamp | 06 | open |
+| 07 | Shell preview on a physical iPhone | logos-nix, logos-basecamp | 06 | draft PR on logos-basecamp, stacked on #395 (verified on an iPad Air) |
 | 08 | `ws run --target ios-sim / ios-device` | logos-workspace | 05, 06 | open |
 | 09 | Android CI: APK on Linux, all ABIs cached | logos-nix, logos-basecamp | 04 | open |
 | 10 | iOS CI: simulator app on macOS Jenkins, toolchains cached | logos-basecamp | 06 | open |
