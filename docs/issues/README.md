@@ -6,7 +6,7 @@ Intended home: sub-issues of logos-co/logos-basecamp#89 (filling #119 Android,
 
 | # | Slice | Repo | Blocked by | Status |
 |---|---|---|---|---|
-| 01 | Bump basecamp to master in the workspace | logos-workspace | – | draft PR logos-workspace#103 (+#102 for the `ws test` fix it uncovered) |
+| 01 | Bump basecamp to master in the workspace | logos-workspace | – | draft PRs logos-workspace#103, #102 (`ws test` fix + 3 pin moves), logos-test-modules#58 (qml-modules check) |
 | 02 | Hello-QML APK on an Android device from a nix derivation | logos-nix | – | draft PR logos-nix#8, stacked on #7 |
 | 03 | Hello-QML app on the iOS simulator from nix-built static Qt | logos-nix | – | draft PR logos-nix#7 |
 | 04 | Shell preview APK on an Android device | logos-basecamp | 01, 02 | open |
