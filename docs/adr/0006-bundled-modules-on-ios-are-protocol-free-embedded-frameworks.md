@@ -22,5 +22,12 @@ loading, loader semantics kept) made consistent with Qt being static-only on iOS
   dlopened framework into the executable on iOS (two-level namespace vs
   `-undefined dynamic_lookup`), with the static registration table as the
   documented fallback if it fails.
+- UI apps ship the same way: an embedded framework holding the Qt backend and
+  QML resources, resolving Qt upward into the app image (the executable
+  exports Qt's symbols). Same spike, larger symbol set; a static archive linked
+  at shell build is the fallback for UI apps only.
+- Bundling a Store shell is therefore fetch-and-embed with no per-module
+  codegen and no link step: the Native container uses one generic host glue
+  that reads each module's contract at runtime via `logos_module_get_methods`.
 - Android Bundled modules use the same artifact from `jniLibs`; Qt is shared
   there, so today's plugins would also work, but one shape is kept on purpose.
