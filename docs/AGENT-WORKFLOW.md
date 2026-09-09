@@ -7,7 +7,7 @@ Humans upstream changes to the original orgs manually; agents never do.
 
 - Every submodule's `origin` is `https://github.com/logos-fleet/<repo>.git`. All PRs are fork-internal.
 - Branch name everywhere: `sandcastle/issue-<N>`, in the monorepo and in every touched sub-repo.
-- A sub-repo change is landed only through a monorepo **pin commit** (gitlink + generated pin files). The merger lands sub-repo PRs first, then the monorepo PR (`Closes #N`).
+- A sub-repo change is landed only through a monorepo **pin commit** (gitlink + generated pin files). The merger lands sub-repo PRs first, then the monorepo PR (`Closes #N`). There is no CI gate on the forks: the adapter checks run in the implementer and reviewer sandboxes are the verification. `master` only blocks force-pushes and deletions.
 - Forks are synced from upstream by a human: `fleet-sync-forks <monorepo>` from the kit.
 
 ## Sandcastle fleet
