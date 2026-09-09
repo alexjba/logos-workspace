@@ -15,7 +15,8 @@ const planSchema = z.object({
   issues: z.array(z.object({ id: z.string(), title: z.string(), branch: z.string() })),
 });
 
-const MAX_ITERATIONS = 10;
+// FLEET_MAX_ITERATIONS=1 for a single-cycle smoke run.
+const MAX_ITERATIONS = Number(process.env.FLEET_MAX_ITERATIONS ?? 10);
 const MODEL = "claude-fable-5";
 const IMAGE = "logos-workspace-agent:local";
 const CLOUD = process.env.SANDCASTLE_SANDBOX === "none";

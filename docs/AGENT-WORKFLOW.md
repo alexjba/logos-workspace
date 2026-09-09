@@ -14,7 +14,7 @@ Humans upstream changes to the original orgs manually; agents never do.
 
 `.sandcastle/` runs unattended agents in Docker via sandcastle. The loop's behavior is defined by `.sandcastle/main.mts` and `.sandcastle/*-prompt.md`; review standards in `.sandcastle/CODING_STANDARDS.md`; repo-specific build/verify/pin scripts in `.sandcastle/adapter/`.
 
-- **Task board:** label issues on `logos-fleet/logos-workspace` with **`ready-for-agent`**.
+- **Task board:** label issues on `logos-fleet/logos-workspace` with **`fleet-smoke`**.
 - **Credentials** (`.sandcastle/.env`, gitignored): `CLAUDE_CODE_OAUTH_TOKEN`, and `GH_TOKEN` scoped to the `logos-fleet` org.
 - **Run (host venue, default):** on any machine with nix, gh, node and claude installed — your Mac, or a Linux box over ssh — from a clone of the fork:
 
