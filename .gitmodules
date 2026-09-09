@@ -1,216 +1,216 @@
 [submodule "repos/logos-cpp-sdk"]
 	path = repos/logos-cpp-sdk
-	url = git@github.com:logos-co/logos-cpp-sdk.git
+	url = https://github.com/logos-fleet/logos-cpp-sdk.git
 [submodule "repos/logos-module"]
 	path = repos/logos-module
-	url = git@github.com:logos-co/logos-module.git
+	url = https://github.com/logos-fleet/logos-module.git
 [submodule "repos/logos-liblogos"]
 	path = repos/logos-liblogos
-	url = git@github.com:logos-co/logos-liblogos.git
+	url = https://github.com/logos-fleet/logos-liblogos.git
 [submodule "repos/logos-capability-module"]
 	path = repos/logos-capability-module
-	url = git@github.com:logos-co/logos-capability-module.git
+	url = https://github.com/logos-fleet/logos-capability-module.git
 [submodule "repos/logos-package"]
 	path = repos/logos-package
-	url = git@github.com:logos-co/logos-package.git
+	url = https://github.com/logos-fleet/logos-package.git
 [submodule "repos/logos-module-builder"]
 	path = repos/logos-module-builder
-	url = git@github.com:logos-co/logos-module-builder.git
+	url = https://github.com/logos-fleet/logos-module-builder.git
 [submodule "repos/logos-accounts-module"]
 	path = repos/logos-accounts-module
-	url = git@github.com:logos-co/logos-accounts-module.git
+	url = https://github.com/logos-fleet/logos-accounts-module.git
 [submodule "repos/logos-accounts-ui"]
 	path = repos/logos-accounts-ui
-	url = git@github.com:logos-co/logos-accounts-ui.git
+	url = https://github.com/logos-fleet/logos-accounts-ui.git
 [submodule "repos/logos-blockchain-module"]
 	path = repos/logos-blockchain-module
-	url = git@github.com:logos-blockchain/logos-blockchain-module.git
+	url = https://github.com/logos-fleet/logos-blockchain-module.git
 [submodule "repos/logos-chat-module"]
 	path = repos/logos-chat-module
-	url = git@github.com:logos-co/logos-chat-module.git
+	url = https://github.com/logos-fleet/logos-chat-module.git
 [submodule "repos/logos-chat-ui"]
 	path = repos/logos-chat-ui
-	url = git@github.com:logos-co/logos-chat-ui.git
+	url = https://github.com/logos-fleet/logos-chat-ui.git
 [submodule "repos/logos-package-manager-module"]
 	path = repos/logos-package-manager-module
-	url = git@github.com:logos-co/logos-package-manager-module.git
+	url = https://github.com/logos-fleet/logos-package-manager-module.git
 [submodule "repos/logos-package-manager-ui"]
 	path = repos/logos-package-manager-ui
-	url = git@github.com:logos-co/logos-package-manager-ui.git
+	url = https://github.com/logos-fleet/logos-package-manager-ui.git
 [submodule "repos/logos-storage-module"]
 	path = repos/logos-storage-module
-	url = git@github.com:logos-co/logos-storage-module.git
+	url = https://github.com/logos-fleet/logos-storage-module.git
 [submodule "repos/logos-storage-ui"]
 	path = repos/logos-storage-ui
-	url = git@github.com:logos-co/logos-storage-ui.git
+	url = https://github.com/logos-fleet/logos-storage-ui.git
 [submodule "repos/logos-wallet-module"]
 	path = repos/logos-wallet-module
-	url = git@github.com:logos-co/logos-wallet-module.git
+	url = https://github.com/logos-fleet/logos-wallet-module.git
 [submodule "repos/logos-wallet-ui"]
 	path = repos/logos-wallet-ui
-	url = git@github.com:logos-co/logos-wallet-ui.git
+	url = https://github.com/logos-fleet/logos-wallet-ui.git
 [submodule "repos/logos-libp2p-module"]
 	path = repos/logos-libp2p-module
-	url = git@github.com:logos-co/logos-libp2p-module.git
+	url = https://github.com/logos-fleet/logos-libp2p-module.git
 [submodule "repos/logos-template-module"]
 	path = repos/logos-template-module
-	url = git@github.com:logos-co/logos-template-module.git
+	url = https://github.com/logos-fleet/logos-template-module.git
 [submodule "repos/logos-webview-app"]
 	path = repos/logos-webview-app
-	url = git@github.com:logos-co/logos-webview-app.git
+	url = https://github.com/logos-fleet/logos-webview-app.git
 [submodule "repos/counter_qml"]
 	path = repos/counter_qml
-	url = git@github.com:logos-co/counter_qml.git
+	url = https://github.com/logos-fleet/counter_qml.git
 [submodule "repos/counter"]
 	path = repos/counter
-	url = git@github.com:logos-co/counter.git
+	url = https://github.com/logos-fleet/counter.git
 [submodule "repos/logos-design-system"]
 	path = repos/logos-design-system
-	url = git@github.com:logos-co/logos-design-system.git
+	url = https://github.com/logos-fleet/logos-design-system.git
 [submodule "repos/logos-js-sdk"]
 	path = repos/logos-js-sdk
-	url = git@github.com:logos-co/logos-js-sdk.git
+	url = https://github.com/logos-fleet/logos-js-sdk.git
 [submodule "repos/logos-nim-sdk"]
 	path = repos/logos-nim-sdk
-	url = git@github.com:logos-co/logos-nim-sdk.git
+	url = https://github.com/logos-fleet/logos-nim-sdk.git
 [submodule "repos/logos-rust-sdk"]
 	path = repos/logos-rust-sdk
-	url = git@github.com:logos-co/logos-rust-sdk.git
+	url = https://github.com/logos-fleet/logos-rust-sdk.git
 [submodule "repos/logos-docs"]
 	path = repos/logos-docs
-	url = git@github.com:logos-co/logos-docs.git
+	url = https://github.com/logos-fleet/logos-docs.git
 [submodule "repos/logos-website"]
 	path = repos/logos-website
-	url = git@github.com:logos-co/logos-website.git
+	url = https://github.com/logos-fleet/logos-website.git
 [submodule "repos/logos-tutorial"]
 	path = repos/logos-tutorial
-	url = git@github.com:logos-co/logos-tutorial.git
+	url = https://github.com/logos-fleet/logos-tutorial.git
 [submodule "repos/node-configs"]
 	path = repos/node-configs
-	url = git@github.com:logos-co/node-configs.git
+	url = https://github.com/logos-fleet/node-configs.git
 [submodule "repos/logos-module-viewer"]
 	path = repos/logos-module-viewer
-	url = git@github.com:logos-co/logos-module-viewer.git
+	url = https://github.com/logos-fleet/logos-module-viewer.git
 [submodule "repos/nix-bundle-dir"]
 	path = repos/nix-bundle-dir
-	url = git@github.com:logos-co/nix-bundle-dir.git
+	url = https://github.com/logos-fleet/nix-bundle-dir.git
 [submodule "repos/nix-bundle-lgx"]
 	path = repos/nix-bundle-lgx
-	url = git@github.com:logos-co/nix-bundle-lgx.git
+	url = https://github.com/logos-fleet/nix-bundle-lgx.git
 [submodule "repos/logos-blockchain-ui"]
 	path = repos/logos-blockchain-ui
-	url = git@github.com:logos-blockchain/logos-blockchain-ui.git
+	url = https://github.com/logos-fleet/logos-blockchain-ui.git
 [submodule "repos/logos-execution-zone-wallet-ui"]
 	path = repos/logos-execution-zone-wallet-ui
-	url = git@github.com:logos-blockchain/logos-execution-zone-wallet-ui.git
+	url = https://github.com/logos-fleet/logos-execution-zone-wallet-ui.git
 [submodule "repos/logos-execution-zone-module"]
 	path = repos/logos-execution-zone-module
-	url = git@github.com:logos-blockchain/logos-execution-zone-module.git
+	url = https://github.com/logos-fleet/logos-execution-zone-module.git
 [submodule "repos/logos-basecamp"]
 	path = repos/logos-basecamp
-	url = git@github.com:logos-co/logos-basecamp.git
+	url = https://github.com/logos-fleet/logos-basecamp.git
 [submodule "repos/logos-test-modules"]
 	path = repos/logos-test-modules
-	url = git@github.com:logos-co/logos-test-modules.git
+	url = https://github.com/logos-fleet/logos-test-modules.git
 [submodule "repos/logos-nix"]
 	path = repos/logos-nix
-	url = git@github.com:logos-co/logos-nix.git
+	url = https://github.com/logos-fleet/logos-nix.git
 [submodule "repos/logos-standalone-app"]
 	path = repos/logos-standalone-app
-	url = git@github.com:logos-co/logos-standalone-app.git
+	url = https://github.com/logos-fleet/logos-standalone-app.git
 [submodule "repos/logos-logoscore-cli"]
 	path = repos/logos-logoscore-cli
-	url = git@github.com:logos-co/logos-logoscore-cli.git
+	url = https://github.com/logos-fleet/logos-logoscore-cli.git
 [submodule "repos/process-stats"]
 	path = repos/process-stats
-	url = git@github.com:logos-co/process-stats.git
+	url = https://github.com/logos-fleet/process-stats.git
 [submodule "repos/logos-module-client"]
 	path = repos/logos-module-client
-	url = git@github.com:logos-co/logos-module-client.git
+	url = https://github.com/logos-fleet/logos-module-client.git
 [submodule "repos/logos-package-manager"]
 	path = repos/logos-package-manager
-	url = https://github.com/logos-co/logos-package-manager.git
+	url = https://github.com/logos-fleet/logos-package-manager.git
 [submodule "repos/logos-package-downloader"]
 	path = repos/logos-package-downloader
-	url = https://github.com/logos-co/logos-package-downloader.git
+	url = https://github.com/logos-fleet/logos-package-downloader.git
 [submodule "repos/logos-package-downloader-module"]
 	path = repos/logos-package-downloader-module
-	url = https://github.com/logos-co/logos-package-downloader-module.git
+	url = https://github.com/logos-fleet/logos-package-downloader-module.git
 [submodule "repos/nix-bundle-logos-module-install"]
 	path = repos/nix-bundle-logos-module-install
-	url = https://github.com/logos-co/nix-bundle-logos-module-install.git
+	url = https://github.com/logos-fleet/nix-bundle-logos-module-install.git
 [submodule "repos/logos-dev-boost"]
 	path = repos/logos-dev-boost
-	url = git@github.com:logos-co/logos-dev-boost.git
+	url = https://github.com/logos-fleet/logos-dev-boost.git
 [submodule "repos/logos-logoscore-tui"]
 	path = repos/logos-logoscore-tui
-	url = git@github.com:logos-co/logos-logoscore-tui.git
+	url = https://github.com/logos-fleet/logos-logoscore-tui.git
 [submodule "repos/logos-test-framework"]
 	path = repos/logos-test-framework
-	url = git@github.com:logos-co/logos-test-framework.git
+	url = https://github.com/logos-fleet/logos-test-framework.git
 [submodule "repos/logos-plugin-qt"]
 	path = repos/logos-plugin-qt
-	url = git@github.com:logos-co/logos-plugin-qt.git
+	url = https://github.com/logos-fleet/logos-plugin-qt.git
 [submodule "repos/logos-view-module-runtime"]
 	path = repos/logos-view-module-runtime
-	url = https://github.com/logos-co/logos-view-module-runtime.git
+	url = https://github.com/logos-fleet/logos-view-module-runtime.git
 [submodule "repos/nix-bundle-appimage"]
 	path = repos/nix-bundle-appimage
-	url = git@github.com:logos-co/nix-bundle-appimage.git
+	url = https://github.com/logos-fleet/nix-bundle-appimage.git
 [submodule "repos/nix-bundle-macos-app"]
 	path = repos/nix-bundle-macos-app
-	url = git@github.com:logos-co/nix-bundle-macos-app.git
+	url = https://github.com/logos-fleet/nix-bundle-macos-app.git
 [submodule "repos/logos-logoscore-py"]
 	path = repos/logos-logoscore-py
-	url = git@github.com:logos-co/logos-logoscore-py.git
+	url = https://github.com/logos-fleet/logos-logoscore-py.git
 [submodule "repos/logos-protocol"]
 	path = repos/logos-protocol
-	url = git@github.com:logos-co/logos-protocol.git
+	url = https://github.com/logos-fleet/logos-protocol.git
 [submodule "repos/logos-qt-sdk"]
 	path = repos/logos-qt-sdk
-	url = git@github.com:logos-co/logos-qt-sdk.git
+	url = https://github.com/logos-fleet/logos-qt-sdk.git
 [submodule "repos/logos-lidl"]
 	path = repos/logos-lidl
-	url = git@github.com:logos-co/logos-lidl.git
+	url = https://github.com/logos-fleet/logos-lidl.git
 [submodule "repos/logos-evm-net-proxy"]
 	path = repos/logos-evm-net-proxy
-	url = git@github.com:logos-co/logos-evm-net-proxy.git
+	url = https://github.com/logos-fleet/logos-evm-net-proxy.git
 [submodule "repos/logos-evm-keystore-module"]
 	path = repos/logos-evm-keystore-module
-	url = git@github.com:logos-co/logos-evm-keystore-module.git
+	url = https://github.com/logos-fleet/logos-evm-keystore-module.git
 [submodule "repos/logos-evm-eth-rpc-module"]
 	path = repos/logos-evm-eth-rpc-module
-	url = git@github.com:logos-co/logos-evm-eth-rpc-module.git
+	url = https://github.com/logos-fleet/logos-evm-eth-rpc-module.git
 [submodule "repos/logos-evm-token-list-module"]
 	path = repos/logos-evm-token-list-module
-	url = git@github.com:logos-co/logos-evm-token-list-module.git
+	url = https://github.com/logos-fleet/logos-evm-token-list-module.git
 [submodule "repos/logos-evm-uniswap-module"]
 	path = repos/logos-evm-uniswap-module
-	url = git@github.com:logos-co/logos-evm-uniswap-module.git
+	url = https://github.com/logos-fleet/logos-evm-uniswap-module.git
 [submodule "repos/logos-evm-railgun-module"]
 	path = repos/logos-evm-railgun-module
-	url = git@github.com:logos-co/logos-evm-railgun-module.git
+	url = https://github.com/logos-fleet/logos-evm-railgun-module.git
 [submodule "repos/logos-evm-wallet-backend-module"]
 	path = repos/logos-evm-wallet-backend-module
-	url = git@github.com:logos-co/logos-evm-wallet-backend-module.git
+	url = https://github.com/logos-fleet/logos-evm-wallet-backend-module.git
 [submodule "repos/logos-evm-wallet-ui"]
 	path = repos/logos-evm-wallet-ui
-	url = git@github.com:logos-co/logos-evm-wallet-ui.git
+	url = https://github.com/logos-fleet/logos-evm-wallet-ui.git
 [submodule "repos/logos-delivery-module"]
 	path = repos/logos-delivery-module
-	url = git@github.com:logos-co/logos-delivery-module.git
+	url = https://github.com/logos-fleet/logos-delivery-module.git
 [submodule "repos/logos-delivery-demo"]
 	path = repos/logos-delivery-demo
-	url = git@github.com:logos-co/logos-delivery-demo.git
+	url = https://github.com/logos-fleet/logos-delivery-demo.git
 [submodule "repos/logos-lez-explorer-ui"]
 	path = repos/logos-lez-explorer-ui
-	url = https://github.com/logos-blockchain/lez-explorer-ui.git
+	url = https://github.com/logos-fleet/lez-explorer-ui.git
 [submodule "repos/logos-lez-indexer-module"]
 	path = repos/logos-lez-indexer-module
-	url = https://github.com/logos-blockchain/lez-indexer-module.git
+	url = https://github.com/logos-fleet/lez-indexer-module.git
 [submodule "repos/logos-doctest"]
 	path = repos/logos-doctest
-	url = https://github.com/logos-co/logos-doctest.git
+	url = https://github.com/logos-fleet/logos-doctest.git
 [submodule "repos/logos-qt-mcp"]
 	path = repos/logos-qt-mcp
-	url = https://github.com/logos-co/logos-qt-mcp.git
+	url = https://github.com/logos-fleet/logos-qt-mcp.git
