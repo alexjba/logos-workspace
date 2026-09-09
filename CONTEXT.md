@@ -66,3 +66,7 @@ _Avoid_: cloud core, hosted core, server
 **Web variant**:
 The `web` LGX variant of a module: the artifact the Web container runs. Required for a module to be listed on iOS.
 _Avoid_: wasm build, browser build
+
+**Wasm host**:
+The Web container's counterpart of `logos_host` / `ui-host`: one module artifact (plugin shell, Rust core, QtCore) compiled to WebAssembly and run in a Web Worker, remoted to the QML runtime and to the core over the container's transports.
+_Avoid_: wasm module (ambiguous with the artifact), worker
