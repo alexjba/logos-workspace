@@ -16,19 +16,23 @@ Humans upstream changes to the original orgs manually; agents never do.
 
 - **Task board:** label issues on `logos-fleet/logos-workspace` with **`sandcastle`**.
 - **Credentials** (`.sandcastle/.env`, gitignored): `CLAUDE_CODE_OAUTH_TOKEN`, and `GH_TOKEN` scoped to the `logos-fleet` org.
-- **Run:**
+- **Run (host venue, default):** on any machine with nix, gh, node and claude installed — your Mac, or a Linux box over ssh — from a clone of the fork:
+
+  ```bash
+  npm install
+  SANDCASTLE_SANDBOX=none npm run sandcastle
+  ```
+
+  Agents run as plain processes in git worktrees under `.sandcastle/worktrees/`; the machine is the isolation boundary. The merge phase operates on this checkout, so start from a clean `master` and don't work in it while the loop runs.
+
+- **Run (Docker venue, optional):** build the adapter image once, then `npm run sandcastle` without the env var. Needs `.sandcastle/adapter/mounts.json` for a persistent `/nix` store.
 
   ```bash
   docker build --provenance=false --sbom=false \
     --build-arg AGENT_UID=$(id -u) --build-arg AGENT_GID=$(id -g) \
     -t logos-workspace-agent:local .sandcastle
-  npm install
-  npm run sandcastle
   ```
 
-  The merge phase operates on your checkout. Start from a clean `master` and don't work in this checkout while the loop runs.
-
-- **Cloud:** `SANDCASTLE_SANDBOX=none npm run sandcastle` runs agents as plain processes inside an already isolated host.
 - **One venue at a time.** Branch names are deterministic and the planner does no claiming; concurrent loops collide.
 
 ## Guardrails
