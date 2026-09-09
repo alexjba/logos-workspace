@@ -18,10 +18,17 @@ loading, loader semantics kept) made consistent with Qt being static-only on iOS
 - The same protocol-free artifact is what the Wasm host is built from, so
   "module without protocol, host image supplies it" becomes the one mobile
   build shape.
-- A linker spike gates it: upward resolution of undefined symbols from a
-  dlopened framework into the executable on iOS (two-level namespace vs
-  `-undefined dynamic_lookup`), with the static registration table as the
-  documented fallback if it fails.
+- Spike passed 2026-09-09 on the simulator and a signed iPad (all three
+  levels: lp_* upward, Qt upward with QML from the framework's resources, two
+  identical-symbol frameworks under RTLD_LOCAL); no static-table fallback is
+  needed. Recipe: frameworks linked `-dynamiclib -Wl,-undefined,dynamic_lookup`
+  (optionally `-fixup_chains`), embedded and code-signed on copy; the app
+  exports only the symbols listed (`-exported_symbols_list`, plus `-u` for
+  the QtCore symbols a UI framework needs), which costs 65 KB instead of the
+  908 KB that exporting everything would. dlopen is 6–33 ms per image on
+  device. Precondition: the logos-nix static Qt must be built with
+  `-DFEATURE_reduce_exports=OFF` for both iOS targets, otherwise the app has no
+  Qt symbols to export. Report: `docs/research/spikes/ios-dlopen-bare-module.md`.
 - The `ios-arm64` variant contract is one shape for every module type: an
   embedded framework the Native container can dlopen, resolving lp_* (core
   modules) and Qt (UI apps, whose backend and QML resources live in the
