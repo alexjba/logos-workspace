@@ -8,6 +8,7 @@ Legend: **[P]** primary source read directly. **[S]** secondary source; claim is
 
 - The WebKit/JavaScriptCore carve-out **no longer exists** in the DPLA. It was removed in June 2017; the current clause is engine-agnostic. Any "interpreted code", whether run by JavaScriptCore or Qt V4, is allowed under the same three conditions. **[P]** (section 2)
 - Guideline 2.5.2 is stricter than the DPLA: no downloading or executing code "which introduces or changes features or functionality of the app". Downloading QML that *adds or changes features* breaks the letter of 2.5.2 regardless of engine. Downloading QML that only re-skins or fixes bugs within the advertised purpose is within the DPLA letter and, in practice, within 2.5.2 as enforced. **[P]** + **[I]**
+- Guideline 4.7 (host apps offering plug-ins/mini apps) dropped its "must use WebKit and JavaScript Core" and "not offered in a store or store-like interface" language on January 25, 2024. Current 4.7 names HTML5/JavaScript mini apps and untyped "plug-ins", requires an index of offered software (4.7.4), and forbids exposing native platform APIs to that software without Apple's permission (4.7.2). **[P]** (sections 9, 10)
 - Enforcement is sporadic and pattern-triggered (reflection/`dlopen` SDKs in 2017, apps whose purpose is to run/preview *other* apps in 2020 and 2026). Felgo has shipped App Store apps that download and execute arbitrary QML/JS from a desktop since 2016; both are still listed. No documented QML-specific rejection exists. (sections 4, 6, 7)
 
 ## 1. App Store Review Guideline 2.5.2 (current)
@@ -123,12 +124,71 @@ Apple DTS statement on embedded interpreters, https://developer.apple.com/forums
 - JIT-based wasm runtimes are not an option for third-party iOS apps: iOS has no public JIT entitlement for App Store apps (Qt wiki V4 statement in section 3; Apple's JIT guidance and `com.apple.security.cs.allow-jit` apply to macOS, per DTS in https://developer.apple.com/forums/thread/805941, Nov 2025 **[P]**). An embedded wasm runtime on iOS must be a pure interpreter.
 - Practical difference **[I]**: WKWebView content is what reviewers have seen for 15 years (Cordova, hybrid apps, 4.7 mini apps); an embedded non-WebKit runtime is what the 2017 email's "running remote scripts" language and the "hidden features" template target. Legally equivalent today; risk-wise not.
 
+## 9. Guideline 4.7: mini apps, plug-ins, and "software not embedded in the binary"
+
+This rule governs a host app that lets users install modules/plug-ins from a catalog. Its shape changed in January and April 2024.
+
+### 9a. Current text (fetched 2026-09-09)
+
+Source: https://developer.apple.com/app-store/review/guidelines/ **[P]**. Verbatim:
+
+> **4.7 Mini apps, mini games, streaming games, chatbots, plug-ins, and game emulators**
+> Apps may offer certain software that is not embedded in the binary, specifically HTML5 and JavaScript mini apps and mini games, streaming games, chatbots, and plug-ins. Additionally, retro game console and PC emulator apps can offer to download games. You are responsible for all such software offered in your app, including ensuring that such software complies with these Guidelines and all applicable laws. Software that does not comply with one or more guidelines will lead to the rejection of your app. You must also ensure that the software adheres to the additional rules that follow in 4.7.1 through 4.7.5. These additional rules are important to preserve the experience that App Store customers expect, and to help ensure user safety.
+>
+> **4.7.1** Software offered in apps under this rule must:
+> - follow all privacy guidelines, including but not limited to the rules set forth in Guideline 5.1 concerning collection, use, and sharing of data, and sensitive data (such as health and personal data from kids);
+> - include a method for filtering objectionable material, a mechanism to report content and timely responses to concerns, and the ability to block abusive users; and
+> - follow Guideline 3.1 in order to offer digital goods or services to end users.
+>
+> **4.7.2** Your app may not extend or expose native platform APIs or technologies to the software without prior permission from Apple.
+>
+> **4.7.3** Your app may not share data or privacy permissions to any individual software offered in your app without explicit user consent in each instance.
+>
+> **4.7.4** You must provide an index of software and metadata available in your app. It must include universal links that lead to all of the software offered in your app.
+>
+> **4.7.5** Your app must provide a way for users to identify software that exceeds the app's age rating, and use an age restriction mechanism based on verified or declared age to limit access by underage users.
+
+Facts about the current text **[P]**:
+
+- The words "WebKit", "JavaScriptCore"/"JavaScript Core", "store-like", and "storefront" do **not** appear in 4.7 or 4.7.1-4.7.5.
+- Permitted categories are enumerated ("specifically"): HTML5 and JavaScript mini apps/mini games, streaming games, chatbots, plug-ins, emulator games. Apple's April 5, 2024 note says the edit "clarifies that mini apps and mini games must be HTML5" https://developer.apple.com/news/?id=0kjli9o1. "Plug-ins" carries no technology qualifier.
+- The store/store-like prohibition is gone from 4.7. 4.7.4 now *requires* an index of the offered software with universal links, i.e. a catalog is expected. The only surviving storefront language is DPLA 3.3.1(B)(c), "does not create a store or storefront for other Applications" (section 2).
+- 4.7.2 forbids exposing native platform APIs to the hosted software without Apple's prior permission.
+
+### 9b. Pre-2024 text (in force roughly June 2017 to January 25, 2024)
+
+Verbatim as quoted by developers on Apple's forums in June 2019 https://developer.apple.com/forums/thread/117933 and November 2019 https://developer.apple.com/forums/thread/126071 **[P, non-Apple posters quoting the guideline]**. The June 29, 2018 text reproduced at https://gist.github.com/ethanhuang13/07fdcb6e4a26b46c994b3fc0a55a08f2 **[S]** is identical except it lacks items (4) real-money gaming and (6) digital commerce:
+
+> **4.7 HTML5 Games, Bots, etc.**
+> Apps may contain or run code that is not embedded in the binary (e.g. HTML5-based games, bots, etc.), as long as code distribution isn't the main purpose of the app, the code is not offered in a store or store-like interface, and provided that the software (1) is free or purchased using in-app purchase; (2) only uses capabilities available in a standard WebKit view (e.g. it must open and run natively in Safari without modifications or additional software); your app must use WebKit and JavaScript Core to run third-party software and should not attempt to extend or expose native platform APIs to third-party software; (3) is offered by developers that have joined the Apple Developer Program and signed the Apple Developer Program License Agreement; (4) does not provide access to real money gaming, lotteries, or charitable donations; (5) adheres to the terms of these App Review Guidelines (e.g. does not include objectionable content); and (6) does not support digital commerce. Upon request, you must provide an index of software and metadata available in your app. It must include Apple Developer Program Team IDs for the providers of the software along with a URL which App Review can use to confirm that the software complies with the requirements above.
+
+Change record **[P]**: Apple news January 25, 2024, "4.7: Edited to set forth new requirements for mini apps, mini games, streaming games, chatbots, and plug-ins" https://developer.apple.com/news/?id=7j1f99yf; same-day announcement: "mini-apps, mini-games, chatbots, and plug-ins will be able to incorporate Apple's In-App Purchase system" and "Apps will also be able to provide enhanced discovery opportunities for streaming games, mini-apps, mini-games, chatbots, and plug-ins that are found within their apps", and "its host app will need to maintain an age rating of the highest age-rated content included in the app" https://developer.apple.com/news/?id=f1v8pyay; April 5, 2024 added emulator games and the "must be HTML5" clarification https://developer.apple.com/news/?id=0kjli9o1.
+
+### 9c. Precise answer: does current 4.7 still require WebKit/JavaScriptCore, and still forbid a store-like interface?
+
+- **WebKit/JavaScriptCore**: no longer stated. The pre-2024 item (2) "your app must use WebKit and JavaScript Core to run third-party software" was deleted on January 25, 2024. Replacements: the category list, in which mini apps/mini games are "HTML5 and JavaScript" (Apple: "must be HTML5"), and 4.7.2's ban on exposing native APIs without permission. **[P]** Reading **[I]**: for mini apps/mini games the HTML5 requirement implies a web engine, which on iOS means WebKit (2.5.6). For "plug-ins" 4.7 names no technology; nothing in the text says a plug-in must be JavaScript run by JavaScriptCore. A downloaded QML plug-in executed by Qt V4 is not excluded by 4.7's wording, but it is not one of the explicitly named safe categories either, and 4.7.2 applies to it in full.
+- **Store or store-like interface**: the 4.7 prohibition ("the code is not offered in a store or store-like interface", "code distribution isn't the main purpose of the app") was **removed** in January 2024. Current 4.7.4 requires an index with universal links. The only surviving storefront rule is DPLA 3.3.1(B)(c), where "Applications" is a DPLA-defined term for developer-submitted apps, not in-app plug-ins. **[P]** Reading **[I]**: an in-app catalog of plug-ins is now contemplated by 4.7.4, provided paid plug-ins use In-App Purchase (4.7.1 / 3.1) and the host does not become a channel for other developers' *apps*.
+- **What 4.7 still demands of a module host** **[P]**: responsibility for every module's compliance with all guidelines; privacy rules per 5.1; objectionable-content filtering, reporting, and blocking; IAP for paid modules; no native API exposure without Apple's permission (4.7.2); per-module user consent for data/permission sharing (4.7.3); an index with universal links (4.7.4); age gating (4.7.5); host age rating equal to the highest-rated module.
+- Logos mapping **[I]**: 4.7.2 is the clause a Logos module bridge must be designed against. Exposing the app's own module APIs (Logos core services) is not the same as exposing iOS platform APIs, but a bridge that proxies raw filesystem/network/camera would be. 4.7.3 maps onto Logos capability tokens with a per-grant user consent step. 4.7.4 obliges the module catalog to publish an index with a universal link per module.
+
+## 10. Which DPLA text is in force, and whether the engine matters
+
+Confirmed against the current agreement PDF (footer "LYL255, August 18, 2026", downloaded 2026-09-09, SHA-256 in section 2) **[P]**. The clause in force is 3.3.1(B):
+
+> Except as set forth in the next paragraph, an Application may not download or install executable code. Interpreted code may be downloaded to an Application but only so long as such code: (a) does not change the primary purpose of the Application by providing features or functionality that are inconsistent with the intended and advertised purpose of the Application (b) does not bypass signing, sandbox, or other security features of the OS; and (c) for Applications distributed on the App Store, does not create a store or storefront for other Applications.
+
+- The pre-June-2017 wording ("Interpreted code may only be used in an Application if all scripts, code and interpreters are packaged in the Application and not downloaded. The only exception to the foregoing is scripts and code downloaded and run by Apple's built-in WebKit framework or JavascriptCore ...") is **not** in force. Neither "WebKit" nor "JavaScriptCore" appears anywhere in the 130-page current PDF. **[P]**
+- The post-2017 conditions, (a) primary purpose, (b) no store/storefront, (c) no bypassing signing/sandbox, are the ones in force, with (b) and (c) swapped in order and the storefront condition narrowed to App Store-distributed apps and to "other Applications". **[P]**
+- Under the letter of the DPLA the engine therefore does **not** matter: QML/JS run by Qt V4 and JS run by JavaScriptCore are both "interpreted code" governed by the same three conditions. The only engine-specific rules left are guideline 2.5.6 (apps that browse the web must use WebKit) and the HTML5 qualifier on mini apps/mini games in 4.7. **[P for text, I for the equivalence]**
+- Caveat: App Review's rejection template still cites "section 3.3.2" (Setgreet, April 2026, section 7), so reviewers may work from older internal guidance. **[P]**
+
 ## Conclusions
 
 ### (1) Letter of the rules
 
 - **DPLA 3.3.1(B)**: downloading QML/JS and executing it with Qt's V4 engine is *permitted* as "interpreted code" provided it (a) does not change the app's primary purpose or add functionality inconsistent with the advertised purpose, (b) does not bypass signing/sandbox/OS security, (c) does not create a storefront. There is **no** distinction between V4 and JavaScriptCore/WebKit in the current agreement; that distinction was removed in June 2017. Confidence: high (verbatim current text, no WebKit/JavaScriptCore string in the PDF).
 - **Guideline 2.5.2**: forbids downloading or executing code "which introduces or changes features or functionality of the app". QML that **adds or changes features** violates the letter of 2.5.2, whichever engine runs it. QML that re-skins, fixes bugs, or rearranges existing features within the advertised purpose is defensible under both texts, but 2.5.2's wording gives reviewers latitude to call any UI change a "changed feature". Confidence: high on text, medium on how "feature" is read.
+- **Guideline 4.7**: a host app offering downloadable plug-ins is permitted as such; the pre-2024 WebKit/JavaScriptCore requirement and store-like-interface ban are gone. Obligations that remain: no native platform API exposure without Apple's permission (4.7.2), per-module consent (4.7.3), an index with universal links (4.7.4), age gating (4.7.5), IAP for paid modules. Confidence: high on text; medium on whether a QML plug-in counts as a permitted "plug-in" since Apple's named examples are HTML5/JavaScript. **[P]** + **[I]**
 - Native code (dylibs, C++ plugins) downloaded at runtime is flatly prohibited ("may not download or install executable code") and is also blocked technically by code signing. Not at issue for QML.
 
 ### (2) Enforcement in practice
@@ -136,32 +196,14 @@ Apple DTS statement on embedded interpreters, https://developer.apple.com/forums
 - Sporadic and pattern-driven, not engine-driven. Observed triggers: (i) SDKs containing reflection/`dlopen`/`performSelector` bridges (2017 mass email); (ii) apps whose visible purpose is to run or preview *other* apps or unreviewed content (CodePush app 2020, Anything 2026, Setgreet 2026, even with data-only payloads); (iii) "hidden features" not demonstrable during review. Rejection emails still cite "section 3.3.2" from a template.
 - JS OTA for bug fixes and layout tweaks is tolerated at scale (Expo: ~1000 iOS builds/day, one reported rejection in Feb 2019; CodePush still shipping).
 - QML specifically: zero documented rejections; Felgo's QML-download apps have been listed continuously since 2016/2017 and 2023. No evidence App Review distinguishes V4 from JavaScriptCore, or even detects the difference. Confidence: medium (absence of evidence; Felgo is a dev tool, not a consumer app).
-- Risk model for Logos **[I]**: a general-purpose app shell that fetches arbitrary QML "modules" from a server is structurally what Apple has been removing in 2026 (an app that hosts other apps, cf. 4.7 which explicitly permits only HTML5/JavaScript mini apps). Bug-fix/theme-level QML updates inside a fixed feature set are low risk.
+- Risk model for Logos **[I]**: a general-purpose app shell that fetches arbitrary QML "modules" from a server is structurally what Apple has been removing in 2026 (an app that hosts other apps; 4.7 permits hosted "plug-ins" but only under 4.7.1-4.7.5, and its named safe categories are HTML5/JavaScript mini apps). Bug-fix/theme-level QML updates inside a fixed feature set are low risk.
 
 ### (3) Safe alternatives, ranked
 
 1. **Bundled QML + downloaded data only.** All QML/JS compiled into the binary (qmlcachegen/qmlsc), server delivers JSON/config/assets. Fully compliant with both texts. Caveat from the Setgreet case: if the app's *purpose* looks like "preview unreviewed apps", data-only does not save you; keep the feature set fixed and reviewable.
 2. **Bundled QML with downloaded QML limited to bug fixes and presentation** (same components, no new screens/capabilities, signed and pinned updates, kill switch). Within 3.3.1(B) conditions (a)-(c); arguable under 2.5.2 as "not introducing or changing features". Same risk class as Expo/CodePush OTA today. Mitigations: never expose reflection or native bridges to downloaded QML; no `dlopen`/`QLibrary` reachable from QML; ship updates only for the current advertised feature set.
-3. **WKWebView-hosted HTML/JS (and wasm inside it)** for the dynamic surface. Explicitly contemplated by guideline 4.7 (HTML5/JavaScript mini apps, with 4.7.1-4.7.5 obligations) and by 2.5.6. Same legal status as option 2 under the DPLA, but the longest-standing reviewer-accepted pattern. Costs: two UI stacks, Qt WebView on iOS wraps WKWebView (Qt WebView module). Note the Anything case: a web-view preview did not rescue an app whose purpose was hosting user-generated apps.
+3. **WKWebView-hosted HTML/JS (and wasm inside it)** for the dynamic surface. Explicitly contemplated by guideline 4.7 (HTML5/JavaScript mini apps and plug-ins, with 4.7.1-4.7.5 obligations) and by 2.5.6. Same legal status as option 2 under the DPLA, but the longest-standing reviewer-accepted pattern. Costs: two UI stacks, Qt WebView on iOS wraps WKWebView (Qt WebView module). Note the Anything case: a web-view preview did not rescue an app whose purpose was hosting user-generated apps.
 4. **Embedded non-WebKit wasm interpreter (wasm3 etc.) executing downloaded modules.** Same DPLA status as options 2-3, must be a pure interpreter (no JIT on iOS), but matches the "running remote scripts based on the contents of the downloaded script" language in Apple's 2017 template and has no acceptance precedent. Rank last.
 5. **Not viable**: downloading native plugins/dylibs; any downloaded code that reaches private API or the Objective-C runtime.
 
 Open items: whether Apple's October 8, 2025 change to 3.3.1(B) altered anything beyond wording (Apple's note says only "Updated requirements related to interpreted code"; a diff against the pre-October-2025 PDF was not obtained).
-
-## Addendum (2026-09-09): guideline 4.7 subsections, verbatim **[P]**
-
-Source: https://developer.apple.com/app-store/review/guidelines/ fetched 2026-09-09.
-
-> 4.7 Apps may offer certain software that is not embedded in the binary, specifically HTML5 and JavaScript mini apps and mini games, streaming games, chatbots, and plug-ins. Additionally, retro game console and PC emulator apps can offer to download games. You are responsible for all such software offered in your app, including ensuring that such software complies with these Guidelines and all applicable laws. Software that does not comply with one or more guidelines will lead to the rejection of your app. You must also ensure that the software adheres to the additional rules that follow in 4.7.1 through 4.7.5.
->
-> 4.7.1 Software offered in apps under this rule must: follow all privacy guidelines (Guideline 5.1); include a method for filtering objectionable material, a mechanism to report content and timely responses to concerns, and the ability to block abusive users; and follow Guideline 3.1 in order to offer digital goods or services to end users.
-> 4.7.2 Your app may not extend or expose native platform APIs or technologies to the software without prior permission from Apple.
-> 4.7.3 Your app may not share data or privacy permissions to any individual software offered in your app without explicit user consent in each instance.
-> 4.7.4 You must provide an index of software and metadata available in your app. It must include universal links that lead to all of the software offered in your app.
-> 4.7.5 Your app must provide a way for users to identify software that exceeds the app's age rating, and use an age restriction mechanism based on verified or declared age to limit access by underage users.
-
-Observations **[I]**:
-- The pre-2024 "store or store-like interface" prohibition and the "only capabilities available in a standard WebKit view" bullet are gone. 4.7 no longer names an engine; "HTML5 and JavaScript" is the only format qualifier. wasm executed by WebKit is part of that platform.
-- 4.7.2 is the clause a Logos webview bridge must be designed against: exposing the app's own module APIs (Logos core services) is not the same as exposing iOS platform APIs, but a bridge that proxies raw filesystem/network/camera would be.
-- 4.7.3 maps directly onto Logos capability tokens with a per-grant user consent step.
-- 4.7.4 obliges the module catalog to publish an index with universal links per module.
