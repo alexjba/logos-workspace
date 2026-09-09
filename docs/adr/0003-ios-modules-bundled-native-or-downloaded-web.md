@@ -26,6 +26,10 @@ installing and failing. See `docs/research/ios-runtime-qml-policy.md`.
   core with the Native container for Bundled modules and the Web container for
   Downloaded ones.
 
+- One webview per Downloaded module (its own WebContent process), so
+  isolation, crash blast radius and message attribution are per module as on
+  desktop; the host owns a live-module budget and evicts background modules.
+
 ## Considered options
 
 - wasm/Web container as the Downloaded format on every platform: one artifact
