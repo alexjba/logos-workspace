@@ -147,3 +147,21 @@ Apple DTS statement on embedded interpreters, https://developer.apple.com/forums
 5. **Not viable**: downloading native plugins/dylibs; any downloaded code that reaches private API or the Objective-C runtime.
 
 Open items: whether Apple's October 8, 2025 change to 3.3.1(B) altered anything beyond wording (Apple's note says only "Updated requirements related to interpreted code"; a diff against the pre-October-2025 PDF was not obtained).
+
+## Addendum (2026-09-09): guideline 4.7 subsections, verbatim **[P]**
+
+Source: https://developer.apple.com/app-store/review/guidelines/ fetched 2026-09-09.
+
+> 4.7 Apps may offer certain software that is not embedded in the binary, specifically HTML5 and JavaScript mini apps and mini games, streaming games, chatbots, and plug-ins. Additionally, retro game console and PC emulator apps can offer to download games. You are responsible for all such software offered in your app, including ensuring that such software complies with these Guidelines and all applicable laws. Software that does not comply with one or more guidelines will lead to the rejection of your app. You must also ensure that the software adheres to the additional rules that follow in 4.7.1 through 4.7.5.
+>
+> 4.7.1 Software offered in apps under this rule must: follow all privacy guidelines (Guideline 5.1); include a method for filtering objectionable material, a mechanism to report content and timely responses to concerns, and the ability to block abusive users; and follow Guideline 3.1 in order to offer digital goods or services to end users.
+> 4.7.2 Your app may not extend or expose native platform APIs or technologies to the software without prior permission from Apple.
+> 4.7.3 Your app may not share data or privacy permissions to any individual software offered in your app without explicit user consent in each instance.
+> 4.7.4 You must provide an index of software and metadata available in your app. It must include universal links that lead to all of the software offered in your app.
+> 4.7.5 Your app must provide a way for users to identify software that exceeds the app's age rating, and use an age restriction mechanism based on verified or declared age to limit access by underage users.
+
+Observations **[I]**:
+- The pre-2024 "store or store-like interface" prohibition and the "only capabilities available in a standard WebKit view" bullet are gone. 4.7 no longer names an engine; "HTML5 and JavaScript" is the only format qualifier. wasm executed by WebKit is part of that platform.
+- 4.7.2 is the clause a Logos webview bridge must be designed against: exposing the app's own module APIs (Logos core services) is not the same as exposing iOS platform APIs, but a bridge that proxies raw filesystem/network/camera would be.
+- 4.7.3 maps directly onto Logos capability tokens with a per-grant user consent step.
+- 4.7.4 obliges the module catalog to publish an index with universal links per module.
