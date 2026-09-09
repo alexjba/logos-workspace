@@ -23,7 +23,15 @@ const planSchema = z.object({
 
 // FLEET_MAX_ITERATIONS=1 for a single-cycle smoke run.
 const MAX_ITERATIONS = Number(process.env.FLEET_MAX_ITERATIONS ?? 10);
-const MODEL = "claude-fable-5";
+// Per-role models (installed from fleet.env); FLEET_MODEL_PLANNER etc. override at runtime.
+const MODELS = {
+  PLANNER: "claude-fable-5-1",
+  IMPLEMENTER: "claude-opus-5",
+  REVIEWER: "claude-fable-5-1",
+  MERGER: "claude-opus-5",
+} as const;
+type Role = keyof typeof MODELS;
+const modelFor = (role: Role): string => process.env[`FLEET_MODEL_${role}`] || MODELS[role];
 const IMAGE = "logos-workspace-agent:local";
 const CLOUD = process.env.SANDCASTLE_SANDBOX === "none";
 // FLEET_VENUE=linux|mac selects which labeled issues this loop may plan (spec: venues).
@@ -55,8 +63,10 @@ const mounts = existsSync(".sandcastle/adapter/mounts.json")
   : [];
 
 const makeSandbox = () => (CLOUD ? noSandbox() : docker({ imageName: IMAGE, mounts }));
-const makeAgent = () =>
-  CLOUD ? sandcastle.claudeCode(MODEL, { permissionMode: "bypassPermissions" }) : sandcastle.claudeCode(MODEL);
+const makeAgent = (role: Role) =>
+  CLOUD
+    ? sandcastle.claudeCode(modelFor(role), { permissionMode: "bypassPermissions" })
+    : sandcastle.claudeCode(modelFor(role));
 // Runs inside each issue sandbox once, before the implementer.
 const sandboxHooks = existsSync(".sandcastle/adapter/bootstrap.sh")
   ? { sandbox: { onSandboxReady: [{ command: "bash .sandcastle/adapter/bootstrap.sh" }] } }
@@ -65,14 +75,15 @@ const sandboxHooks = existsSync(".sandcastle/adapter/bootstrap.sh")
 type Outcome = { commits: { sha: string }[]; manifest: Manifest | null };
 
 for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
-  console.log(`\n=== Iteration ${iteration}/${MAX_ITERATIONS} (venue: ${VENUE}, scope: ${SCOPE_FLAGS}) ===\n`);
+  console.log(`\n=== Iteration ${iteration}/${MAX_ITERATIONS} (venue: ${VENUE}, scope: ${SCOPE_FLAGS}) ===`);
+  console.log(`models: planner=${modelFor("PLANNER")} implementer=${modelFor("IMPLEMENTER")} reviewer=${modelFor("REVIEWER")} merger=${modelFor("MERGER")}\n`);
   syncHostCheckout();
 
   const plan = await sandcastle.run({
     sandbox: makeSandbox(),
     name: "planner",
     maxIterations: 1,
-    agent: makeAgent(),
+    agent: makeAgent("PLANNER"),
     promptFile: "./.sandcastle/plan-prompt.md",
     promptArgs: { VENUE, SCOPE_FLAGS },
     output: sandcastle.Output.object({ tag: "plan", schema: planSchema }),
@@ -96,7 +107,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
         const implement = await sandbox.run({
           name: "implementer",
           maxIterations: 100,
-          agent: makeAgent(),
+          agent: makeAgent("IMPLEMENTER"),
           promptFile: "./.sandcastle/implement-prompt.md",
           promptArgs: { TASK_ID: issue.id, ISSUE_TITLE: issue.title, BRANCH: issue.branch, VENUE: environmentVenue(VENUE) },
         });
@@ -105,7 +116,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
           const review = await sandbox.run({
             name: "reviewer",
             maxIterations: 1,
-            agent: makeAgent(),
+            agent: makeAgent("REVIEWER"),
             promptFile: "./.sandcastle/review-prompt.md",
             promptArgs: { BRANCH: issue.branch },
           });
@@ -145,7 +156,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
     sandbox: makeSandbox(),
     name: "merger",
     maxIterations: 1,
-    agent: makeAgent(),
+    agent: makeAgent("MERGER"),
     promptFile: "./.sandcastle/merge-prompt.md",
     promptArgs: {
       BRANCHES: completed.map((c) => `- ${c.issue.branch}`).join("\n"),

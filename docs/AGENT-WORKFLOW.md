@@ -33,6 +33,7 @@ Humans upstream changes to the original orgs manually; agents never do.
     -t logos-workspace-agent:local .sandcastle
   ```
 
+- **Models.** Per role from `fleet.env` (planner `claude-fable-5-1`, implementer `claude-opus-5`, reviewer `claude-fable-5-1`, merger `claude-opus-5`); `FLEET_MODEL_<ROLE>` overrides at runtime.
 - **Scope.** `FLEET_LABELS=a,b` (AND) and `FLEET_MILESTONE="..."` select the issues a run works; unset means the installed label (`fleet-smoke`). `FLEET_MAX_PARALLEL=N` caps concurrent issue pipelines.
 - **Venues.** Every loop is started with `FLEET_VENUE=linux` (default), `FLEET_VENUE=mac`, or `FLEET_VENUE=all` (one Mac covers everything). An issue runs on the Mac only if it carries the label `venue:mac`; everything else is Linux. One loop per venue may run at a time; two loops on the same venue collide on `sandcastle/issue-N`.
 - **Mac venue guard.** `.claude/hooks/mac-guard.sh` is active under `FLEET_VENUE=mac` or `all`: it blocks `sudo`, keychain, `launchctl`, destructive `adb`/`fastboot`/`simctl` verbs, and any device not listed in `.sandcastle/devices.env`. Empty allowlists mean build-only.
