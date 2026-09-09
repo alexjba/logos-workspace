@@ -346,7 +346,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     process-stats = {
-      url = "github:logos-fleet/process-stats/33ace1270f90c89b3565e803139c0970fcd1ce8f";
+      url = "github:logos-fleet/process-stats/6e0aade77db1b03cc08559c5700c687fa6f00269";
       inputs.logos-nix.follows = "logos-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
