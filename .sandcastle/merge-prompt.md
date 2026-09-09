@@ -24,6 +24,7 @@ Run `gh auth setup-git` once so `git push` works over HTTPS. You operate on the 
 
 For each listed sub-repo with `pushed: true`, using only the GitHub API (no local checkout of the sub-repo is needed):
 
+- First compare: `gh api repos/<fork>/compare/<base>...<branch> -q .ahead_by`. If `0`, the branch adds nothing over `<base>` (the pin points at commits already on the fork's default branch): there is nothing to land for this sub-repo, treat it as merged and continue.
 - `gh pr create --repo <fork> --head <branch> --base <base> --title "<concise title>" --body "Part of logos-fleet/logos-workspace#<issue>. <summary>"`. If a PR already exists for that head, reuse it (`gh pr list --repo <fork> --head <branch>`).
 - `gh pr view <n> --repo <fork> --json mergeable -q .mergeable`. If `CONFLICTING`: comment on the monorepo issue naming the sub-repo, do NOT open the monorepo PR for this issue, and continue with the next issue. The next cycle's implementer rebases.
 - Otherwise `gh pr merge <n> --repo <fork> --merge` (sub-repo forks have no required checks; the merge is immediate).
