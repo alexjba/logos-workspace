@@ -78,3 +78,11 @@ _Avoid_: JS bridge, native bridge, RPC shim
 **Bare module**:
 The protocol-free module artifact: impl plus core, lp_* symbols left undefined for the host image to supply. The build shape shared by the iOS embedded framework and the Wasm host.
 _Avoid_: cdylib (names an interface kind, not the artifact), framework build
+
+**Store shell**:
+A Basecamp (or product) build distributed through the App Store or Google Play. Runs Bundled native modules and installs `web` variants only.
+_Avoid_: mobile build (a sideloaded Android build is mobile but not a Store shell), release build
+
+**Bundled set**:
+The modules a Store shell embeds at build time, pulled as signed native variants from the catalog. Closed under dependencies.
+_Avoid_: built-in modules, first-party set (ownership is not the criterion)
