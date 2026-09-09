@@ -78,6 +78,10 @@ After sub-repo commits are pushed: `.sandcastle/adapter/pin.sh <repo...>` stages
 `<type>(<scope>): summary` with types feat/fix/chore/docs; scope is the sub-repo name or `workspace`.
 
 
+# VENUE: {{VENUE}}
+
+!`cat .sandcastle/adapter/ENVIRONMENT.{{VENUE}}.md`
+
 # COMMIT
 
 Monorepo commit message: adapter style above, reference the issue (`#{{TASK_ID}}`), key decisions, files changed, blockers or notes for the next iteration. Keep it concise. Sub-repo commits follow the same style.

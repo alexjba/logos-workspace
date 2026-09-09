@@ -10,9 +10,12 @@ import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
 import { noSandbox } from "@ai-hero/sandcastle/sandboxes/no-sandbox";
 import { z } from "zod";
 import { readManifest, manifestsToMarkdown, type Manifest } from "./lib/manifest.mts";
+import { parseVenue, filterPlanByVenue } from "./lib/venue.mts";
 
 const planSchema = z.object({
-  issues: z.array(z.object({ id: z.string(), title: z.string(), branch: z.string() })),
+  issues: z.array(
+    z.object({ id: z.string(), title: z.string(), branch: z.string(), venue: z.enum(["linux", "mac"]) }),
+  ),
 });
 
 // FLEET_MAX_ITERATIONS=1 for a single-cycle smoke run.
@@ -20,6 +23,8 @@ const MAX_ITERATIONS = Number(process.env.FLEET_MAX_ITERATIONS ?? 10);
 const MODEL = "claude-fable-5";
 const IMAGE = "logos-workspace-agent:local";
 const CLOUD = process.env.SANDCASTLE_SANDBOX === "none";
+// FLEET_VENUE=linux|mac selects which labeled issues this loop may plan (spec: venues).
+const VENUE = parseVenue(process.env.FLEET_VENUE);
 
 // Adapter-specific persistent mounts (e.g. the Nix store): optional
 // .sandcastle/adapter/mounts.json holding [{hostPath, sandboxPath}].
@@ -38,7 +43,7 @@ const sandboxHooks = existsSync(".sandcastle/adapter/bootstrap.sh")
 type Outcome = { commits: { sha: string }[]; manifest: Manifest | null };
 
 for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
-  console.log(`\n=== Iteration ${iteration}/${MAX_ITERATIONS} ===\n`);
+  console.log(`\n=== Iteration ${iteration}/${MAX_ITERATIONS} (venue: ${VENUE}) ===\n`);
 
   const plan = await sandcastle.run({
     sandbox: makeSandbox(),
@@ -46,9 +51,11 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
     maxIterations: 1,
     agent: makeAgent(),
     promptFile: "./.sandcastle/plan-prompt.md",
+    promptArgs: { VENUE },
     output: sandcastle.Output.object({ tag: "plan", schema: planSchema }),
   });
-  const issues = plan.output.issues;
+  const { kept: issues, dropped } = filterPlanByVenue(plan.output.issues, VENUE);
+  for (const d of dropped) console.warn(`  ! planner emitted issue ${d.id} for venue ${d.venue}; this loop is ${VENUE}, skipping`);
   if (issues.length === 0) {
     console.log("No unblocked issues to work on. Exiting.");
     break;
@@ -69,7 +76,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
           maxIterations: 100,
           agent: makeAgent(),
           promptFile: "./.sandcastle/implement-prompt.md",
-          promptArgs: { TASK_ID: issue.id, ISSUE_TITLE: issue.title, BRANCH: issue.branch },
+          promptArgs: { TASK_ID: issue.id, ISSUE_TITLE: issue.title, BRANCH: issue.branch, VENUE },
         });
         let commits = implement.commits;
         if (commits.length > 0) {

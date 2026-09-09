@@ -20,6 +20,10 @@ land until they merge, so do not re-plan it this cycle.
 
 </open-prs>
 
+# VENUE
+
+This loop runs on venue **{{VENUE}}**. An issue's venue is `mac` if and only if it carries the label `venue:mac`; every other issue is `linux`. Never infer `mac` from the issue text. Plan ONLY issues whose venue equals `{{VENUE}}`; issues for the other venue are handled by another loop and must not appear in your plan at all (not even as blocked). Emit the venue in each planned entry.
+
 # TASK
 
 Analyze the open issues and build a dependency graph. For each issue, determine whether it **blocks** or **is blocked by** any other open issue.
@@ -40,7 +44,7 @@ For each unblocked issue, assign the branch name `sandcastle/issue-{id}` (no slu
 Output your plan as a JSON object wrapped in `<plan>` tags:
 
 <plan>
-{"issues": [{"id": "42", "title": "Fix auth bug", "branch": "sandcastle/issue-42"}]}
+{"issues": [{"id": "42", "title": "Fix auth bug", "branch": "sandcastle/issue-42", "venue": "{{VENUE}}"}]}
 </plan>
 
 Include only unblocked issues. If every issue is blocked by another open issue (not by open PRs), include the single highest-priority candidate.

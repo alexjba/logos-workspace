@@ -1,0 +1,1 @@
+This is the Linux venue (`evo-wsl`): headless, no devices, no simulators. Anything needing adb, Xcode, or a phone is out of scope here; if the issue requires it, comment on the issue that it needs the `venue:mac` label and stop.
