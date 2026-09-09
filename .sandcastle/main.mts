@@ -41,6 +41,9 @@ const BASE_BRANCH = "master";
 const SCOPE_FLAGS = scopeFlags(parseLabels(process.env.FLEET_LABELS, "fleet-smoke"), process.env.FLEET_MILESTONE);
 // FLEET_MAX_PARALLEL caps concurrent issue pipelines (implementer + reviewer); default unlimited.
 const MAX_PARALLEL = Number(process.env.FLEET_MAX_PARALLEL ?? Infinity);
+// FLEET_IDLE_TIMEOUT: seconds an agent may stay silent (a long nix build inside one Bash call) before
+// sandcastle kills it. Must exceed the agent's BASH_MAX_TIMEOUT_MS; sandcastle's default is 600.
+const IDLE_TIMEOUT = Number(process.env.FLEET_IDLE_TIMEOUT ?? 4500);
 
 // Plan from the latest base: the merger of another loop may have advanced origin since the last cycle.
 const syncHostCheckout = () => {
@@ -83,6 +86,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
     sandbox: makeSandbox(),
     name: "planner",
     maxIterations: 1,
+    idleTimeoutSeconds: IDLE_TIMEOUT,
     agent: makeAgent("PLANNER"),
     promptFile: "./.sandcastle/plan-prompt.md",
     promptArgs: { VENUE, SCOPE_FLAGS },
@@ -107,6 +111,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
         const implement = await sandbox.run({
           name: "implementer",
           maxIterations: 100,
+          idleTimeoutSeconds: IDLE_TIMEOUT,
           agent: makeAgent("IMPLEMENTER"),
           promptFile: "./.sandcastle/implement-prompt.md",
           promptArgs: { TASK_ID: issue.id, ISSUE_TITLE: issue.title, BRANCH: issue.branch, VENUE: environmentVenue(VENUE) },
@@ -116,6 +121,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
           const review = await sandbox.run({
             name: "reviewer",
             maxIterations: 1,
+            idleTimeoutSeconds: IDLE_TIMEOUT,
             agent: makeAgent("REVIEWER"),
             promptFile: "./.sandcastle/review-prompt.md",
             promptArgs: { BRANCH: issue.branch },
@@ -156,6 +162,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
     sandbox: makeSandbox(),
     name: "merger",
     maxIterations: 1,
+    idleTimeoutSeconds: IDLE_TIMEOUT,
     agent: makeAgent("MERGER"),
     promptFile: "./.sandcastle/merge-prompt.md",
     promptArgs: {

@@ -68,6 +68,9 @@ Read `CLAUDE.md` for the `ws` CLI. Key facts: `--auto-local` overrides flake inp
 
 - Verify touched sub-repos: `.sandcastle/adapter/verify.sh <repo...>` (runs `ws test <repo...> --auto-local`). Also test at least one direct dependent (`ws graph <repo>`).
 - First builds are slow (minutes); do not abort them. Cache hits make later builds fast.
+- A single Bash call may run for up to 60 minutes (pass `timeout` in ms, max 3600000). For anything
+  longer, start it with `run_in_background` and poll its log; never leave the session silent for over
+  an hour, the harness aborts an agent that produces no output for that long.
 
 # PIN
 
