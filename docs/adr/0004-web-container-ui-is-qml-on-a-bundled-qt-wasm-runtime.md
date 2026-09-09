@@ -1,5 +1,5 @@
 ---
-status: proposed — accepted once the WKWebView device spike passes
+status: accepted 2026-09-09 (device spike passed with caveats)
 ---
 # The Web container renders module UI as QML on one bundled Qt-for-WebAssembly runtime; HTML/JS is allowed but not the primary path
 
@@ -17,10 +17,24 @@ remain allowed because the container is a webview anyway. See
 
 ## Consequences
 
-- A device spike gates this: bundled runtime loaded through a custom URL
-  scheme in WKWebView, WebGL2 rendering, memory per live module, keyboard,
-  cold start. If it fails, HTML/JS becomes primary and the design system
-  needs a web edition.
+- Spike passed 2026-09-09 on iPhone simulator, iPad Air and a Samsung S21 FE
+  (Qt 6.11.1 wasm single-threaded, emsdk 4.0.7, Logos.Theme/Controls linked
+  in): WebGL2 present, design system renders, a remote QML document importing
+  Logos.Controls instantiates at runtime, keyboard and touch scrolling work,
+  no console errors. Report: `docs/research/spikes/qt-wasm-in-wkwebview.md`.
+- Budget per live QML runtime: ~26 MB wasm (6.8 MB brotli), 2.6–3.0 s cold
+  start to first frame (1.3–2 s warm), 185–240 MB for the WebContent /
+  renderer process. A phone therefore keeps the QML runtime alive only for
+  the visible Downloaded module; background modules keep their Wasm host and
+  drop their UI webview. The Native container's live-module budget (ADR 0003)
+  is sized by this number.
+- Load path: `file://` is dead on both platforms. On iOS a WKURLSchemeHandler
+  serves the runtime bytes, but Qt's network layer refuses custom schemes, so
+  QML documents fetched at runtime arrive either through JS fetch plus
+  `createQmlObject` with a qrc base URL (no server needed) or through an
+  in-app loopback HTTP listener (the only path that also yields
+  `crossOriginIsolated`, irrelevant while single-threaded). Android's
+  WebViewAssetLoader is https and needs neither.
 - Two new transports: QtRO over MessagePort (QML runtime <-> Wasm host) and
   logos-protocol over the webview bridge (Wasm host <-> core).
 - Everything in the Web container is single-threaded; concurrency is
