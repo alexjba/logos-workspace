@@ -66,9 +66,11 @@ const mounts = existsSync(".sandcastle/adapter/mounts.json")
   : [];
 
 const makeSandbox = () => (CLOUD ? noSandbox() : docker({ imageName: IMAGE, mounts }));
+// On a host venue agents run in Claude Code's "auto" permission mode (classifier-gated), never
+// bypassPermissions; the project hooks (.claude/hooks) stay active in either mode.
 const makeAgent = (role: Role) =>
   CLOUD
-    ? sandcastle.claudeCode(modelFor(role), { permissionMode: "bypassPermissions" })
+    ? sandcastle.claudeCode(modelFor(role), { permissionMode: "auto" })
     : sandcastle.claudeCode(modelFor(role));
 // Runs inside each issue sandbox once, before the implementer.
 const sandboxHooks = existsSync(".sandcastle/adapter/bootstrap.sh")
