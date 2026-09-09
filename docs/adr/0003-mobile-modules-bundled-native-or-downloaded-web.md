@@ -24,16 +24,20 @@ app at all rather than installing and failing. See `docs/research/ios-runtime-qm
   a capability grant, and a published module index with universal links.
 - Downloaded QML executed by the native Qt engine is permitted only in dogfood
   builds that never go through App Review; the product never relies on it.
-- A Remote core (phone as a client of the user's desktop) is a dogfood posture
-  for the mobile track, not the product architecture: the phone runs a local
-  core with the Native container for Bundled modules and the Web container for
-  Downloaded ones.
+- The phone runs a local core: the Native container for Bundled modules and
+  the Web container for Downloaded ones.
 
 - One webview per Downloaded module (its own WebContent process), so
   isolation, crash blast radius and message attribution are per module as on
   desktop; the host owns a live-module budget and evicts background modules.
 
 ## Considered options
+
+- Remote core for a first phase (the phone as a client of the user's own
+  desktop core over TCP+TLS, QML fetched from the desktop): dropped 2026-09-09.
+  It needed a wire implementation of the runtime seam, Qt Remote Objects
+  tunnelled over the network and remote QML, none of which survives into the
+  product architecture, and it made the phone unusable without a desktop.
 
 - wasm/Web container as the Downloaded format on every platform: one artifact
   and one behaviour, but it would remove every existing native catalog module

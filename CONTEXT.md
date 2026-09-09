@@ -59,9 +59,6 @@ _Avoid_: in-proc loader
 The container that runs Downloaded modules inside a platform webview (WKWebView on iOS). The only store-legal home for runtime-downloaded code on iOS.
 _Avoid_: wasm container (wasm is one way to fill it, not the container itself)
 
-**Remote core**:
-A Logos runtime running on the user's own desktop that a mobile app attaches to as a client, so modules, keys and state stay on the desktop. A dogfood posture for the mobile track, not a product promise; never a hosted (cloud) core.
-_Avoid_: cloud core, hosted core, server
 
 **Web variant**:
 The `web` LGX variant of a module: the artifact the Web container runs. Required for a module to be listed on iOS.
