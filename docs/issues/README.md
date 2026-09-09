@@ -25,3 +25,50 @@ Build-platform matrix (verification is part of every toolchain slice):
 |---|---|---|
 | Android (all ABIs) | aarch64-darwin (dev Mac), x86_64-linux (WSL: `ssh evo-wsl`, Determinate Nix 2.35, strict sandbox, 32 cores / 30 GB) | Windows is not a Logos build platform |
 | iOS (device + simulator) | aarch64-darwin only | needs Xcode |
+
+## Milestone 1 · Bundled and Downloaded modules on iOS and Android (2026-09-09)
+
+Tracer-bullet slices for `docs/prd/store-shell-milestone-1.md`. Local; not
+filed on GitHub. Branches go to `alexjba` forks only, named `m1/<nn>-<slug>`.
+
+| # | Slice | Repos, landing order | Blocked by | PR / status |
+|---|---|---|---|---|
+| 13 | logos-nix iOS Qt exports the symbols Bare modules resolve upward | logos-nix (fork) | – | open |
+| 14 | One variant vocabulary for mobile and web across lgx, lgpm, lgpd | logos-package -> logos-package-manager -> logos-package-downloader | – | open |
+| 15 | Builder produces the Bare module artifact and a gate proves it protocol-free | logos-module-builder (fork); logos-test-modules for the counter | – | open |
+| 16 | Native container in liblogos, driven by `logoscore --container inproc` | logos-protocol (Local mode fixes) -> logos-plugin-qt (generic glue) -> logos-liblogos -> logos-logoscore-cli | 15 | open |
+| 17 | Two Bare modules in one process: capability tokens, cross-module calls, events | logos-capability-module (bare output) -> logos-test-modules -> logos-liblogos | 16 | open |
+| 18 | Bare module as an iOS embedded framework and an Android shared object, loaded on devices | logos-nix (13) -> logos-module-builder -> logos-basecamp (host) | 13, 15, 16 | open |
+| 19 | A `ui_qml` app's iOS variant as a framework, loaded into the app's QML engine | logos-module-builder -> logos-plugin-qt (view plugin base) -> logos-basecamp | 18 | open |
+| 20 | Catalog-driven Bundled-set build: `ws build logos-basecamp --target <variant> --bundle <apps>` | logos-package (14) -> nix-bundle-logos-module-install -> logos-basecamp -> logos-workspace (`ws`) | 14, 18, 19 | open |
+| 21 | Chat, delivery and libp2p cross-built as Bare modules for iOS and Android | logos-nix (nim/Rust cross) -> logos-libp2p-module -> logos-delivery-module -> logos-chat-module | 13, 15 | open |
+| 22 | Milestone: messaging on a phone from a catalog-assembled Bundled set | logos-basecamp -> logos-workspace | 20, 21 | open |
+| 23 | The web transport: plain protocol messages over a message channel | logos-protocol (fork) | – | open |
+| 24 | Browser JS SDK speaking the web transport | logos-js-sdk (fork) | 23 | open |
+| 25 | Web container and `web` format loader on desktop, driven by `logoscore --container web` | logos-liblogos -> logos-module-loader (web loader package) -> logos-logoscore-cli | 23, 24 | open |
+| 26 | Wasm host: a Bare module and logos-protocol compiled to WebAssembly, running in a Worker | logos-nix (Emscripten pin) -> logos-protocol (wasm build) -> logos-module-builder (`web` output) -> logos-liblogos | 15, 25 | open |
+| 27 | Qt-wasm QML runtime in nix and a `ui_qml` app's `web` variant rendered in the Web container | logos-nix (Qt wasm from source) -> logos-design-system -> logos-view-module-runtime (MessagePort QtRO) -> logos-module-builder -> logos-liblogos | 26 | open |
+| 28 | Web container on iOS and Android with the live-runtime budget | logos-basecamp (mobile host) | 20, 27 | open |
+| 29 | Catalog install on a Store shell: availability, consent, trust, report, index | logos-package-downloader-module -> logos-package-manager-module -> logos-capability-module -> logos-basecamp | 28 | open |
+| 30 | First real `web` variants: keystore and wallet UI with a storage abstraction | logos-rust-sdk (storage trait) -> logos-evm-keystore-module -> logos-evm-wallet-ui | 27, 29 | open |
+| 31 | CI for both containers, developer docs, Status ADR 0007 amendment | logos-workspace (`ws test`) -> logos-tutorial -> status-desktop (text only) | 16, 25 | open |
+
+Start now, in parallel: 13, 14, 15, 23. First integration points: 16 (native), 25 (web).
+
+### PR header (paste at the top of every PR body)
+
+```
+Slice: m1/<nn> — <title>            (docs/issues/<nn>-<slug>.md on docs/mobile-bring-up)
+Lands after: <PR links this stacks on, or "nothing">
+Workspace branch: <workspace branch whose lock includes this PR's commit>
+Seam: <which test seam from the PRD this is verified at>
+Verify: <one command from the acceptance criteria, with its expected output>
+```
+
+Architecture context is one link (the synthesis page or `docs/mobile-core-architecture.md`), never restated per PR. No ADR numbers in repos that do not contain the ADR.
+
+### Landing order across repos
+
+Pins move forward only in dependency order; `ws update-order <repo> --commands` prints it for any change. For milestone 1 the usual path is:
+logos-package → logos-protocol → logos-plugin-qt → logos-liblogos → logos-module-builder / logos-module-loader → logos-nix → modules → logos-basecamp → logos-workspace pin bump.
+Update the PR column above in the same commit that moves a pin.
