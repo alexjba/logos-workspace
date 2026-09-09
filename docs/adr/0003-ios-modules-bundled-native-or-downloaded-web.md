@@ -5,14 +5,16 @@ downloading executable code, so a native module on iOS can only be a Bundled
 module fixed at build time. Runtime installation from the catalog is legal on
 iOS solely through App Store guideline 4.7 (plug-ins not embedded in the binary,
 run by WebKit), so a Downloaded module on iOS runs in the Web container from the
-package's `web` LGX variant. Desktop and Android keep loading native Downloaded
-modules; a module without a `web` variant is not listed on iOS at all rather
-than installing and failing. See `docs/research/ios-runtime-qml-policy.md`.
+package's `web` LGX variant. The Web container exists on every platform;
+desktop and Android additionally keep loading native Downloaded modules. A
+module without a `web` variant is not listed on iOS at all rather than
+installing and failing. See `docs/research/ios-runtime-qml-policy.md`.
 
 ## Consequences
 
 - One catalog, per-platform variants: authors who want iOS reach ship a `web`
-  variant; the host-services contract that variant needs (network, storage,
+  variant, which also runs unchanged on desktop and Android, so one dev loop
+  covers every platform; the host-services contract that variant needs (network, storage,
   keys via Logos APIs, never raw platform APIs) is what guideline 4.7.2
   requires anyway.
 - 4.7.3 and 4.7.4 become product requirements: per-module user consent before
