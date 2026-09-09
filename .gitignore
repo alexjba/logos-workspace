@@ -20,3 +20,5 @@ result-*
 .dev-shell-cache/
 .dev-shell-cache/
 .dev-shell-cache/
+.fleet/
+node_modules/

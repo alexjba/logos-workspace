@@ -1,0 +1,36 @@
+# Agent Fleet Workflow (logos-fleet/logos-workspace)
+
+This fork and every submodule fork under the `logos-fleet` org exist for autonomous agents.
+Humans upstream changes to the original orgs manually; agents never do.
+
+## Landing model
+
+- Every submodule's `origin` is `https://github.com/logos-fleet/<repo>.git`. All PRs are fork-internal.
+- Branch name everywhere: `sandcastle/issue-<N>`, in the monorepo and in every touched sub-repo.
+- A sub-repo change is landed only through a monorepo **pin commit** (gitlink + generated pin files). The merger lands sub-repo PRs first, then the monorepo PR (`Closes #N`).
+- Forks are synced from upstream by a human: `fleet-sync-forks <monorepo>` from the kit.
+
+## Sandcastle fleet
+
+`.sandcastle/` runs unattended agents in Docker via sandcastle. The loop's behavior is defined by `.sandcastle/main.mts` and `.sandcastle/*-prompt.md`; review standards in `.sandcastle/CODING_STANDARDS.md`; repo-specific build/verify/pin scripts in `.sandcastle/adapter/`.
+
+- **Task board:** label issues on `logos-fleet/logos-workspace` with **`sandcastle`**.
+- **Credentials** (`.sandcastle/.env`, gitignored): `CLAUDE_CODE_OAUTH_TOKEN`, and `GH_TOKEN` scoped to the `logos-fleet` org.
+- **Run:**
+
+  ```bash
+  docker build --provenance=false --sbom=false \
+    --build-arg AGENT_UID=$(id -u) --build-arg AGENT_GID=$(id -g) \
+    -t logos-workspace-agent:local .sandcastle
+  npm install
+  npm run sandcastle
+  ```
+
+  The merge phase operates on your checkout. Start from a clean `master` and don't work in this checkout while the loop runs.
+
+- **Cloud:** `SANDCASTLE_SANDBOX=none npm run sandcastle` runs agents as plain processes inside an already isolated host.
+- **One venue at a time.** Branch names are deterministic and the planner does no claiming; concurrent loops collide.
+
+## Guardrails
+
+`.claude/hooks/block-dangerous-git.sh` blocks force-push and history rewrites for every agent. Plain `git push` and PRs are allowed.
