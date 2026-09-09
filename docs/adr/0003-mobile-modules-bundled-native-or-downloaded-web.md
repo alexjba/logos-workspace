@@ -1,14 +1,17 @@
-# On iOS a module is either Bundled native or Downloaded into the Web container; desktop and Android keep native Downloaded modules
+# On store-distributed mobile apps a module is either Bundled native or Downloaded into the Web container; desktop and sideloaded Android keep native Downloaded modules
 
 iOS executes only code signed into the app bundle, and DPLA 3.3.1(B) forbids
 downloading executable code, so a native module on iOS can only be a Bundled
 module fixed at build time. Runtime installation from the catalog is legal on
 iOS solely through App Store guideline 4.7 (plug-ins not embedded in the binary,
 run by WebKit), so a Downloaded module on iOS runs in the Web container from the
-package's `web` LGX variant. The Web container exists on every platform;
-desktop and Android additionally keep loading native Downloaded modules. A
-module without a `web` variant is not listed on iOS at all rather than
-installing and failing. See `docs/research/ios-runtime-qml-policy.md`.
+package's `web` LGX variant. Google Play's Device and Network Abuse policy
+forbids downloading `.so` files from outside Play with the same webview/
+interpreter exception, so a Play-distributed Android app is under the same
+rule. The Web container exists on every platform; desktop, and Android builds
+distributed outside Play, additionally keep loading native Downloaded modules.
+A module without a `web` variant is not listed on a store-distributed mobile
+app at all rather than installing and failing. See `docs/research/ios-runtime-qml-policy.md`.
 
 ## Consequences
 

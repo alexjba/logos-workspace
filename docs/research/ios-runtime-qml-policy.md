@@ -207,3 +207,12 @@ Confirmed against the current agreement PDF (footer "LYL255, August 18, 2026", d
 5. **Not viable**: downloading native plugins/dylibs; any downloaded code that reaches private API or the Objective-C runtime.
 
 Open items: whether Apple's October 8, 2025 change to 3.3.1(B) altered anything beyond wording (Apple's note says only "Updated requirements related to interpreted code"; a diff against the pre-October-2025 PDF was not obtained).
+
+## Addendum (2026-09-09): Google Play, same question **[P]**
+
+Source: Google Play Developer Policy, "Device and Network Abuse", https://support.google.com/googleplay/android-developer/answer/9888379 fetched 2026-09-09.
+
+> An app may not download executable code (such as dex, JAR, .so files) from a source other than Google Play.
+> This restriction does not apply to code that runs in a virtual machine or an interpreter where either provides indirect access to Android APIs (such as JavaScript in a webview or browser).
+
+Consequence **[I]**: a Play-distributed Android app is under the same rule as iOS for Downloaded modules: native `.so` modules may not be downloaded; webview-hosted JS/wasm may. Native Downloaded modules on Android are only possible in builds distributed outside Play (direct APK, F-Droid).
