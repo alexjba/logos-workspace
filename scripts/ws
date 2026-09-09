@@ -2338,6 +2338,8 @@ Examples:
 # Used by `ws sync-graph` when generating flake.nix's auto-inputs section.
 # Base URL (org/repo) — override for repos outside logos-co or with ?dir=.
 get_base_repo_url() {
+  # fleet-kit: FLEET_ORG overrides the owner so pins resolve on the org forks.
+  if [[ -n "${FLEET_ORG:-}" ]]; then echo "github:${FLEET_ORG}/$1"; return; fi
   case "$1" in
     logos-blockchain-module)        echo "github:logos-blockchain/logos-blockchain-module" ;;
     logos-blockchain-ui)            echo "github:logos-blockchain/logos-blockchain-ui" ;;
