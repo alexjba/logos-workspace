@@ -33,8 +33,9 @@ Humans upstream changes to the original orgs manually; agents never do.
     -t logos-workspace-agent:local .sandcastle
   ```
 
-- **Venues.** Every loop is started with `FLEET_VENUE=linux` (default) or `FLEET_VENUE=mac`. An issue runs on the Mac only if it carries the label `venue:mac`; everything else is Linux. One loop per venue may run at a time; two loops on the same venue collide on `sandcastle/issue-N`.
-- **Mac venue guard.** `.claude/hooks/mac-guard.sh` is active only under `FLEET_VENUE=mac`: it blocks `sudo`, keychain, `launchctl`, destructive `adb`/`fastboot`/`simctl` verbs, and any device not listed in `.sandcastle/devices.env`. Empty allowlists mean build-only.
+- **Scope.** `FLEET_LABELS=a,b` (AND) and `FLEET_MILESTONE="..."` select the issues a run works; unset means the installed label (`fleet-smoke`). `FLEET_MAX_PARALLEL=N` caps concurrent issue pipelines.
+- **Venues.** Every loop is started with `FLEET_VENUE=linux` (default), `FLEET_VENUE=mac`, or `FLEET_VENUE=all` (one Mac covers everything). An issue runs on the Mac only if it carries the label `venue:mac`; everything else is Linux. One loop per venue may run at a time; two loops on the same venue collide on `sandcastle/issue-N`.
+- **Mac venue guard.** `.claude/hooks/mac-guard.sh` is active under `FLEET_VENUE=mac` or `all`: it blocks `sudo`, keychain, `launchctl`, destructive `adb`/`fastboot`/`simctl` verbs, and any device not listed in `.sandcastle/devices.env`. Empty allowlists mean build-only.
 
 ## Guardrails
 

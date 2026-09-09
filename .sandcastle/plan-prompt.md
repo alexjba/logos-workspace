@@ -4,7 +4,7 @@ Open issues on the monorepo fork, filtered to those ready for work:
 
 <issues-json>
 
-!`gh issue list --repo logos-fleet/logos-workspace --state open --label fleet-smoke --limit 100 --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'`
+!`gh issue list --repo logos-fleet/logos-workspace --state open {{SCOPE_FLAGS}} --limit 100 --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'`
 
 </issues-json>
 
@@ -22,13 +22,18 @@ land until they merge, so do not re-plan it this cycle.
 
 # VENUE
 
-This loop runs on venue **{{VENUE}}**. An issue's venue is `mac` if and only if it carries the label `venue:mac`; every other issue is `linux`. Never infer `mac` from the issue text. Plan ONLY issues whose venue equals `{{VENUE}}`; issues for the other venue are handled by another loop and must not appear in your plan at all (not even as blocked). Emit the venue in each planned entry.
+This loop runs on venue **{{VENUE}}**. An issue's venue is `mac` if and only if it carries the label `venue:mac`; every other issue is `linux`. Never infer `mac` from the issue text. Emit each issue's venue (`linux` or `mac`) in its planned entry.
+
+- If this venue is `linux` or `mac`: plan ONLY issues whose venue equals it; issues for the other venue are handled by another loop and must not appear in your plan at all (not even as blocked).
+- If this venue is `all`: one machine covers both venues; plan every unblocked issue regardless of its venue label.
 
 # TASK
 
 Analyze the open issues and build a dependency graph. For each issue, determine whether it **blocks** or **is blocked by** any other open issue.
 
-An issue B is **blocked by** issue A if:
+**Explicit dependencies are authoritative.** If an issue body has a "Blocked by" section (or GitHub's native blocked-by relation) naming other issues (`#N`), the issue is blocked while any of them is still open. The heuristics below only add blocks for overlaps the author did not list; they never remove an explicit one.
+
+An issue B is also **blocked by** issue A if:
 
 - B requires code or infrastructure that A introduces
 - B and A modify overlapping files, modules, or sub-repositories, making concurrent work likely to produce merge conflicts

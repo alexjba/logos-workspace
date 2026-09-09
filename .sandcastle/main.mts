@@ -10,7 +10,10 @@ import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
 import { noSandbox } from "@ai-hero/sandcastle/sandboxes/no-sandbox";
 import { z } from "zod";
 import { readManifest, manifestsToMarkdown, type Manifest } from "./lib/manifest.mts";
-import { parseVenue, filterPlanByVenue } from "./lib/venue.mts";
+import { parseVenue, filterPlanByVenue, environmentVenue } from "./lib/venue.mts";
+import { parseLabels, scopeFlags } from "./lib/scope.mts";
+import { runPool } from "./lib/pool.mts";
+import { execSync } from "node:child_process";
 
 const planSchema = z.object({
   issues: z.array(
@@ -25,6 +28,25 @@ const IMAGE = "logos-workspace-agent:local";
 const CLOUD = process.env.SANDCASTLE_SANDBOX === "none";
 // FLEET_VENUE=linux|mac selects which labeled issues this loop may plan (spec: venues).
 const VENUE = parseVenue(process.env.FLEET_VENUE);
+const BASE_BRANCH = "master";
+// FLEET_LABELS=a,b (AND) and FLEET_MILESTONE narrow the board at runtime; default is the installed label.
+const SCOPE_FLAGS = scopeFlags(parseLabels(process.env.FLEET_LABELS, "fleet-smoke"), process.env.FLEET_MILESTONE);
+// FLEET_MAX_PARALLEL caps concurrent issue pipelines (implementer + reviewer); default unlimited.
+const MAX_PARALLEL = Number(process.env.FLEET_MAX_PARALLEL ?? Infinity);
+
+// Plan from the latest base: the merger of another loop may have advanced origin since the last cycle.
+const syncHostCheckout = () => {
+  try {
+    const dirty = execSync("git status --porcelain --untracked-files=no --ignore-submodules", { encoding: "utf8" }).trim();
+    if (dirty) {
+      console.warn("  ! host checkout has uncommitted changes; skipping base sync");
+      return;
+    }
+    execSync(`git fetch -q origin && git merge -q --ff-only origin/${BASE_BRANCH}`, { stdio: "inherit" });
+  } catch (err) {
+    console.warn(`  ! base sync failed: ${err instanceof Error ? err.message : String(err)}`);
+  }
+};
 
 // Adapter-specific persistent mounts (e.g. the Nix store): optional
 // .sandcastle/adapter/mounts.json holding [{hostPath, sandboxPath}].
@@ -43,7 +65,8 @@ const sandboxHooks = existsSync(".sandcastle/adapter/bootstrap.sh")
 type Outcome = { commits: { sha: string }[]; manifest: Manifest | null };
 
 for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
-  console.log(`\n=== Iteration ${iteration}/${MAX_ITERATIONS} (venue: ${VENUE}) ===\n`);
+  console.log(`\n=== Iteration ${iteration}/${MAX_ITERATIONS} (venue: ${VENUE}, scope: ${SCOPE_FLAGS}) ===\n`);
+  syncHostCheckout();
 
   const plan = await sandcastle.run({
     sandbox: makeSandbox(),
@@ -51,7 +74,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
     maxIterations: 1,
     agent: makeAgent(),
     promptFile: "./.sandcastle/plan-prompt.md",
-    promptArgs: { VENUE },
+    promptArgs: { VENUE, SCOPE_FLAGS },
     output: sandcastle.Output.object({ tag: "plan", schema: planSchema }),
   });
   const { kept: issues, dropped } = filterPlanByVenue(plan.output.issues, VENUE);
@@ -63,8 +86,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   console.log(`Planning complete. ${issues.length} issue(s):`);
   for (const issue of issues) console.log(`  ${issue.id}: ${issue.title} → ${issue.branch}`);
 
-  const settled = await Promise.allSettled(
-    issues.map(async (issue): Promise<Outcome> => {
+  const settled = await runPool(issues, MAX_PARALLEL, async (issue): Promise<Outcome> => {
       const sandbox = await sandcastle.createSandbox({
         branch: issue.branch,
         sandbox: makeSandbox(),
@@ -76,7 +98,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
           maxIterations: 100,
           agent: makeAgent(),
           promptFile: "./.sandcastle/implement-prompt.md",
-          promptArgs: { TASK_ID: issue.id, ISSUE_TITLE: issue.title, BRANCH: issue.branch, VENUE },
+          promptArgs: { TASK_ID: issue.id, ISSUE_TITLE: issue.title, BRANCH: issue.branch, VENUE: environmentVenue(VENUE) },
         });
         let commits = implement.commits;
         if (commits.length > 0) {
@@ -95,8 +117,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
       } finally {
         await sandbox.close();
       }
-    }),
-  );
+  });
 
   for (const [i, outcome] of settled.entries()) {
     if (outcome.status === "rejected") {

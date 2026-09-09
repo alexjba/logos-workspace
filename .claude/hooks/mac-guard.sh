@@ -2,7 +2,7 @@
 # PreToolUse guard for the Mac venue. Inert unless FLEET_VENUE=mac.
 # Blocks system-level and device-destructive commands and enforces the device allowlists
 # from .sandcastle/devices.env (empty list = no device may be addressed).
-[[ "${FLEET_VENUE:-linux}" == "mac" ]] || exit 0
+case "${FLEET_VENUE:-linux}" in mac|all) ;; *) exit 0 ;; esac
 
 INPUT=$(cat)
 COMMAND=$(printf '%s' "$INPUT" | jq -r '.tool_input.command // empty')

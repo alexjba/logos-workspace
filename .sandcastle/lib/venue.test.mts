@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseVenue, issueVenue, filterPlanByVenue } from "./venue.mts";
+import { parseVenue, issueVenue, filterPlanByVenue, environmentVenue } from "./venue.mts";
 
 test("parseVenue defaults to linux and rejects unknown", () => {
   assert.equal(parseVenue(undefined), "linux");
@@ -26,4 +26,12 @@ test("filterPlanByVenue splits kept and dropped", () => {
   assert.deepEqual(r.kept.map((i) => i.id), ["1", "3"]);
   assert.deepEqual(r.dropped.map((i) => i.id), ["2"]);
   assert.deepEqual(filterPlanByVenue(issues, "mac").kept.map((i) => i.id), ["2"]);
+});
+
+test("all venue keeps everything and maps to the mac environment", () => {
+  assert.equal(parseVenue("all"), "all");
+  const issues = [{ id: "1", venue: "linux" }, { id: "2", venue: "mac" }];
+  assert.deepEqual(filterPlanByVenue(issues, "all").kept.map((i) => i.id), ["1", "2"]);
+  assert.equal(environmentVenue("all"), "mac");
+  assert.equal(environmentVenue("linux"), "linux");
 });
