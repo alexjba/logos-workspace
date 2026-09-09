@@ -50,9 +50,10 @@ Tracer-bullet slices for `docs/prd/store-shell-milestone-1.md`. Filed on the for
 | 28 | Web container on iOS and Android with the live-runtime budget | logos-basecamp (mobile host) | 20, 27 | [#17](https://github.com/alexjba/logos-workspace/issues/17) |
 | 29 | Catalog install on a Store shell: availability, consent, trust, report, index | logos-package-downloader-module -> logos-package-manager-module -> logos-capability-module -> logos-basecamp | 28 | [#18](https://github.com/alexjba/logos-workspace/issues/18) |
 | 30 | First real `web` variants: keystore and wallet UI with a storage abstraction | logos-rust-sdk (storage trait) -> logos-evm-keystore-module -> logos-evm-wallet-ui | 27, 29 | [#19](https://github.com/alexjba/logos-workspace/issues/19) |
+| 32 | liblogos core cross-built for iOS and Android and running on devices | logos-nix -> logos-protocol -> logos-plugin-qt -> logos-liblogos -> logos-basecamp | – | [#21](https://github.com/alexjba/logos-workspace/issues/21) |
 | 31 | CI for both containers, developer docs, Status ADR 0007 amendment | logos-workspace (`ws test`) -> logos-tutorial -> status-desktop (text only) | 16, 25 | [#20](https://github.com/alexjba/logos-workspace/issues/20) |
 
-Start now, in parallel: 13, 14, 15, 23. First integration points: 16 (native), 25 (web).
+Start now, in parallel: 13, 14, 15, 23, 32. First integration points: 16 (native), 25 (web).
 
 ### PR header (paste at the top of every PR body)
 

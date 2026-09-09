@@ -25,3 +25,4 @@ the app's native library directory.
 - 13
 - 15
 - 16
+- 32 (liblogos runs on the device)
