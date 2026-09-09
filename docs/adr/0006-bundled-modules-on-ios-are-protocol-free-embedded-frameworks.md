@@ -22,10 +22,13 @@ loading, loader semantics kept) made consistent with Qt being static-only on iOS
   dlopened framework into the executable on iOS (two-level namespace vs
   `-undefined dynamic_lookup`), with the static registration table as the
   documented fallback if it fails.
-- UI apps ship the same way: an embedded framework holding the Qt backend and
-  QML resources, resolving Qt upward into the app image (the executable
-  exports Qt's symbols). Same spike, larger symbol set; a static archive linked
-  at shell build is the fallback for UI apps only.
+- The `ios-arm64` variant contract is one shape for every module type: an
+  embedded framework the Native container can dlopen, resolving lp_* (core
+  modules) and Qt (UI apps, whose backend and QML resources live in the
+  framework and bind upward into the app image, which exports Qt's symbols).
+  logos-module-builder produces it; module developers never choose a shape. A
+  static archive linked at shell build is a builder-internal contingency if
+  Qt-upward resolution fails the spike, not a developer option.
 - Bundling a Store shell is therefore fetch-and-embed with no per-module
   codegen and no link step: the Native container uses one generic host glue
   that reads each module's contract at runtime via `logos_module_get_methods`.
