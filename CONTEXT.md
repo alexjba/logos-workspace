@@ -74,3 +74,7 @@ _Avoid_: wasm module (ambiguous with the artifact), worker
 **Web bridge**:
 The "web" transport: the plain protocol's messages carried over a webview's postMessage channel between a Wasm host and the core. Relays and attributes frames; never authorizes.
 _Avoid_: JS bridge, native bridge, RPC shim
+
+**Bare module**:
+The protocol-free module artifact: impl plus core, lp_* symbols left undefined for the host image to supply. The build shape shared by the iOS embedded framework and the Wasm host.
+_Avoid_: cdylib (names an interface kind, not the artifact), framework build
