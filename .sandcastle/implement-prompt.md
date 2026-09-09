@@ -92,6 +92,8 @@ If the task is not complete, leave a comment on the issue with what was done.
 
 Do not close the issue.
 
+Do not add `Co-Authored-By` trailers to commits.
+
 Once complete, output <promise>COMPLETE</promise>.
 
 # FINAL RULES

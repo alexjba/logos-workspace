@@ -35,4 +35,6 @@ If you find improvements to make:
 
 If the code is already clean and well-structured, do nothing.
 
+Do not add `Co-Authored-By` trailers to commits.
+
 Once complete, output <promise>COMPLETE</promise>.

@@ -35,8 +35,8 @@ A manifest entry with `pushed: false` or `pinned: false` means the implementer d
 
 Only when every sub-repo PR for the issue merged (or the issue touched no sub-repo):
 
-1. `git fetch origin && git rebase origin/master <branch>` (via `git checkout <branch>`). Resolve conflicts by reading both sides; never resolve a gitlink conflict by guessing: keep the branch's gitlink. No builds.
-2. `git push -u origin <branch>`. If rejected as non-fast-forward, `git pull --rebase origin <branch>` and push again. Never force-push.
+1. Update the branch WITHOUT rewriting it: `git fetch origin && git checkout <branch> && git merge origin/master`. Never rebase a branch that may already exist on the remote: a rebase followed by `pull --rebase` replays commits that are already on `master` and lands duplicates. Resolve merge conflicts by reading both sides; for a gitlink conflict keep the branch's gitlink. No builds.
+2. `git push -u origin <branch>`. A merge-based update always fast-forwards the remote branch. If the push is still rejected, `git pull origin <branch>` (plain merge, no `--rebase`) and push again. Never force-push.
 3. `gh pr create --repo logos-fleet/logos-workspace --base master --head <branch> --title "<concise title>" --body "..."`. The body must include `Closes #<issue>` and a short summary of what was done, which sub-repo PRs landed, and how it was verified (which adapter checks ran).
 4. `gh pr view <n> --repo logos-fleet/logos-workspace --json mergeable -q .mergeable`. If `CONFLICTING`, rebase again; if it stays conflicting, comment on the issue and leave the PR open.
 5. Merge it: `gh pr merge <n> --repo logos-fleet/logos-workspace --merge`. There is no CI gate on the fork; verification already happened in the implementer and reviewer sandboxes. Never `--watch`, never poll.
@@ -45,6 +45,6 @@ Only when every sub-repo PR for the issue merged (or the issue touched no sub-re
 
 Leave the host checkout as you found it: `git checkout master && git fetch origin && git merge --ff-only origin/master`, then `git stash pop` if you stashed.
 
-Do not close issues manually. Report per-issue outcomes (sub-repo PRs merged, monorepo PR merged / left open + why).
+Do not add `Co-Authored-By` trailers to any commit. Do not close issues manually. Report per-issue outcomes (sub-repo PRs merged, monorepo PR merged / left open + why).
 
 Once every issue is handled, output <promise>COMPLETE</promise>.
