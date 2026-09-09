@@ -4,7 +4,7 @@ Open issues on the monorepo fork, filtered to those ready for work:
 
 <issues-json>
 
-!`gh issue list --repo logos-fleet/logos-workspace --state open --label sandcastle --limit 100 --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'`
+!`gh issue list --repo logos-fleet/logos-workspace --state open --label ready-for-agent --limit 100 --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'`
 
 </issues-json>
 
