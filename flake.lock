@@ -19518,17 +19518,17 @@
         "rust-overlay": "rust-overlay_13"
       },
       "locked": {
-        "lastModified": 1789032460,
-        "narHash": "sha256-B3AAUaqu7GuUFeH4Nm82gv1U/o9Rc8OUqn4ZrQs+DsI=",
+        "lastModified": 1789051968,
+        "narHash": "sha256-qSO0mUDjK142ptKa15jYmfLNw8qXricWYMlI+B0//OU=",
         "owner": "logos-fleet",
         "repo": "logos-module-builder",
-        "rev": "df7fe0df2223093598336006f48d8f7e07c07179",
+        "rev": "dc96938383f8155a6926b9a1147dc18614bf88a8",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-module-builder",
-        "rev": "df7fe0df2223093598336006f48d8f7e07c07179",
+        "rev": "dc96938383f8155a6926b9a1147dc18614bf88a8",
         "type": "github"
       }
     },
@@ -51284,17 +51284,17 @@
         "nixpkgs-windows": "nixpkgs-windows_320"
       },
       "locked": {
-        "lastModified": 1789041997,
-        "narHash": "sha256-VZtN54U6Py1yhdB7jxzZ4C1jWWOYsRN1UvRtyz/vfGA=",
+        "lastModified": 1789047106,
+        "narHash": "sha256-o1Bjwkr4eDFWE2YS1+0Re38kNpXendCpu+y1Lr2w3Vs=",
         "owner": "logos-fleet",
         "repo": "logos-nix",
-        "rev": "fc87e23b8432675a8de5c61c50e319d7582749ce",
+        "rev": "34d1cfb531a379913550c7c35b781a84165dbd11",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-nix",
-        "rev": "fc87e23b8432675a8de5c61c50e319d7582749ce",
+        "rev": "34d1cfb531a379913550c7c35b781a84165dbd11",
         "type": "github"
       }
     },
