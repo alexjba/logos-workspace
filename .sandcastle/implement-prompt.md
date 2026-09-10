@@ -106,7 +106,7 @@ Monorepo commit message: adapter style above, reference the issue (`#{{TASK_ID}}
 
 # THE ISSUE
 
-If the task is not complete, leave a comment on the issue with what was done.
+If the task is not complete, leave a comment on the issue with what was done and which acceptance criteria remain, and label the issue `partial`: `gh issue edit {{TASK_ID}} --repo logos-fleet/logos-workspace --add-label partial`. The merger then lands your branch without closing the issue and a later cycle continues it. If you complete every remaining criterion, remove the label (`--remove-label partial`).
 
 Do not close the issue.
 
