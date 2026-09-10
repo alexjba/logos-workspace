@@ -1,0 +1,10 @@
+{
+  "issue": "14",
+  "branch": "sandcastle/issue-14",
+  "repos": [
+    { "path": "repos/logos-protocol", "fork": "logos-fleet/logos-protocol", "branch": "sandcastle/issue-14", "base": "master", "pushed": true },
+    { "path": "repos/logos-liblogos", "fork": "logos-fleet/logos-liblogos", "branch": "sandcastle/issue-14", "base": "master", "pushed": true },
+    { "path": "repos/logos-logoscore-cli", "fork": "logos-fleet/logos-logoscore-cli", "branch": "sandcastle/issue-14", "base": "master", "pushed": true }
+  ],
+  "pinned": true
+}
