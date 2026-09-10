@@ -25,9 +25,9 @@ const planSchema = z.object({
 const MAX_ITERATIONS = Number(process.env.FLEET_MAX_ITERATIONS ?? 10);
 // Per-role models (installed from fleet.env); FLEET_MODEL_PLANNER etc. override at runtime.
 const MODELS = {
-  PLANNER: "claude-fable-5-1",
+  PLANNER: "claude-opus-5",
   IMPLEMENTER: "claude-opus-5",
-  REVIEWER: "claude-fable-5-1",
+  REVIEWER: "claude-opus-5",
   MERGER: "claude-opus-5",
 } as const;
 type Role = keyof typeof MODELS;
