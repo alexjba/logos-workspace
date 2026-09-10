@@ -50811,17 +50811,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1785258706,
-        "narHash": "sha256-4jlQoJ4mUXmJbxSK/95KB0oIvB6er7UDmdBNYbynXy4=",
+        "lastModified": 1788817200,
+        "narHash": "sha256-brOubDJwVePfC+m01WbKAfrLwK8L0ew4+EyDOimfwcQ=",
         "owner": "logos-fleet",
         "repo": "logos-package-manager-ui",
-        "rev": "d14f284ea73e47448bebc6841612e53123c585bb",
+        "rev": "b557332a605e1920fbb025860d0446703c1ec82f",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-package-manager-ui",
-        "rev": "d14f284ea73e47448bebc6841612e53123c585bb",
+        "rev": "b557332a605e1920fbb025860d0446703c1ec82f",
         "type": "github"
       }
     },
