@@ -40189,14 +40189,15 @@
     },
     "logos-nix_343": {
       "inputs": {
-        "nixpkgs": "nixpkgs_350"
+        "nixpkgs": "nixpkgs_350",
+        "nixpkgs-windows": "nixpkgs-windows_145"
       },
       "locked": {
-        "lastModified": 1774455309,
-        "narHash": "sha256-3AN7aFnArdysrbQQ2UskWzjNSFADb4hDCsnx69Fa0ng=",
+        "lastModified": 1789006373,
+        "narHash": "sha256-XMsTZhPheGAX+hPd1InIfFwSm8lzdTo3cKC4l2J6Pf0=",
         "owner": "logos-co",
         "repo": "logos-nix",
-        "rev": "e637a1f5e871244d1c2df1e3c52a067f2eb406f2",
+        "rev": "2ab5416a1fb92d6fa3f0dee9a57500df614c4b5d",
         "type": "github"
       },
       "original": {
@@ -66195,17 +66196,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1786157921,
-        "narHash": "sha256-1zGckJPBA+O5e8uYXKpU6oBiJYFURpcBkNw74G2jan4=",
+        "lastModified": 1789016048,
+        "narHash": "sha256-nTWaxuGVfZPVp28Wtjc06z/Ix0xdDMuPQ0BhuQSVtb4=",
         "owner": "logos-fleet",
         "repo": "logos-protocol",
-        "rev": "c1b0a0f554cd5197a974db7d6f805fc87ff07457",
+        "rev": "7925a7c73f80507a79a5245eca9ce3e4726ad045",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-protocol",
-        "rev": "c1b0a0f554cd5197a974db7d6f805fc87ff07457",
+        "rev": "7925a7c73f80507a79a5245eca9ce3e4726ad045",
         "type": "github"
       }
     },
@@ -93152,6 +93153,22 @@
       }
     },
     "nixpkgs-windows_144": {
+      "locked": {
+        "lastModified": 1782723713,
+        "narHash": "sha256-oPXCU/SSUokcGaJREHibG1CBX3+s/W7orDWQOZDsEeQ=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "b5aa0fbd538984f6e3d201be0005b4463d8b09f8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "b5aa0fbd538984f6e3d201be0005b4463d8b09f8",
+        "type": "github"
+      }
+    },
+    "nixpkgs-windows_145": {
       "locked": {
         "lastModified": 1782723713,
         "narHash": "sha256-oPXCU/SSUokcGaJREHibG1CBX3+s/W7orDWQOZDsEeQ=",

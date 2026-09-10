@@ -1,0 +1,8 @@
+{
+  "issue": "12",
+  "branch": "sandcastle/issue-12",
+  "repos": [
+    { "path": "repos/logos-protocol", "fork": "logos-fleet/logos-protocol", "branch": "sandcastle/issue-12", "base": "master", "pushed": true }
+  ],
+  "pinned": true
+}
