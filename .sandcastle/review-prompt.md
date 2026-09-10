@@ -4,9 +4,14 @@ Review the code changes on branch `{{BRANCH}}` and improve code clarity, consist
 
 # CONTEXT
 
+Diffs below are capped in size and exclude generated files (`flake.lock`, `nix/dep-graph.nix`,
+which appear as `--stat` only). Where a diff is cut off, run `git diff` yourself for the rest.
+
 ## Monorepo diff
 
-!`git diff {{TARGET_BRANCH}}...{{BRANCH}}`
+!`git diff --stat {{TARGET_BRANCH}}...{{BRANCH}}`
+
+!`git diff {{TARGET_BRANCH}}...{{BRANCH}} -- . ':(exclude)flake.lock' ':(exclude)nix/dep-graph.nix' | head -c 40000`
 
 ## Monorepo commits
 
@@ -14,7 +19,7 @@ Review the code changes on branch `{{BRANCH}}` and improve code clarity, consist
 
 ## Sub-repo diffs (from .fleet/manifest.json)
 
-!`for p in $(jq -r '.repos[].path' .fleet/manifest.json 2>/dev/null); do b=$(jq -r ".repos[] | select(.path==\"$p\") | .base" .fleet/manifest.json); echo "### $p (base origin/$b)"; git -C "$p" fetch -q origin "$b" 2>/dev/null; git -C "$p" diff "origin/$b...HEAD"; done`
+!`for p in $(jq -r '.repos[].path' .fleet/manifest.json 2>/dev/null); do b=$(jq -r ".repos[] | select(.path==\"$p\") | .base" .fleet/manifest.json); echo "### $p (base origin/$b)"; git -C "$p" fetch -q origin "$b" 2>/dev/null; git -C "$p" diff --stat "origin/$b...HEAD"; git -C "$p" diff "origin/$b...HEAD" -- . ':(exclude)flake.lock' | head -c 25000; done`
 
 # REVIEW PROCESS
 
