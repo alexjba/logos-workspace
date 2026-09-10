@@ -29,7 +29,7 @@ For each listed sub-repo with `pushed: true`, using only the GitHub API (no loca
 - `gh pr view <n> --repo <fork> --json mergeable -q .mergeable`. If `CONFLICTING`: comment on the monorepo issue naming the sub-repo, do NOT open the monorepo PR for this issue, and continue with the next issue. The next cycle's implementer merges the fork default branch into it.
 - Otherwise `gh pr merge <n> --repo <fork> --merge` (sub-repo forks have no required checks; the merge is immediate).
 
-A manifest entry with `pushed: false` or `pinned: false` means the implementer did not finish; comment on the issue and skip the issue entirely.
+A repo entry with `pushed: false`, or a manifest that lists repos but has `pinned: false`, means the implementer did not finish; comment on the issue and skip the issue entirely. A manifest with `"repos": []` (and therefore `pinned: false`) is complete: no sub-repo commits were needed (a docs-only change, or a gitlink moved to commits already on the forks' default branches), so land the monorepo branch normally.
 
 ## 2. Monorepo pull request
 
