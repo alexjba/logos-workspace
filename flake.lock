@@ -40195,14 +40195,15 @@
       "locked": {
         "lastModified": 1789006373,
         "narHash": "sha256-XMsTZhPheGAX+hPd1InIfFwSm8lzdTo3cKC4l2J6Pf0=",
-        "owner": "logos-co",
+        "owner": "logos-fleet",
         "repo": "logos-nix",
         "rev": "2ab5416a1fb92d6fa3f0dee9a57500df614c4b5d",
         "type": "github"
       },
       "original": {
-        "owner": "logos-co",
+        "owner": "logos-fleet",
         "repo": "logos-nix",
+        "rev": "2ab5416a1fb92d6fa3f0dee9a57500df614c4b5d",
         "type": "github"
       }
     },
@@ -66196,17 +66197,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1786157921,
-        "narHash": "sha256-1zGckJPBA+O5e8uYXKpU6oBiJYFURpcBkNw74G2jan4=",
+        "lastModified": 1789016048,
+        "narHash": "sha256-nTWaxuGVfZPVp28Wtjc06z/Ix0xdDMuPQ0BhuQSVtb4=",
         "owner": "logos-fleet",
         "repo": "logos-protocol",
-        "rev": "c1b0a0f554cd5197a974db7d6f805fc87ff07457",
+        "rev": "7925a7c73f80507a79a5245eca9ce3e4726ad045",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-protocol",
-        "rev": "c1b0a0f554cd5197a974db7d6f805fc87ff07457",
+        "rev": "7925a7c73f80507a79a5245eca9ce3e4726ad045",
         "type": "github"
       }
     },
