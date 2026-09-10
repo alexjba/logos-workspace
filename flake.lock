@@ -9436,17 +9436,17 @@
         "protocol-with-serving-provider": "protocol-with-serving-provider"
       },
       "locked": {
-        "lastModified": 1789032199,
-        "narHash": "sha256-EM+n5aEF6Xtc+YlQULbtBskWqGYkVVdfGw0zEKCVgy0=",
+        "lastModified": 1789070866,
+        "narHash": "sha256-swZdd7XJByNUaqSSB4Nx93+N7oMSepXzfrhbjDqJ/uQ=",
         "owner": "logos-fleet",
         "repo": "logos-js-sdk",
-        "rev": "56be2d4a52ab5b7e524f22a175b3b8498d9c568c",
+        "rev": "f96b4e4fdd3cee2df9de611a497996e66438076e",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-js-sdk",
-        "rev": "56be2d4a52ab5b7e524f22a175b3b8498d9c568c",
+        "rev": "f96b4e4fdd3cee2df9de611a497996e66438076e",
         "type": "github"
       }
     },
@@ -10452,17 +10452,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1789067991,
-        "narHash": "sha256-4N+qT1nLQ4h0FR8Plnd2+Lo2c6m6kNvq2bdLt40id0s=",
+        "lastModified": 1789071716,
+        "narHash": "sha256-lGn23G2zQ95m0IZAS5a7FSPPfqPm2PKAt3AxrI9DDrQ=",
         "owner": "logos-fleet",
         "repo": "logos-liblogos",
-        "rev": "8fb98326d9c7064cede3bda029f13a5d1b947b53",
+        "rev": "585c4d72657bbd2d52dd2785d83b9eb2e32efb24",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-liblogos",
-        "rev": "8fb98326d9c7064cede3bda029f13a5d1b947b53",
+        "rev": "585c4d72657bbd2d52dd2785d83b9eb2e32efb24",
         "type": "github"
       }
     },
@@ -17345,6 +17345,9 @@
         "logos-cpp-sdk": [
           "logos-cpp-sdk"
         ],
+        "logos-js-sdk": [
+          "logos-js-sdk"
+        ],
         "logos-liblogos": [
           "logos-liblogos"
         ],
@@ -17382,17 +17385,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1789055845,
-        "narHash": "sha256-nSppKhyTNUn6KrQczf59KElFFMIWA8s0D0vchuf/qXA=",
+        "lastModified": 1789072865,
+        "narHash": "sha256-mpA9zobWyN7BaQTNOw/wUQXUceSElXrxfpCVCjyCIM0=",
         "owner": "logos-fleet",
         "repo": "logos-logoscore-cli",
-        "rev": "6248a746789027e30fdf9256a952c73b18be71c9",
+        "rev": "425a3140011815045b894bffbd0d314239902b5c",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-logoscore-cli",
-        "rev": "6248a746789027e30fdf9256a952c73b18be71c9",
+        "rev": "425a3140011815045b894bffbd0d314239902b5c",
         "type": "github"
       }
     },
