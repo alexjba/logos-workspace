@@ -1,8 +1,28 @@
 {
-  "issue": "12",
-  "branch": "sandcastle/issue-12",
+  "issue": "3",
+  "branch": "sandcastle/issue-3",
   "repos": [
-    { "path": "repos/logos-protocol", "fork": "logos-fleet/logos-protocol", "branch": "sandcastle/issue-12", "base": "master", "pushed": true }
+    {
+      "path": "repos/logos-package",
+      "fork": "logos-fleet/logos-package",
+      "branch": "sandcastle/issue-3",
+      "base": "master",
+      "pushed": true
+    },
+    {
+      "path": "repos/logos-package-manager",
+      "fork": "logos-fleet/logos-package-manager",
+      "branch": "sandcastle/issue-3",
+      "base": "master",
+      "pushed": true
+    },
+    {
+      "path": "repos/logos-package-downloader",
+      "fork": "logos-fleet/logos-package-downloader",
+      "branch": "sandcastle/issue-3",
+      "base": "master",
+      "pushed": true
+    }
   ],
   "pinned": true
 }
