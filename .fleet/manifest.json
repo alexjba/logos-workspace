@@ -1,0 +1,9 @@
+{
+  "issue": "4",
+  "branch": "sandcastle/issue-4",
+  "repos": [
+    { "path": "repos/logos-module-builder", "fork": "logos-fleet/logos-module-builder", "branch": "sandcastle/issue-4", "base": "master", "pushed": true },
+    { "path": "repos/logos-tutorial", "fork": "logos-fleet/logos-tutorial", "branch": "sandcastle/issue-4", "base": "master", "pushed": true }
+  ],
+  "pinned": true
+}
