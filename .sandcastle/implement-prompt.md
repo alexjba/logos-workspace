@@ -77,8 +77,11 @@ Read `CLAUDE.md` for the `ws` CLI. Key facts: `--auto-local` overrides flake inp
   longer, start it detached (`nohup ... > log 2>&1 &`) and poll the log from the foreground in calls
   shorter than 60 minutes. Never leave the session silent for over an hour, the harness aborts an
   agent that produces no output for that long.
-- When waiting for a detached build, test for its completion by its own output or its PID, never by
-  `pgrep -f "<command text>"`: that pattern matches the shell running your own wait loop.
+- When waiting for a detached command, make it write its own end marker and wait for that, with a
+  bound: `nohup sh -c '<cmd>; echo "EXIT=$?"' > /tmp/x.log 2>&1 &` then
+  `for i in $(seq 1 360); do grep -q '^EXIT=' /tmp/x.log && break; sleep 10; done`. Never wait on the
+  tool's own wording (`ws` colours its OK/FAIL lines, so `OK$` never matches) and never on
+  `pgrep -f "<command text>"` (it can match the shell running your wait loop).
 
 # HEADLESS SESSION
 
