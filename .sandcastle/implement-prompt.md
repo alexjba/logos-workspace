@@ -69,8 +69,18 @@ Read `CLAUDE.md` for the `ws` CLI. Key facts: `--auto-local` overrides flake inp
 - Verify touched sub-repos: `.sandcastle/adapter/verify.sh <repo...>` (runs `ws test <repo...> --auto-local`). Also test at least one direct dependent (`ws graph <repo>`).
 - First builds are slow (minutes); do not abort them. Cache hits make later builds fast.
 - A single Bash call may run for up to 60 minutes (pass `timeout` in ms, max 3600000). For anything
-  longer, start it with `run_in_background` and poll its log; never leave the session silent for over
-  an hour, the harness aborts an agent that produces no output for that long.
+  longer, start it detached (`nohup ... > log 2>&1 &`) and poll the log from the foreground in calls
+  shorter than 60 minutes. Never leave the session silent for over an hour, the harness aborts an
+  agent that produces no output for that long.
+- When waiting for a detached build, test for its completion by its own output or its PID, never by
+  `pgrep -f "<command text>"`: that pattern matches the shell running your own wait loop.
+
+# HEADLESS SESSION
+
+You run non-interactively: the session ends the moment you end your turn, and nothing resumes it.
+Never end a turn to "wait for a background task" or "be notified"; nothing will notify you. Do not
+use `run_in_background`. Every build, test, commit, push and pin must finish inside your turn, and
+the last thing you output is the completion promise below.
 
 # PIN
 
