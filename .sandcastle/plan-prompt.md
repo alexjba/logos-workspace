@@ -14,6 +14,11 @@ Sub-repo or monorepo PRs from earlier cycles that have not merged yet. An issue 
 `sandcastle/issue-<N>` PRs are still open here is **blocked**: its monorepo pin cannot
 land until they merge, so do not re-plan it this cycle.
 
+**Exception:** if the merger's latest comment on the issue says landing is blocked by a
+`CONFLICTING` sub-repo PR, the open PR does not block the issue. Plan it: the implementer's
+job that cycle is to merge the fork's default branch into the sub-repo branch, resolve the
+conflict, re-verify and push, so the PR becomes mergeable.
+
 <open-prs>
 
 !`gh search prs --owner logos-fleet --state open "head:sandcastle/issue-" --json repository,number,title,url --jq '[.[] | {repo: .repository.nameWithOwner, number, title, url}]'`

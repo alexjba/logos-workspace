@@ -38,6 +38,11 @@ If applicable, use RGR: RED (one failing test), GREEN (minimal implementation), 
    - `git -C repos/<x> fetch origin`
    - If `origin/{{BRANCH}}` exists (earlier cycle), `git -C repos/<x> checkout {{BRANCH}}` and `git -C repos/<x> pull --rebase origin {{BRANCH}}`.
    - Else `git -C repos/<x> checkout -b {{BRANCH}}` from the fork's default branch.
+   - Then bring it up to date: `git -C repos/<x> fetch origin <default> && git -C repos/<x> merge origin/<default>`
+     (merge, never rebase: the branch may already be on the remote and in an open PR). Resolve
+     conflicts by reading both sides, re-verify, and push. If an open fork PR for this branch was
+     reported `CONFLICTING` on the issue, this merge is the reason you were re-planned: make the
+     PR mergeable before anything else.
 2. Commit in the sub-repo, then push: `git -C repos/<x> push -u origin {{BRANCH}}`.
 3. After sub-repo work is verified, PIN it in the monorepo (see ENVIRONMENT below): the
    monorepo commit must include the updated gitlink for every touched sub-repo. A
@@ -69,8 +74,18 @@ Read `CLAUDE.md` for the `ws` CLI. Key facts: `--auto-local` overrides flake inp
 - Verify touched sub-repos: `.sandcastle/adapter/verify.sh <repo...>` (runs `ws test <repo...> --auto-local`). Also test at least one direct dependent (`ws graph <repo>`).
 - First builds are slow (minutes); do not abort them. Cache hits make later builds fast.
 - A single Bash call may run for up to 60 minutes (pass `timeout` in ms, max 3600000). For anything
-  longer, start it with `run_in_background` and poll its log; never leave the session silent for over
-  an hour, the harness aborts an agent that produces no output for that long.
+  longer, start it detached (`nohup ... > log 2>&1 &`) and poll the log from the foreground in calls
+  shorter than 60 minutes. Never leave the session silent for over an hour, the harness aborts an
+  agent that produces no output for that long.
+- When waiting for a detached build, test for its completion by its own output or its PID, never by
+  `pgrep -f "<command text>"`: that pattern matches the shell running your own wait loop.
+
+# HEADLESS SESSION
+
+You run non-interactively: the session ends the moment you end your turn, and nothing resumes it.
+Never end a turn to "wait for a background task" or "be notified"; nothing will notify you. Do not
+use `run_in_background`. Every build, test, commit, push and pin must finish inside your turn, and
+the last thing you output is the completion promise below.
 
 # PIN
 
