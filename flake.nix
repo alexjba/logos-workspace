@@ -111,7 +111,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     logos-module-builder = {
-      url = "github:logos-fleet/logos-module-builder/e9c8da45d3cf84e4207ba22d22e23ccccb1cb59a";
+      url = "github:logos-fleet/logos-module-builder/df7fe0df2223093598336006f48d8f7e07c07179";
       inputs.logos-cpp-sdk.follows = "logos-cpp-sdk";
       inputs.logos-design-system.follows = "logos-design-system";
       inputs.logos-module.follows = "logos-module";
