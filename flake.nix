@@ -345,7 +345,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     logos-test-modules = {
-      url = "github:logos-fleet/logos-test-modules/802b885ee41a3401f2efd2114309d0459d1c6f38";
+      url = "github:logos-fleet/logos-test-modules/468c010b93d5e172e36e76419a16c147358e9afd";
       inputs.logos-capability-module.follows = "logos-capability-module";
       inputs.logos-liblogos.follows = "logos-liblogos";
       inputs.logos-logoscore-cli.follows = "logos-logoscore-cli";
