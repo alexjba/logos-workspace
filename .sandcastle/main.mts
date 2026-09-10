@@ -4,7 +4,8 @@
 // Run: npm run sandcastle            (Docker sandboxes)
 //      SANDCASTLE_SANDBOX=none npm run sandcastle   (already-isolated host)
 
-import { existsSync, readFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync } from "node:fs";
+import { join } from "node:path";
 import * as sandcastle from "@ai-hero/sandcastle";
 import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
 import { noSandbox } from "@ai-hero/sandcastle/sandboxes/no-sandbox";
@@ -25,9 +26,9 @@ const planSchema = z.object({
 const MAX_ITERATIONS = Number(process.env.FLEET_MAX_ITERATIONS ?? 10);
 // Per-role models (installed from fleet.env); FLEET_MODEL_PLANNER etc. override at runtime.
 const MODELS = {
-  PLANNER: "claude-fable-5-1",
+  PLANNER: "claude-opus-5",
   IMPLEMENTER: "claude-opus-5",
-  REVIEWER: "claude-fable-5-1",
+  REVIEWER: "claude-opus-5",
   MERGER: "claude-opus-5",
 } as const;
 type Role = keyof typeof MODELS;
@@ -37,6 +38,23 @@ const CLOUD = process.env.SANDCASTLE_SANDBOX === "none";
 // FLEET_VENUE=linux|mac selects which labeled issues this loop may plan (spec: venues).
 const VENUE = parseVenue(process.env.FLEET_VENUE);
 const BASE_BRANCH = "master";
+// Branches finished outside the loop (e.g. an implementer resumed with `claude --resume` after a usage limit)
+// are adopted: when FLEET_MANIFEST_DIR/<id>.json exists as the issue is planned, its implementer is skipped,
+// the branch's commits over the base count as its work and the manifest is restored into the new worktree.
+// The file is renamed to <id>.json.adopted so it is used once.
+const savedManifest = (id: string): string | null => {
+  const dir = process.env.FLEET_MANIFEST_DIR;
+  const file = dir ? join(dir, `${id}.json`) : "";
+  return file && existsSync(file) ? file : null;
+};
+const adoptFinishedBranch = (id: string, saved: string, worktreePath: string): { sha: string }[] => {
+  mkdirSync(join(worktreePath, ".fleet"), { recursive: true });
+  copyFileSync(saved, join(worktreePath, ".fleet", "manifest.json"));
+  renameSync(saved, `${saved}.adopted`);
+  const shas = execSync(`git rev-list ${BASE_BRANCH}..HEAD`, { cwd: worktreePath, encoding: "utf8" }).split("\n").filter(Boolean);
+  console.log(`  ${id}: adopted a branch finished outside the loop (${shas.length} commit(s)); implementer skipped`);
+  return shas.map((sha) => ({ sha }));
+};
 // FLEET_LABELS=a,b (AND) and FLEET_MILESTONE narrow the board at runtime; default is the installed label.
 const SCOPE_FLAGS = scopeFlags(parseLabels(process.env.FLEET_LABELS, "fleet-smoke"), process.env.FLEET_MILESTONE);
 // FLEET_MAX_PARALLEL caps concurrent issue pipelines (implementer + reviewer); default unlimited.
@@ -110,15 +128,21 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
         hooks: sandboxHooks,
       });
       try {
-        const implement = await sandbox.run({
-          name: "implementer",
-          maxIterations: 100,
-          idleTimeoutSeconds: IDLE_TIMEOUT,
-          agent: makeAgent("IMPLEMENTER"),
-          promptFile: "./.sandcastle/implement-prompt.md",
-          promptArgs: { TASK_ID: issue.id, ISSUE_TITLE: issue.title, BRANCH: issue.branch, VENUE: environmentVenue(VENUE) },
-        });
-        let commits = implement.commits;
+        let commits: { sha: string }[];
+        const saved = savedManifest(issue.id);
+        if (saved) {
+          commits = adoptFinishedBranch(issue.id, saved, sandbox.worktreePath);
+        } else {
+          const implement = await sandbox.run({
+            name: "implementer",
+            maxIterations: 100,
+            idleTimeoutSeconds: IDLE_TIMEOUT,
+            agent: makeAgent("IMPLEMENTER"),
+            promptFile: "./.sandcastle/implement-prompt.md",
+            promptArgs: { TASK_ID: issue.id, ISSUE_TITLE: issue.title, BRANCH: issue.branch, VENUE: environmentVenue(VENUE) },
+          });
+          commits = implement.commits;
+        }
         if (commits.length > 0) {
           const review = await sandbox.run({
             name: "reviewer",
