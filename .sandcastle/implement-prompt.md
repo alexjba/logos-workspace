@@ -38,6 +38,11 @@ If applicable, use RGR: RED (one failing test), GREEN (minimal implementation), 
    - `git -C repos/<x> fetch origin`
    - If `origin/{{BRANCH}}` exists (earlier cycle), `git -C repos/<x> checkout {{BRANCH}}` and `git -C repos/<x> pull --rebase origin {{BRANCH}}`.
    - Else `git -C repos/<x> checkout -b {{BRANCH}}` from the fork's default branch.
+   - Then bring it up to date: `git -C repos/<x> fetch origin <default> && git -C repos/<x> merge origin/<default>`
+     (merge, never rebase: the branch may already be on the remote and in an open PR). Resolve
+     conflicts by reading both sides, re-verify, and push. If an open fork PR for this branch was
+     reported `CONFLICTING` on the issue, this merge is the reason you were re-planned: make the
+     PR mergeable before anything else.
 2. Commit in the sub-repo, then push: `git -C repos/<x> push -u origin {{BRANCH}}`.
 3. After sub-repo work is verified, PIN it in the monorepo (see ENVIRONMENT below): the
    monorepo commit must include the updated gitlink for every touched sub-repo. A
