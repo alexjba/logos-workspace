@@ -1,0 +1,10 @@
+{
+  "issue": "7",
+  "branch": "sandcastle/issue-7",
+  "repos": [
+    { "path": "repos/logos-module-builder", "fork": "logos-fleet/logos-module-builder", "branch": "sandcastle/issue-7", "base": "master", "pushed": true },
+    { "path": "repos/logos-liblogos", "fork": "logos-fleet/logos-liblogos", "branch": "sandcastle/issue-7", "base": "master", "pushed": true },
+    { "path": "repos/logos-basecamp", "fork": "logos-fleet/logos-basecamp", "branch": "sandcastle/issue-7", "base": "master", "pushed": true }
+  ],
+  "pinned": true
+}
