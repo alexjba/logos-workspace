@@ -108,6 +108,8 @@ Monorepo commit message: adapter style above, reference the issue (`#{{TASK_ID}}
 
 If the task is not complete, leave a comment on the issue with what was done and which acceptance criteria remain, and label the issue `partial`: `gh issue edit {{TASK_ID}} --repo logos-fleet/logos-workspace --add-label partial`. The merger then lands your branch without closing the issue and a later cycle continues it. If you complete every remaining criterion, remove the label (`--remove-label partial`).
 
+A criterion that only the other venue can verify (e.g. "Linux CI" while you run on the Mac) is not a reason for `partial`, which would re-plan the issue here forever. Verify everything this venue can, then open a follow-up issue for the rest (`gh issue create --repo logos-fleet/logos-workspace --label milestone-1`, no `ready-for-agent`, stating the criterion, the command and why this venue cannot run it) and link it in your comment.
+
 Do not close the issue.
 
 Do not add `Co-Authored-By` trailers to commits.
