@@ -10,6 +10,14 @@ for repo in "$@"; do
 done
 ws sync-graph --quiet
 for repo in "$@"; do
+  # logos-nix lives in the manual section of flake.nix (sync-graph skips it): move its rev to the gitlink.
+  if [[ "$repo" == "logos-nix" ]]; then
+    sha=$(git rev-parse ":repos/logos-nix")
+    tmp=$(mktemp)
+    sed -E "s|(logos-nix\.url = \"github:logos-fleet/logos-nix)(/[0-9a-f]+)?\"|\1/${sha}\"|" flake.nix > "$tmp"
+    cat "$tmp" > flake.nix && rm -f "$tmp"
+    grep -q "github:logos-fleet/logos-nix/${sha}\"" flake.nix || { echo "failed to pin logos-nix in flake.nix" >&2; exit 1; }
+  fi
   if grep -qE "^[[:space:]]*${repo}([[:space:]]*=|\.)" flake.nix; then
     nix flake update "$repo"
   fi

@@ -35,6 +35,14 @@ If you find improvements to make:
 
 If the code is already clean and well-structured, do nothing.
 
+# HEADLESS SESSION
+
+You run non-interactively: the session ends the moment you end your turn, and nothing resumes it.
+Never end a turn to "wait for a background task" or "be notified"; nothing will notify you, and
+uncommitted edits are discarded. Do not use `run_in_background`; a Bash call may run for up to
+60 minutes (`timeout` in ms, max 3600000). Every verification, commit, push and re-pin must finish
+inside your turn, before the completion promise below.
+
 Do not add `Co-Authored-By` trailers to commits.
 
 Once complete, output <promise>COMPLETE</promise>.
