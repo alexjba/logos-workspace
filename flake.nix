@@ -315,14 +315,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     logos-js-sdk = {
-      url = "github:logos-fleet/logos-js-sdk/6b6ccb5f10ea358ae8c9bee4264722dfb0aed76b";
-      inputs.logos-capability-module.follows = "logos-capability-module";
-      inputs.logos-cpp-sdk.follows = "logos-cpp-sdk";
-      inputs.logos-liblogos.follows = "logos-liblogos";
-      inputs.logos-module.follows = "logos-module";
-      inputs.logos-module-builder.follows = "logos-module-builder";
-      inputs.logos-module-client.follows = "logos-module-client";
+      url = "github:logos-fleet/logos-js-sdk/56be2d4a52ab5b7e524f22a175b3b8498d9c568c";
       inputs.logos-nix.follows = "logos-nix";
+      inputs.logos-protocol.follows = "logos-protocol";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     logos-nim-sdk = {
