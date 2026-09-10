@@ -10888,17 +10888,17 @@
         "protocol-with-serving-provider": "protocol-with-serving-provider"
       },
       "locked": {
-        "lastModified": 1789031361,
-        "narHash": "sha256-h/iVmRe5UrW/qDRS//yx9i8EomluUTqxDeql7pnBjJA=",
+        "lastModified": 1789032199,
+        "narHash": "sha256-EM+n5aEF6Xtc+YlQULbtBskWqGYkVVdfGw0zEKCVgy0=",
         "owner": "logos-fleet",
         "repo": "logos-js-sdk",
-        "rev": "aba613e9936c3523f660986bcdc73c8829aefdc0",
+        "rev": "56be2d4a52ab5b7e524f22a175b3b8498d9c568c",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-js-sdk",
-        "rev": "aba613e9936c3523f660986bcdc73c8829aefdc0",
+        "rev": "56be2d4a52ab5b7e524f22a175b3b8498d9c568c",
         "type": "github"
       }
     },

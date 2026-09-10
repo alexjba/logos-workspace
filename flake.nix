@@ -315,7 +315,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     logos-js-sdk = {
-      url = "github:logos-fleet/logos-js-sdk/aba613e9936c3523f660986bcdc73c8829aefdc0";
+      url = "github:logos-fleet/logos-js-sdk/56be2d4a52ab5b7e524f22a175b3b8498d9c568c";
       inputs.logos-nix.follows = "logos-nix";
       inputs.logos-protocol.follows = "logos-protocol";
       inputs.nixpkgs.follows = "nixpkgs";
