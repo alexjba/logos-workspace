@@ -24,7 +24,7 @@
     # generated follows below.
     # fleet-kit: pinned to the logos-fleet fork at an explicit rev; pin.sh moves the rev
     # to the repos/logos-nix gitlink (this manual input is skipped by `ws sync-graph`).
-    logos-nix.url = "github:logos-fleet/logos-nix/1653f881969f018cfb7bff327f98c3b53d90af7a";
+    logos-nix.url = "github:logos-fleet/logos-nix/fc87e23b8432675a8de5c61c50e319d7582749ce";
     nixpkgs.follows = "logos-nix/nixpkgs";
     # Pinned explicitly because logos-blockchain-module's upstream lock
     # currently references an invalid commit-ish via /0.2.1.
@@ -73,11 +73,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     logos-liblogos = {
-      url = "github:logos-fleet/logos-liblogos/592aa9a544a47a47c29820d4926ba8e07b06b2fc";
+      url = "github:logos-fleet/logos-liblogos/95245d519c47ff6793f5856fb2fe822799f8766e";
       inputs.logos-capability-module.follows = "logos-capability-module";
       inputs.logos-cpp-sdk.follows = "logos-cpp-sdk";
       inputs.logos-module.follows = "logos-module";
       inputs.logos-nix.follows = "logos-nix";
+      inputs.logos-package.follows = "logos-package";
       inputs.logos-package-manager.follows = "logos-package-manager";
       inputs.logos-plugin-qt.follows = "logos-plugin-qt";
       inputs.logos-protocol.follows = "logos-protocol";
@@ -86,7 +87,7 @@
       inputs.process-stats.follows = "process-stats";
     };
     logos-logoscore-cli = {
-      url = "github:logos-fleet/logos-logoscore-cli/9381095764145a13436dbce0a3576dc29f54a6ee";
+      url = "github:logos-fleet/logos-logoscore-cli/dd6c0bdfaa4cec42f7a246a5927233df618feda2";
       inputs.logos-capability-module.follows = "logos-capability-module";
       inputs.logos-cpp-sdk.follows = "logos-cpp-sdk";
       inputs.logos-liblogos.follows = "logos-liblogos";
@@ -111,14 +112,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     logos-plugin-qt = {
-      url = "github:logos-fleet/logos-plugin-qt/a59146e885557c8036b801814dbc99ade7ded7d3";
+      url = "github:logos-fleet/logos-plugin-qt/e06545463e9d21ba6fcdd57bee15065643b419a6";
       inputs.logos-module.follows = "logos-module";
       inputs.logos-nix.follows = "logos-nix";
       inputs.logos-protocol.follows = "logos-protocol";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     logos-module-builder = {
-      url = "github:logos-fleet/logos-module-builder/eb4a00062fa8ea0f96e2ab396faac4cac8ce6c5e";
+      url = "github:logos-fleet/logos-module-builder/4a8fe09a07b979c0236d6da36cf21167d83bac53";
       inputs.logos-cpp-sdk.follows = "logos-cpp-sdk";
       inputs.logos-design-system.follows = "logos-design-system";
       inputs.logos-module.follows = "logos-module";
