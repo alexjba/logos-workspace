@@ -47,7 +47,7 @@ If applicable, use RGR: RED (one failing test), GREEN (minimal implementation), 
 3. After sub-repo work is verified, PIN it in the monorepo (see ENVIRONMENT below): the
    monorepo commit must include the updated gitlink for every touched sub-repo. A
    sub-repo change without a monorepo pin commit is invisible to the pipeline and is discarded.
-4. Write `.fleet/manifest.json` at the monorepo root before finishing (create the directory):
+4. Write `.fleet/manifest.json` at the monorepo root before finishing (create the directory). `.fleet/` is gitignored on purpose: the loop reads the file from your worktree, so never `git add` it (not even with `-f`):
 
 ```json
 {
@@ -77,8 +77,11 @@ Read `CLAUDE.md` for the `ws` CLI. Key facts: `--auto-local` overrides flake inp
   longer, start it detached (`nohup ... > log 2>&1 &`) and poll the log from the foreground in calls
   shorter than 60 minutes. Never leave the session silent for over an hour, the harness aborts an
   agent that produces no output for that long.
-- When waiting for a detached build, test for its completion by its own output or its PID, never by
-  `pgrep -f "<command text>"`: that pattern matches the shell running your own wait loop.
+- When waiting for a detached command, make it write its own end marker and wait for that, with a
+  bound: `nohup sh -c '<cmd>; echo "EXIT=$?"' > /tmp/x.log 2>&1 &` then
+  `for i in $(seq 1 360); do grep -q '^EXIT=' /tmp/x.log && break; sleep 10; done`. Never wait on the
+  tool's own wording (`ws` colours its OK/FAIL lines, so `OK$` never matches) and never on
+  `pgrep -f "<command text>"` (it can match the shell running your wait loop).
 
 # HEADLESS SESSION
 
@@ -106,7 +109,9 @@ Monorepo commit message: adapter style above, reference the issue (`#{{TASK_ID}}
 
 # THE ISSUE
 
-If the task is not complete, leave a comment on the issue with what was done.
+If the task is not complete, leave a comment on the issue with what was done and which acceptance criteria remain, and label the issue `partial`: `gh issue edit {{TASK_ID}} --repo logos-fleet/logos-workspace --add-label partial`. The merger then lands your branch without closing the issue and a later cycle continues it. If you complete every remaining criterion, remove the label (`--remove-label partial`).
+
+A criterion that only the other venue can verify (e.g. "Linux CI" while you run on the Mac) is not a reason for `partial`, which would re-plan the issue here forever. Verify everything this venue can, then open a follow-up issue for the rest (`gh issue create --repo logos-fleet/logos-workspace --label milestone-1`, no `ready-for-agent`, stating the criterion, the command and why this venue cannot run it) and link it in your comment.
 
 Do not close the issue.
 
