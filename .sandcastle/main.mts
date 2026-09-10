@@ -4,7 +4,7 @@
 // Run: npm run sandcastle            (Docker sandboxes)
 //      SANDCASTLE_SANDBOX=none npm run sandcastle   (already-isolated host)
 
-import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync } from "node:fs";
 import { join } from "node:path";
 import * as sandcastle from "@ai-hero/sandcastle";
 import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
@@ -38,18 +38,21 @@ const CLOUD = process.env.SANDCASTLE_SANDBOX === "none";
 // FLEET_VENUE=linux|mac selects which labeled issues this loop may plan (spec: venues).
 const VENUE = parseVenue(process.env.FLEET_VENUE);
 const BASE_BRANCH = "master";
-// FLEET_REVIEW_ONLY=5,10 adopts branches whose implementer already finished outside the loop (e.g. a
-// session resumed after a usage limit): in the first iteration their implementer is skipped, the branch's
-// commits over the base count as its work, and the manifest comes from FLEET_MANIFEST_DIR/<id>.json.
-const REVIEW_ONLY = new Set((process.env.FLEET_REVIEW_ONLY ?? "").split(",").map((s) => s.trim()).filter(Boolean));
-const adoptFinishedBranch = (id: string, worktreePath: string): { sha: string }[] => {
-  const saved = process.env.FLEET_MANIFEST_DIR ? join(process.env.FLEET_MANIFEST_DIR, `${id}.json`) : "";
-  if (saved && existsSync(saved)) {
-    mkdirSync(join(worktreePath, ".fleet"), { recursive: true });
-    copyFileSync(saved, join(worktreePath, ".fleet", "manifest.json"));
-  }
+// Branches finished outside the loop (e.g. an implementer resumed with `claude --resume` after a usage limit)
+// are adopted: when FLEET_MANIFEST_DIR/<id>.json exists as the issue is planned, its implementer is skipped,
+// the branch's commits over the base count as its work and the manifest is restored into the new worktree.
+// The file is renamed to <id>.json.adopted so it is used once.
+const savedManifest = (id: string): string | null => {
+  const dir = process.env.FLEET_MANIFEST_DIR;
+  const file = dir ? join(dir, `${id}.json`) : "";
+  return file && existsSync(file) ? file : null;
+};
+const adoptFinishedBranch = (id: string, saved: string, worktreePath: string): { sha: string }[] => {
+  mkdirSync(join(worktreePath, ".fleet"), { recursive: true });
+  copyFileSync(saved, join(worktreePath, ".fleet", "manifest.json"));
+  renameSync(saved, `${saved}.adopted`);
   const shas = execSync(`git rev-list ${BASE_BRANCH}..HEAD`, { cwd: worktreePath, encoding: "utf8" }).split("\n").filter(Boolean);
-  console.log(`  ${id}: implementer skipped (FLEET_REVIEW_ONLY), ${shas.length} commit(s) on the branch`);
+  console.log(`  ${id}: adopted a branch finished outside the loop (${shas.length} commit(s)); implementer skipped`);
   return shas.map((sha) => ({ sha }));
 };
 // FLEET_LABELS=a,b (AND) and FLEET_MILESTONE narrow the board at runtime; default is the installed label.
@@ -126,8 +129,9 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
       });
       try {
         let commits: { sha: string }[];
-        if (iteration === 1 && REVIEW_ONLY.has(issue.id)) {
-          commits = adoptFinishedBranch(issue.id, sandbox.worktreePath);
+        const saved = savedManifest(issue.id);
+        if (saved) {
+          commits = adoptFinishedBranch(issue.id, saved, sandbox.worktreePath);
         } else {
           const implement = await sandbox.run({
             name: "implementer",
