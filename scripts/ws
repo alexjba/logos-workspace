@@ -2397,6 +2397,27 @@ follows_exempt() {
   esac
 }
 
+# ── Single INPUTS that must not be retargeted, even though they resolve to a
+# workspace repo.  Follows are derived from the LOCKED repo name, so an input
+# that deliberately points at a second BRANCH of a workspace repo is otherwise
+# silently rewritten to the workspace's rev -- which is the one thing that pin
+# exists to prevent.  Unlike follows_exempt, this leaves the repo's OTHER
+# inputs following the workspace.  Args: <repo> <input>.
+follows_exempt_input() {
+  case "$1/$2" in
+    # logos-js-sdk declares two logos-protocol inputs on purpose. Its
+    # `logos-protocol` is the web transport, which the browser build is
+    # written against and SHOULD follow the workspace; this one is the branch
+    # where lp_provider_* actually serves, used only by the Node e2e's
+    # provider child. Retargeting it to the workspace rev turns that check
+    # red, because master's lp_provider_register accepts a registration and
+    # then serves nothing. Drop this when the provider ABI lands on protocol
+    # master and logos-js-sdk collapses its two inputs into one.
+    logos-js-sdk/protocol-with-serving-provider) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 # ── Workspace-level follows that override what each repo's lock would
 # otherwise produce.  Every entry is a deliberate divergence from upstream
 # and should have a comment explaining why.  Returns tab-separated
@@ -2625,8 +2646,10 @@ HEADER
           ws_id="$iname"
         fi
 
-        # Skip self-references and non-workspace targets
+        # Skip self-references, deliberately-pinned inputs, and
+        # non-workspace targets
         [[ -z "$ws_id" || "$ws_id" == "$input_name" ]] && continue
+        follows_exempt_input "$input_name" "$iname" && continue
         case "$ws_names_set" in
           *" $ws_id "*) follows_pairs+="${iname}	${ws_id}
 " ;;

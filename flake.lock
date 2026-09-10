@@ -678,6 +678,34 @@
         "type": "github"
       }
     },
+    "lidl-with-shared-c-abi": {
+      "inputs": {
+        "logos-nix": [
+          "logos-js-sdk",
+          "logos-nix"
+        ],
+        "nixpkgs": [
+          "logos-js-sdk",
+          "lidl-with-shared-c-abi",
+          "logos-nix",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1782951132,
+        "narHash": "sha256-56pyrYFoxzKOlsr+ql9jHuOOKZGJmmSkzcYx5s7tKJA=",
+        "owner": "logos-fleet",
+        "repo": "logos-lidl",
+        "rev": "386575a94f1c4f1af595d1e3550548f769799274",
+        "type": "github"
+      },
+      "original": {
+        "owner": "logos-fleet",
+        "ref": "feat/shared-c-abi-lib",
+        "repo": "logos-lidl",
+        "type": "github"
+      }
+    },
     "logos-accounts-module": {
       "inputs": {
         "go-wallet-sdk": "go-wallet-sdk",
@@ -10847,43 +10875,30 @@
     },
     "logos-js-sdk": {
       "inputs": {
-        "logos-capability-module": [
-          "logos-capability-module"
-        ],
-        "logos-cpp-sdk": [
-          "logos-cpp-sdk"
-        ],
-        "logos-liblogos": [
-          "logos-liblogos"
-        ],
-        "logos-module": [
-          "logos-module"
-        ],
-        "logos-module-builder": [
-          "logos-module-builder"
-        ],
-        "logos-module-client": [
-          "logos-module-client"
-        ],
+        "lidl-with-shared-c-abi": "lidl-with-shared-c-abi",
         "logos-nix": [
           "logos-nix"
         ],
+        "logos-protocol": [
+          "logos-protocol"
+        ],
         "nixpkgs": [
           "nixpkgs"
-        ]
+        ],
+        "protocol-with-serving-provider": "protocol-with-serving-provider"
       },
       "locked": {
-        "lastModified": 1774533571,
-        "narHash": "sha256-UpJb5ptmHiseV/g/ycM623QbaImJDcrcsdli6AGS5E8=",
+        "lastModified": 1789031361,
+        "narHash": "sha256-h/iVmRe5UrW/qDRS//yx9i8EomluUTqxDeql7pnBjJA=",
         "owner": "logos-fleet",
         "repo": "logos-js-sdk",
-        "rev": "6b6ccb5f10ea358ae8c9bee4264722dfb0aed76b",
+        "rev": "aba613e9936c3523f660986bcdc73c8829aefdc0",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-js-sdk",
-        "rev": "6b6ccb5f10ea358ae8c9bee4264722dfb0aed76b",
+        "rev": "aba613e9936c3523f660986bcdc73c8829aefdc0",
         "type": "github"
       }
     },
@@ -121362,6 +121377,34 @@
       "original": {
         "owner": "logos-co",
         "repo": "process-stats",
+        "type": "github"
+      }
+    },
+    "protocol-with-serving-provider": {
+      "inputs": {
+        "logos-nix": [
+          "logos-js-sdk",
+          "logos-nix"
+        ],
+        "nixpkgs": [
+          "logos-js-sdk",
+          "protocol-with-serving-provider",
+          "logos-nix",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1782949836,
+        "narHash": "sha256-oYKL42Pumh8BNvgFYgVwvn36qFfWzYDtgl8Hvu4VkIE=",
+        "owner": "logos-co",
+        "repo": "logos-protocol",
+        "rev": "dbc9b83d220668e0e2cde496c9c945d93c350ac7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "logos-co",
+        "ref": "feat/protocol-shared-lib",
+        "repo": "logos-protocol",
         "type": "github"
       }
     },
