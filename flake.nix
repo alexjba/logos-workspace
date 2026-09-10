@@ -22,7 +22,7 @@
     # logos-nix pins the workspace's nixpkgs (and therefore Qt).  Overriding
     # logos-nix here propagates to ALL downstream consumers via the auto-
     # generated follows below.
-    logos-nix.url = "github:logos-co/logos-nix";
+    logos-nix.url = "github:logos-fleet/logos-nix/fc2342b8baeebc97fe5ca25f4b06401bc4889ec3";
     nixpkgs.follows = "logos-nix/nixpkgs";
     # Pinned explicitly because logos-blockchain-module's upstream lock
     # currently references an invalid commit-ish via /0.2.1.
