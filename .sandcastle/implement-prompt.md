@@ -47,7 +47,7 @@ If applicable, use RGR: RED (one failing test), GREEN (minimal implementation), 
 3. After sub-repo work is verified, PIN it in the monorepo (see ENVIRONMENT below): the
    monorepo commit must include the updated gitlink for every touched sub-repo. A
    sub-repo change without a monorepo pin commit is invisible to the pipeline and is discarded.
-4. Write `.fleet/manifest.json` at the monorepo root before finishing (create the directory):
+4. Write `.fleet/manifest.json` at the monorepo root before finishing (create the directory). `.fleet/` is gitignored on purpose: the loop reads the file from your worktree, so never `git add` it (not even with `-f`):
 
 ```json
 {
