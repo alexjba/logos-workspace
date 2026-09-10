@@ -2067,17 +2067,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1788892892,
-        "narHash": "sha256-Sga1jai6/oPYi44OjLSMq0hlP9PFZd1oMUcI4xqMhIQ=",
+        "lastModified": 1789059489,
+        "narHash": "sha256-oRQ8Ic3i2b+t/QRzt5UFAKuYgYY0xllWXcc8HL0e9Bk=",
         "owner": "logos-fleet",
         "repo": "logos-capability-module",
-        "rev": "ecdc1975dd5f90a834b6d128357414dc60ad7aea",
+        "rev": "433a49afeea6fddd133373134bc88e2abfaeaa79",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-capability-module",
-        "rev": "ecdc1975dd5f90a834b6d128357414dc60ad7aea",
+        "rev": "433a49afeea6fddd133373134bc88e2abfaeaa79",
         "type": "github"
       }
     },
@@ -10452,17 +10452,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1789051213,
-        "narHash": "sha256-WDNCECSFtwJCe4Yy0nABQOmDCbCEZpfhn6UFsYlKKbk=",
+        "lastModified": 1789064391,
+        "narHash": "sha256-5ZFgbxV2N/g7rOpo6nq2KN+Lbm4L5n2N3hYKrJFv6pY=",
         "owner": "logos-fleet",
         "repo": "logos-liblogos",
-        "rev": "4ec62f0aa1e2be5326910abeb23bddf55f38ebbd",
+        "rev": "b4c1cc3bd2940fb5b6b0e5c2fe7aa42dd1d506fd",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-liblogos",
-        "rev": "4ec62f0aa1e2be5326910abeb23bddf55f38ebbd",
+        "rev": "b4c1cc3bd2940fb5b6b0e5c2fe7aa42dd1d506fd",
         "type": "github"
       }
     },
@@ -17382,17 +17382,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1789047551,
-        "narHash": "sha256-uT954bZFFFD7MMJ6Mx8ogeZ5tQGlelBjVwhPo58K0HE=",
+        "lastModified": 1789064398,
+        "narHash": "sha256-Ratug8jAZqWCjONdBeGmMs5gDcrHBqABvHzjhJto4uI=",
         "owner": "logos-fleet",
         "repo": "logos-logoscore-cli",
-        "rev": "dd6c0bdfaa4cec42f7a246a5927233df618feda2",
+        "rev": "0ad9ed029b1a1a38dde5dcd83f37a3c6788ec9ad",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-logoscore-cli",
-        "rev": "dd6c0bdfaa4cec42f7a246a5927233df618feda2",
+        "rev": "0ad9ed029b1a1a38dde5dcd83f37a3c6788ec9ad",
         "type": "github"
       }
     },
@@ -64570,17 +64570,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1789041959,
-        "narHash": "sha256-DqoyPK2nIBaJYfEXEbkghVy38UeLTGPw7kDHDt75CV4=",
+        "lastModified": 1789059476,
+        "narHash": "sha256-HtNLkxgqSeROmahb/rm4Hf4Z6R7/QFUr/OBocnBqLsM=",
         "owner": "logos-fleet",
         "repo": "logos-protocol",
-        "rev": "732748b12f0b71e9324ceda89c1a5487afe0d115",
+        "rev": "a19f65225ac16e7c843ceedfe2fe165cfa94576b",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-protocol",
-        "rev": "732748b12f0b71e9324ceda89c1a5487afe0d115",
+        "rev": "a19f65225ac16e7c843ceedfe2fe165cfa94576b",
         "type": "github"
       }
     },
@@ -71647,6 +71647,9 @@
     },
     "logos-test-modules_3": {
       "inputs": {
+        "logos-capability-module": [
+          "logos-capability-module"
+        ],
         "logos-liblogos": [
           "logos-liblogos"
         ],
@@ -71667,17 +71670,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1788853425,
-        "narHash": "sha256-aDwlRD4aN+FKQcvZspF3T4suJSIGnS/jnQN0/0/gXi4=",
+        "lastModified": 1789059535,
+        "narHash": "sha256-E4pW1/iLLddeRlH2ZNNnRbIg8DhwNj0rKKDfuwurelo=",
         "owner": "logos-fleet",
         "repo": "logos-test-modules",
-        "rev": "3725a1a3226301d2ca8b51bb6a690e20b326fd01",
+        "rev": "9074258ad8ced37647b4269a78a217723f0f4d05",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-test-modules",
-        "rev": "3725a1a3226301d2ca8b51bb6a690e20b326fd01",
+        "rev": "9074258ad8ced37647b4269a78a217723f0f4d05",
         "type": "github"
       }
     },
