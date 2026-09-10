@@ -73,7 +73,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     logos-liblogos = {
-      url = "github:logos-fleet/logos-liblogos/95245d519c47ff6793f5856fb2fe822799f8766e";
+      url = "github:logos-fleet/logos-liblogos/4ec62f0aa1e2be5326910abeb23bddf55f38ebbd";
       inputs.logos-capability-module.follows = "logos-capability-module";
       inputs.logos-cpp-sdk.follows = "logos-cpp-sdk";
       inputs.logos-module.follows = "logos-module";
