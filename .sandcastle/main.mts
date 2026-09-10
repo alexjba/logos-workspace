@@ -4,7 +4,8 @@
 // Run: npm run sandcastle            (Docker sandboxes)
 //      SANDCASTLE_SANDBOX=none npm run sandcastle   (already-isolated host)
 
-import { existsSync, readFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import * as sandcastle from "@ai-hero/sandcastle";
 import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
 import { noSandbox } from "@ai-hero/sandcastle/sandboxes/no-sandbox";
@@ -37,6 +38,20 @@ const CLOUD = process.env.SANDCASTLE_SANDBOX === "none";
 // FLEET_VENUE=linux|mac selects which labeled issues this loop may plan (spec: venues).
 const VENUE = parseVenue(process.env.FLEET_VENUE);
 const BASE_BRANCH = "master";
+// FLEET_REVIEW_ONLY=5,10 adopts branches whose implementer already finished outside the loop (e.g. a
+// session resumed after a usage limit): in the first iteration their implementer is skipped, the branch's
+// commits over the base count as its work, and the manifest comes from FLEET_MANIFEST_DIR/<id>.json.
+const REVIEW_ONLY = new Set((process.env.FLEET_REVIEW_ONLY ?? "").split(",").map((s) => s.trim()).filter(Boolean));
+const adoptFinishedBranch = (id: string, worktreePath: string): { sha: string }[] => {
+  const saved = process.env.FLEET_MANIFEST_DIR ? join(process.env.FLEET_MANIFEST_DIR, `${id}.json`) : "";
+  if (saved && existsSync(saved)) {
+    mkdirSync(join(worktreePath, ".fleet"), { recursive: true });
+    copyFileSync(saved, join(worktreePath, ".fleet", "manifest.json"));
+  }
+  const shas = execSync(`git rev-list ${BASE_BRANCH}..HEAD`, { cwd: worktreePath, encoding: "utf8" }).split("\n").filter(Boolean);
+  console.log(`  ${id}: implementer skipped (FLEET_REVIEW_ONLY), ${shas.length} commit(s) on the branch`);
+  return shas.map((sha) => ({ sha }));
+};
 // FLEET_LABELS=a,b (AND) and FLEET_MILESTONE narrow the board at runtime; default is the installed label.
 const SCOPE_FLAGS = scopeFlags(parseLabels(process.env.FLEET_LABELS, "fleet-smoke"), process.env.FLEET_MILESTONE);
 // FLEET_MAX_PARALLEL caps concurrent issue pipelines (implementer + reviewer); default unlimited.
@@ -110,15 +125,20 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
         hooks: sandboxHooks,
       });
       try {
-        const implement = await sandbox.run({
-          name: "implementer",
-          maxIterations: 100,
-          idleTimeoutSeconds: IDLE_TIMEOUT,
-          agent: makeAgent("IMPLEMENTER"),
-          promptFile: "./.sandcastle/implement-prompt.md",
-          promptArgs: { TASK_ID: issue.id, ISSUE_TITLE: issue.title, BRANCH: issue.branch, VENUE: environmentVenue(VENUE) },
-        });
-        let commits = implement.commits;
+        let commits: { sha: string }[];
+        if (iteration === 1 && REVIEW_ONLY.has(issue.id)) {
+          commits = adoptFinishedBranch(issue.id, sandbox.worktreePath);
+        } else {
+          const implement = await sandbox.run({
+            name: "implementer",
+            maxIterations: 100,
+            idleTimeoutSeconds: IDLE_TIMEOUT,
+            agent: makeAgent("IMPLEMENTER"),
+            promptFile: "./.sandcastle/implement-prompt.md",
+            promptArgs: { TASK_ID: issue.id, ISSUE_TITLE: issue.title, BRANCH: issue.branch, VENUE: environmentVenue(VENUE) },
+          });
+          commits = implement.commits;
+        }
         if (commits.length > 0) {
           const review = await sandbox.run({
             name: "reviewer",
