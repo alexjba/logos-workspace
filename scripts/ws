@@ -1251,9 +1251,12 @@ _test_one_repo() {
   local outputs
   outputs=$(_discover_test_outputs "$repo_path" "$system" "$override_flags")
 
+  # Capture the whole bracketed array. `[^,}]*` used to stop at the first
+  # comma, so a repo with several checks silently ran only its alphabetically
+  # first one and reported PASS for the rest by never running them.
   local checks_json test_pkgs_json
-  checks_json=$(echo "$outputs" | sed 's/.*"checks":\([^,}]*\).*/\1/')
-  test_pkgs_json=$(echo "$outputs" | sed 's/.*"testPkgs":\([^}]*\).*/\1/')
+  checks_json=$(echo "$outputs" | sed 's/.*"checks":\(\[[^]]*\]\).*/\1/')
+  test_pkgs_json=$(echo "$outputs" | sed 's/.*"testPkgs":\(\[[^]]*\]\).*/\1/')
 
   # Build the flake ref for checks and packages.
   # When overrides are active (--local, --auto-local, --workspace), build from the
