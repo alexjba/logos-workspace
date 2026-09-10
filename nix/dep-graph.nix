@@ -18,7 +18,7 @@
 #   - .github/workflows/ci.yml: change-detection grep for `"$repo"` deps lines
 #   - flake.nix:    `lib.depGraph` re-export for programmatic introspection
 {
-  logos-nix                       = { deps = []; follows = { "nixpkgs" = "nixpkgs"; }; hasTests = false; };
+  logos-nix                       = { deps = []; follows = { "nixpkgs" = "nixpkgs"; "nixpkgs-windows" = "nixpkgs"; }; hasTests = true; };
   logos-protocol                  = { deps = [ "logos-nix" ]; follows = { "logos-nix" = "logos-nix"; "nixpkgs" = "nixpkgs"; }; hasTests = true; };
   logos-qt-sdk                    = { deps = [ "logos-nix" "logos-protocol" "logos-cpp-sdk" ]; follows = { "logos-cpp-sdk" = "logos-cpp-sdk"; "logos-nix" = "logos-nix"; "logos-protocol" = "logos-protocol"; "nixpkgs" = "nixpkgs"; }; hasTests = true; };
   logos-cpp-sdk                   = { deps = [ "logos-nix" "logos-protocol" ]; follows = { "logos-nix" = "logos-nix"; "logos-protocol" = "logos-protocol"; "nixpkgs" = "nixpkgs"; }; hasTests = true; };
