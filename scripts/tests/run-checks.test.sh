@@ -67,12 +67,14 @@ expect "a workspace <input>-- prefix is kept when reading paths back" 1 "PASS fx
 
 # A check that depends on a failing derivation which is not itself a check
 # (the shape of basecamp's shutdown-test over the .app integration run).
+# shellcheck disable=SC2016 # the single quotes hold a Nix expression
 mkflake depfails 'a = ok "a"; user = let d = bad "dep"; in mk "user" "cat ${d} > \$out";'
 run "path:$T/depfails#checks.$SYSTEM." a user
 expect "a check whose dependency fails is a FAIL, not a PASS" 1 "PASS fx a" "FAIL fx user"
 
 # A builder that creates $out and then fails can leave that directory in the
 # store, unregistered. It must still be a FAIL (the #67 false PASS).
+# shellcheck disable=SC2016 # the single quotes hold a Nix expression
 mkflake leaky 'a = ok "a"; leaky = mk "leaky" "mkdir -p \$out; echo partial > \$out/x; exit 1";'
 run "path:$T/leaky#checks.$SYSTEM." a leaky
 expect "a failed build that left its output directory behind is a FAIL" 1 "PASS fx a" "FAIL fx leaky"
