@@ -10523,17 +10523,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1789100808,
-        "narHash": "sha256-OTw7rDFX10nz+mnmsZZoQdKA/wteBDvOXMWutTIkhFc=",
+        "lastModified": 1789105363,
+        "narHash": "sha256-FkMUzJ1igbwqi/E5UMgSmwQYO8APNGEjM/CITMyHXlo=",
         "owner": "logos-fleet",
         "repo": "logos-libp2p-module",
-        "rev": "13b439bd05ef61b3c85c5f8fbfd0824dacd8ea48",
+        "rev": "f2fc350c01954ea764343effa5945223609c0593",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-libp2p-module",
-        "rev": "13b439bd05ef61b3c85c5f8fbfd0824dacd8ea48",
+        "rev": "f2fc350c01954ea764343effa5945223609c0593",
         "type": "github"
       }
     },
@@ -17827,17 +17827,17 @@
         "rust-overlay": "rust-overlay_15"
       },
       "locked": {
-        "lastModified": 1789100627,
-        "narHash": "sha256-uDOMO3c9wRC8FtGkcCnry/YvYQHVuz8FWM/DwpLEXn4=",
+        "lastModified": 1789105314,
+        "narHash": "sha256-bcpviLzMUj/tPMZrMFtCR8MhapzuT1ySQR4rnVY9ba0=",
         "owner": "logos-fleet",
         "repo": "logos-module-builder",
-        "rev": "e94eb60f510d56970ba679490a97c8413f26ce19",
+        "rev": "8eba493d39fd06253625a7a5bcbcd232697326e6",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-module-builder",
-        "rev": "e94eb60f510d56970ba679490a97c8413f26ce19",
+        "rev": "8eba493d39fd06253625a7a5bcbcd232697326e6",
         "type": "github"
       }
     },
