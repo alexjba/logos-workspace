@@ -6,7 +6,10 @@
 # Builds every named check in ONE `nix build`: one flake evaluation instead of
 # one per check, and independent checks build in parallel under max-jobs.
 # --keep-going lets the others finish when one fails. A check PASSes when its
-# output path exists afterwards, read back with a single `nix eval`.
+# output path is VALID in the Nix store afterwards (read back with a single
+# `nix eval`). Existence is not enough: on darwin a builder that wrote $out and
+# then failed can leave that directory behind unregistered, and `-e` on it
+# reported a failed basecamp integration-test as PASS (2026-09-11, #67).
 #
 # A check that fails to *evaluate* aborts a multi-installable `nix build`
 # before anything builds, and fails the out-path eval too. Then the checks are
@@ -55,7 +58,7 @@ run_checks_batched() {
   while IFS= read -r path; do
     check="${checks[$i]}"
     i=$((i + 1))
-    if [[ -n "$path" && -e "$path" ]]; then
+    if [[ -n "$path" ]] && nix-store --check-validity "$path" >/dev/null 2>&1; then
       echo -e "  ${GREEN}PASS${NC} ${label} $check"
     else
       echo -e "  ${RED}FAIL${NC} ${label} $check"
