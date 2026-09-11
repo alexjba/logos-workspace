@@ -538,24 +538,22 @@ KNOWN_TARGETS="ios-sim-arm64 ios-arm64 android-arm64"
 KNOWN_APPS="smoke shell"
 
 target_to_run_app() {
-  local target="$1" app="${2:-smoke}"
-  case "$app" in
-    smoke)
-      case "$target" in
-        ios-sim-arm64) echo "run-liblogos-smoke-ios-sim" ;;
-        ios-arm64)     echo "run-liblogos-smoke-ios-device" ;;
-        android-arm64) echo "run-liblogos-smoke-android" ;;
-        *) return 1 ;;
-      esac ;;
-    shell)
-      case "$target" in
-        ios-sim-arm64) echo "run-basecamp-shell-ios-sim" ;;
-        ios-arm64)     echo "run-basecamp-shell-ios-device" ;;
-        android-arm64) return 2 ;;
-        *) return 1 ;;
-      esac ;;
-    *) return 3 ;;
+  case "$2:$1" in
+    smoke:ios-sim-arm64) echo "run-liblogos-smoke-ios-sim" ;;
+    smoke:ios-arm64)     echo "run-liblogos-smoke-ios-device" ;;
+    smoke:android-arm64) echo "run-liblogos-smoke-android" ;;
+    shell:ios-sim-arm64) echo "run-basecamp-shell-ios-sim" ;;
+    shell:ios-arm64)     echo "run-basecamp-shell-ios-device" ;;
+    *) return 1 ;;
   esac
+}
+
+is_known_app() {
+  [[ " $KNOWN_APPS " == *" $1 "* ]]
+}
+
+is_known_target() {
+  [[ " $KNOWN_TARGETS " == *" $1 "* ]]
 }
 
 die_unknown_app() {
@@ -1118,13 +1116,12 @@ Examples:
   # `--bundle` reaches the evaluation through the environment for the same
   # reason as in `ws build` -- a list cannot be a flake attribute name.
   if [[ -n "$target" ]]; then
-    local run_app rc
-    run_app=$(target_to_run_app "$target" "$app") || rc=$?
-    case "${rc:-0}" in
-      1) die_unknown_target "$target" ;;
-      2) die_app_without_target "$app" "$target" ;;
-      3) die_unknown_app "$app" ;;
-    esac
+    is_known_app "$app" || die_unknown_app "$app"
+    is_known_target "$target" || die_unknown_target "$target"
+    local run_app
+    # Both names are known, so the only way left to have no runner is a
+    # combination with no build -- the Shell on Android, today.
+    run_app=$(target_to_run_app "$target" "$app") || die_app_without_target "$app" "$target"
     if [[ -n "$bundle" ]]; then
       export LOGOS_BUNDLE_APPS="$bundle"
       flags+=("--impure")
