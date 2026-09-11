@@ -205,12 +205,12 @@
       inputs.logos-module-builder.follows = "logos-module-builder";
     };
     logos-chat-module = {
-      url = "github:logos-fleet/logos-chat-module/a55cbf180884f9d75aa279e79b85b9a285e17aa1";
+      url = "github:logos-fleet/logos-chat-module/8c896abd42021416df2f6939ed15609063823c4a";
       inputs.logos-delivery-module.follows = "logos-delivery-module";
       inputs.logos-module-builder.follows = "logos-module-builder";
     };
     logos-chat-ui = {
-      url = "github:logos-fleet/logos-chat-ui/885166d0a167b91ce5920cd1e2f9a3bd0cb8c8e2";
+      url = "github:logos-fleet/logos-chat-ui/a6990e263679ed2fe0b4e9c11c75b80ccd7cb0a4";
       inputs.chat_module.follows = "logos-chat-module";
       inputs.logos-delivery-module.follows = "logos-delivery-module";
       inputs.logos-module-builder.follows = "logos-module-builder";
