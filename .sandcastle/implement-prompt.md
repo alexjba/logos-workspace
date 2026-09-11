@@ -72,6 +72,7 @@ Read `CLAUDE.md` for the `ws` CLI. Key facts: `--auto-local` overrides flake inp
 # FEEDBACK LOOPS
 
 - Verify touched sub-repos: `.sandcastle/adapter/verify.sh <repo...>` (runs `ws test <repo...> --auto-local`). Also test at least one direct dependent (`ws graph <repo>`).
+- Report verification so a reviewer can check it without re-running it: in your final issue comment give the `verify.sh` command, the sub-repo commits it ran against (`git -C repos/<x> rev-parse --short HEAD`), each PASS/FAIL line, and the path of the full log. Run it after your last sub-repo commit; a run against an earlier commit does not count.
 - First builds are slow (minutes); do not abort them. Cache hits make later builds fast.
 - A single Bash call may run for up to 60 minutes (pass `timeout` in ms, max 3600000). For anything
   longer, start it detached (`nohup ... > log 2>&1 &`) and poll the log from the foreground in calls
