@@ -11,8 +11,11 @@ pass=0; fail=0
 T=$(mktemp -d)
 trap 'rm -rf "$T"' EXIT
 
-# mkrepo <name> reads a flake.nix from stdin and sets REPO_DIR.
-mkrepo() { REPO_DIR="$T/$1"; mkdir -p "$REPO_DIR"; cat > "$REPO_DIR/flake.nix"; }
+# mkdir_repo <name> creates an empty repo dir and sets REPO_DIR.
+mkdir_repo() { REPO_DIR="$T/$1"; mkdir -p "$REPO_DIR"; }
+
+# mkrepo <name> does the same, then reads the repo's flake.nix from stdin.
+mkrepo() { mkdir_repo "$1"; cat > "$REPO_DIR/flake.nix"; }
 
 # expect <label> <expected 0|1>  — checks flake_declares_tests "$REPO_DIR"
 expect() {
@@ -81,10 +84,7 @@ mkrepo other-tests-attrs <<'NIX'
 NIX
 expect "attributes merely ending in -tests are not a tests attribute" 1
 
-mkrepo missing-flake <<'NIX'
-placeholder
-NIX
-rm "$REPO_DIR/flake.nix"
+mkdir_repo missing-flake
 expect "a repo without a flake.nix has no tests" 1
 
 mkrepo qml-with-mjs <<'NIX'
