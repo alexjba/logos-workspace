@@ -70,17 +70,37 @@ remain allowed because the container is a webview anyway. See
   until `start()`**, and everything before it is queued rather than dropped — a
   backend writes QtRO's object list the instant it begins hosting, which is
   routinely before the runtime has attached anything to its end.
-- **The runtime's shape links.** `nix build .#messageport-wasm` in
-  logos-view-module-runtime puts Qt Quick, the Logos design system and the
-  MessagePort transport into ONE static wasm image — this ADR's bundled runtime
-  minus the module QML it will load at install time — and weighs
-  **20,894,977 B** on aarch64-darwin, 526 KB over the design system's own
-  20,368,741 B smoke. So QtRO plus the transport cost the runtime half a
-  megabyte and the per-runtime budget above is unchanged. The build asserts
-  both things a successful static link can silently omit: the embind exports
-  the page hands a port through (nothing in C++ references them) and the design
-  system's QML plugins (Qt's static-plugin auto-import and the umbrella's
-  `WHOLE_ARCHIVE` compete for exactly those). Still nothing has run in a
-  browser.
+- **The runtime is built.** `nix build .#qml-runtime-wasm` in
+  logos-view-module-runtime is this ADR's bundled runtime as one static image:
+  Qt Quick, the Logos design system, the MessagePort transport and
+  `LogosWebRuntime` — a QML engine with `logos` in its root context and a
+  module's QML loaded into it as TEXT at install time. **20,934,861 B raw /
+  5,108,300 B brotli** on aarch64-darwin, against the budget of ~26 MB / 6.8 MB
+  this ADR was accepted with; the runtime library itself costs 39,884 B over the
+  runtime-SHAPE image that preceded it. The build asserts both things a
+  successful static link can silently omit: every page-facing embind export
+  (nothing in C++ references them) and the design system's QML plugins (Qt's
+  static-plugin auto-import and the umbrella's `WHOLE_ARCHIVE` compete for
+  exactly those). Still nothing has run in a browser; the runtime's behaviour is
+  checked on the desktop against a real `QRemoteObjectHost` and a real
+  `QQmlEngine`.
+- **A page's whole API is four embind calls**, and no Qt type crosses:
+  `logosAdoptMessagePort(name, port)` for the wire,
+  `logosInstallModuleView(name, qmlText)` for a module,
+  `logosRemoveModuleView(name)` and `logosRuntimeLastError()`. A second module is
+  a second document on the same engine and the same node — the runtime is
+  downloaded once, which is the load-path consequence this ADR asked for.
+- **A module's QML takes its backend on an edge, not on first paint.** Inside
+  the Web container `logos.module(name)` answers null until the backend's source
+  meta has arrived, and the view re-takes it on `moduleReadyChanged`. Forced,
+  not chosen: a page cannot dlopen the generated factory plugin that gives a
+  desktop host a TYPED replica, so the replica is dynamic and builds its
+  metaobject from the wire — and Qt's QML engine caches a property cache for an
+  object the first time JS touches it, so a replica handed over early is cached
+  with the generic `QRemoteObjectReplica` metaobject and its properties read
+  `undefined` for the rest of the page's life. The synchronous `logos.callModule`
+  is refused in this container for a related reason: its reply crosses a
+  MessagePort, which delivers through the event loop a blocking caller has
+  stopped running.
 - Everything in the Web container is single-threaded; concurrency is
   "more workers", never pthreads.
