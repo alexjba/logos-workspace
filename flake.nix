@@ -269,7 +269,7 @@
       inputs.wallet_module.follows = "logos-wallet-module";
     };
     logos-delivery-module = {
-      url = "github:logos-fleet/logos-delivery-module/3f8a0ed99afae349fec8013442638e7569ac2cf3";
+      url = "github:logos-fleet/logos-delivery-module/8526f5b1d7b4f9e200ebbf81ec379926debfa651";
       inputs.logos-module-builder.follows = "logos-module-builder";
       inputs.nix-bundle-lgx.follows = "nix-bundle-lgx";
     };
