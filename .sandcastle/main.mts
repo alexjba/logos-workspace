@@ -95,6 +95,17 @@ const sandboxHooks = existsSync(".sandcastle/adapter/bootstrap.sh")
   ? { sandbox: { onSandboxReady: [{ command: "bash .sandcastle/adapter/bootstrap.sh" }] } }
   : undefined;
 
+// Sandbox creation runs one at a time. Every createSandbox prunes "orphaned" worktree directories
+// (those `git worktree list` does not show), and a concurrent call can delete a sibling's worktree
+// while its `git worktree add` is still registering it: issue #53's pipeline lost its worktree this
+// way in the iteration-7 run and never got past "Setting up sandbox".
+let sandboxLock: Promise<unknown> = Promise.resolve();
+const serialized = <T,>(fn: () => Promise<T>): Promise<T> => {
+  const next = sandboxLock.then(fn, fn);
+  sandboxLock = next.catch(() => undefined);
+  return next;
+};
+
 type Outcome = { commits: { sha: string }[]; manifest: Manifest | null };
 
 for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
@@ -122,11 +133,13 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   for (const issue of issues) console.log(`  ${issue.id}: ${issue.title} → ${issue.branch}`);
 
   const settled = await runPool(issues, MAX_PARALLEL, async (issue): Promise<Outcome> => {
-      const sandbox = await sandcastle.createSandbox({
-        branch: issue.branch,
-        sandbox: makeSandbox(),
-        hooks: sandboxHooks,
-      });
+      const sandbox = await serialized(() =>
+        sandcastle.createSandbox({
+          branch: issue.branch,
+          sandbox: makeSandbox(),
+          hooks: sandboxHooks,
+        }),
+      );
       try {
         let commits: { sha: string }[];
         const saved = savedManifest(issue.id);
