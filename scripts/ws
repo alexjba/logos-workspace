@@ -527,13 +527,48 @@ target_to_system() {
 KNOWN_TARGETS="ios-sim-arm64 ios-arm64 android-arm64"
 
 # The runner that puts a build of <target> on a device or simulator.
+#
+# Two apps carry the same Bundled set, and `--app` picks which one runs:
+#
+#   smoke   liblogos_core with the set in it, a log on screen and the verdicts
+#           on the console. The bring-up probe, and the default -- it is what
+#           answers "did the set load" without a UI in the way.
+#   shell   Basecamp's real UI shell on top of the same host: main_ui linked
+#           in, the Modules tab listing the set. iOS only for now; Qt for
+#           Android is shared objects, so main_ui there is a different
+#           artifact (see repos/logos-basecamp/nix/shell-ui-ios.nix).
+KNOWN_APPS="smoke shell"
+
 target_to_run_app() {
-  case "$1" in
-    ios-sim-arm64) echo "run-liblogos-smoke-ios-sim" ;;
-    ios-arm64)     echo "run-liblogos-smoke-ios-device" ;;
-    android-arm64) echo "run-liblogos-smoke-android" ;;
+  case "$2:$1" in
+    smoke:ios-sim-arm64) echo "run-liblogos-smoke-ios-sim" ;;
+    smoke:ios-arm64)     echo "run-liblogos-smoke-ios-device" ;;
+    smoke:android-arm64) echo "run-liblogos-smoke-android" ;;
+    shell:ios-sim-arm64) echo "run-basecamp-shell-ios-sim" ;;
+    shell:ios-arm64)     echo "run-basecamp-shell-ios-device" ;;
     *) return 1 ;;
   esac
+}
+
+is_known_app() {
+  [[ " $KNOWN_APPS " == *" $1 "* ]]
+}
+
+is_known_target() {
+  [[ " $KNOWN_TARGETS " == *" $1 "* ]]
+}
+
+die_unknown_app() {
+  echo -e "${RED}Error:${NC} unknown --app '$1'" >&2
+  echo "Known apps: $KNOWN_APPS" >&2
+  exit 1
+}
+
+die_app_without_target() {
+  echo -e "${RED}Error:${NC} --app '$1' has no build for --target '$2'" >&2
+  echo "The Shell is iOS-only today: Qt for Android is a set of shared objects," >&2
+  echo "so main_ui there is the desktop plugin rather than a static import." >&2
+  exit 1
 }
 
 die_unknown_target() {
@@ -978,6 +1013,8 @@ Options:
   --bundle, -B <app[,app...]>   Modules the app carries in its Bundled set.
                                 Resolved from the catalog with their dependency
                                 closure; needs --target
+  --app, -A <smoke|shell>       Which app carries the set (default: smoke).
+                                `shell` is Basecamp's real UI shell; iOS only
   --auto-local, -a              Auto-detect dirty repos and use as local overrides
   --local, -l <repo1> <repo2>   Use specific repos as local overrides
 
@@ -997,6 +1034,7 @@ logos-standalone-app extras (passed after --):
 
 Examples:
   ws run logos-basecamp
+  ws run logos-basecamp --target ios-sim-arm64 --bundle bare_counter --app shell
   ws run logos-basecamp --auto-local
   ws run logos-basecamp --local logos-cpp-sdk
   ws run logos-standalone-app -- logos-accounts-ui --modules logos-accounts-module
@@ -1008,6 +1046,7 @@ Examples:
   local extra_args=()
   local target=""
   local bundle=""
+  local app="smoke"
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -1015,6 +1054,7 @@ Examples:
         shift; extra_args+=("$@"); break ;;
       --target|-T) target="${2:?--target needs a variant name}"; shift 2 ;;
       --bundle|-B) bundle="${2:?--bundle needs a module name}"; shift 2 ;;
+      --app|-A) app="${2:?--app needs a name}"; shift 2 ;;
       --group|-g)
         shift
         while [[ $# -gt 0 && "$1" != -* ]]; do
@@ -1078,14 +1118,18 @@ Examples:
   # `--bundle` reaches the evaluation through the environment for the same
   # reason as in `ws build` -- a list cannot be a flake attribute name.
   if [[ -n "$target" ]]; then
+    is_known_app "$app" || die_unknown_app "$app"
+    is_known_target "$target" || die_unknown_target "$target"
     local run_app
-    run_app=$(target_to_run_app "$target") || die_unknown_target "$target"
+    # Both names are known, so the only way left to have no runner is a
+    # combination with no build -- the Shell on Android, today.
+    run_app=$(target_to_run_app "$target" "$app") || die_app_without_target "$app" "$target"
     if [[ -n "$bundle" ]]; then
       export LOGOS_BUNDLE_APPS="$bundle"
       flags+=("--impure")
       log "${CYAN}Bundled set:${NC} $bundle  ${CYAN}target:${NC} $target"
     fi
-    log "${BOLD}Running ${CYAN}$input_name${NC}${BOLD} on ${CYAN}$target${NC}${BOLD}...${NC}"
+    log "${BOLD}Running ${CYAN}$input_name${NC} (${CYAN}$app${NC})${BOLD} on ${CYAN}$target${NC}${BOLD}...${NC}"
     exec nix run \
       --extra-experimental-features "nix-command flakes" \
       "$WORKSPACE_ROOT#$input_name--$run_app" \
