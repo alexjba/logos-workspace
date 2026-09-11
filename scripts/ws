@@ -12,6 +12,8 @@ DEP_GRAPH="$WORKSPACE_ROOT/nix/dep-graph.nix"
 source "$WORKSPACE_ROOT/scripts/_standalone-app"
 # shellcheck source=scripts/_detect-tests
 source "$WORKSPACE_ROOT/scripts/_detect-tests"
+# shellcheck source=scripts/_run-checks
+source "$WORKSPACE_ROOT/scripts/_run-checks"
 
 # Show help text and exit. Usage: show_help "text"
 show_help() { echo -e "$1"; exit 0; }
@@ -1451,34 +1453,17 @@ _test_one_repo() {
   checks=$(_json_array_to_lines "$checks_json")
 
   if [[ -n "$checks" ]]; then
-    # If "tests" exists, run it first (convention)
-    if echo "$checks" | grep -qx "tests"; then
-      ran_something=true
-      log "  ${YELLOW}check${NC} tests"
-      # shellcheck disable=SC2086
-      if run_nix_test build --extra-experimental-features "nix-command flakes" \
-        "${check_ref}tests" $override_flags -L; then
-        echo -e "  ${GREEN}PASS${NC} ${dir_name} tests"
-      else
-        echo -e "  ${RED}FAIL${NC} ${dir_name} tests"
-        all_pass=false
-      fi
-    fi
-
-    # Run any other checks
+    # "tests" first (convention), then the rest in discovery order, all in one
+    # nix build (scripts/_run-checks).
+    local ordered=() check
+    if echo "$checks" | grep -qx "tests"; then ordered+=(tests); fi
     while IFS= read -r check; do
       [[ -z "$check" || "$check" == "tests" ]] && continue
-      ran_something=true
-      log "  ${YELLOW}check${NC} $check"
-      # shellcheck disable=SC2086
-      if run_nix_test build --extra-experimental-features "nix-command flakes" \
-        "${check_ref}${check}" $override_flags -L; then
-        echo -e "  ${GREEN}PASS${NC} ${dir_name} $check"
-      else
-        echo -e "  ${RED}FAIL${NC} ${dir_name} $check"
-        all_pass=false
-      fi
+      ordered+=("$check")
     done <<< "$checks"
+    ran_something=true
+    run_checks_batched "$check_ref" "$system" "$override_flags" "$dir_name" "${ordered[@]}" \
+      || all_pass=false
   fi
 
   # 2. If no checks, try test-like packages (build only)

@@ -1,0 +1,66 @@
+# shellcheck shell=bash
+# Sourced by scripts/ws.
+#
+# run_checks_batched <check_ref> <system> <override_flags> <label> <check...>
+#
+# Builds every named check in ONE `nix build`: one flake evaluation instead of
+# one per check, and independent checks build in parallel under max-jobs.
+# --keep-going lets the others finish when one fails. A check PASSes when its
+# output path exists afterwards, read back with a single `nix eval`.
+#
+# A check that fails to *evaluate* aborts a multi-installable `nix build`
+# before anything builds, and fails the out-path eval too. Then the checks are
+# built one at a time instead, so one broken check cannot hide the verdicts of
+# the rest.
+#
+# Prints one PASS/FAIL line per check and returns non-zero if any failed.
+# Needs run_nix_test, log and the colour variables from scripts/ws.
+run_checks_batched() {
+  local check_ref="$1" system="$2" override_flags="$3" label="$4"
+  shift 4
+  local checks=("$@") refs=() names="" check path all_pass=true i=0
+  local flake="${check_ref%%#*}"
+  local prefix="${check_ref#*#checks."$system".}"
+
+  for check in "${checks[@]}"; do
+    log "  ${YELLOW}check${NC} $check"
+    refs+=("${check_ref}${check}")
+    names+=" \"${prefix}${check}\""
+  done
+
+  # shellcheck disable=SC2086
+  run_nix_test build --extra-experimental-features "nix-command flakes" \
+    --keep-going --no-link "${refs[@]}" $override_flags -L || true
+
+  local paths
+  # shellcheck disable=SC2086
+  if ! paths=$(nix eval --extra-experimental-features "nix-command flakes" --raw \
+      "${flake}#checks.${system}" $override_flags \
+      --apply "cs: builtins.concatStringsSep \"\\n\" (map (n: cs.\${n}.outPath) [${names} ])" \
+      2>/dev/null); then
+    for check in "${checks[@]}"; do
+      # shellcheck disable=SC2086
+      if run_nix_test build --extra-experimental-features "nix-command flakes" \
+        --no-link "${check_ref}${check}" $override_flags -L; then
+        echo -e "  ${GREEN}PASS${NC} ${label} $check"
+      else
+        echo -e "  ${RED}FAIL${NC} ${label} $check"
+        all_pass=false
+      fi
+    done
+    $all_pass
+    return
+  fi
+
+  while IFS= read -r path; do
+    check="${checks[$i]}"
+    i=$((i + 1))
+    if [[ -n "$path" && -e "$path" ]]; then
+      echo -e "  ${GREEN}PASS${NC} ${label} $check"
+    else
+      echo -e "  ${RED}FAIL${NC} ${label} $check"
+      all_pass=false
+    fi
+  done <<< "$paths"
+  $all_pass
+}
