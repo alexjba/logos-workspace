@@ -24,7 +24,7 @@
     # generated follows below.
     # fleet-kit: pinned to the logos-fleet fork at an explicit rev; pin.sh moves the rev
     # to the repos/logos-nix gitlink (this manual input is skipped by `ws sync-graph`).
-    logos-nix.url = "github:logos-fleet/logos-nix/9f3d4fa1296c25f681e1d12b537df80cfcf02594";
+    logos-nix.url = "github:logos-fleet/logos-nix/53acb6cd780655835de77a88a1bfbc82b532335c";
     nixpkgs.follows = "logos-nix/nixpkgs";
     # Pinned explicitly because logos-blockchain-module's upstream lock
     # currently references an invalid commit-ish via /0.2.1.
@@ -319,7 +319,7 @@
       inputs.logos-module-builder.follows = "logos-module-builder";
     };
     logos-design-system = {
-      url = "github:logos-fleet/logos-design-system/04de820037c4fca32697c8709f556ba82e284b27";
+      url = "github:logos-fleet/logos-design-system/bb5b017d0d7cdc1574c31f8cb8ed13c3c84272d8";
       inputs.logos-nix.follows = "logos-nix";
       inputs.nix-bundle-appimage.follows = "nix-bundle-appimage";
       inputs.nix-bundle-dir.follows = "nix-bundle-dir";
