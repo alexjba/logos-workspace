@@ -19,6 +19,8 @@ The workspace has a custom CLI (`scripts/ws`) that manages all repos. Use it ins
 ws build <repo...> [--auto-local]    # Build one or more repos (auto-override dirty deps)
 ws build <repo> --local dep1 dep2    # Build with explicit local overrides
 ws run <repo> [--auto-local]         # Build and run (single repo only)
+ws build <repo> --target <variant> --bundle <apps>   # Mobile Bundled-set build
+ws run   <repo> --target <variant> --bundle <apps>   # ...and put it on a device
 ws test <repo...> [--auto-local]     # Run repo's nix checks
 ws test <repo> --local dep1 dep2     # Test with explicit local overrides
 ws test --all [--type cpp|rust|nim]  # Test all repos
