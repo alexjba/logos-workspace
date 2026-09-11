@@ -72578,17 +72578,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1789154299,
-        "narHash": "sha256-/KLssEoiNm9y6awotLNmNT/VL507LRaeQe4PecwZFUs=",
+        "lastModified": 1789163088,
+        "narHash": "sha256-hOJqTjeu6yZzLxXaoWWeX36VtJD/5TS/7mqiIR2JKok=",
         "owner": "logos-fleet",
         "repo": "logos-view-module-runtime",
-        "rev": "ed772dc039e45b60aaa0a18160e427838278ccd7",
+        "rev": "03c26c41f77574ce4eee0537ccc4889c51dbfed5",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-view-module-runtime",
-        "rev": "ed772dc039e45b60aaa0a18160e427838278ccd7",
+        "rev": "03c26c41f77574ce4eee0537ccc4889c51dbfed5",
         "type": "github"
       }
     },
