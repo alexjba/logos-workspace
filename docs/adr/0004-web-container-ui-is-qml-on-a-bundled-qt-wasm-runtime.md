@@ -31,8 +31,17 @@ remain allowed because the container is a webview anyway. See
   `nix build .#qt-wasm-qml-probe` in logos-nix; the probe fails if the image
   leaves the band. The same derivation is `checks.x86_64-linux.qt-wasm-qml-probe`
   for a Linux `nix flake check` — logos-nix' CI runs that with `--no-build`, so
-  nothing builds it there yet. The design system is not in that image yet
-  (slice 27 continues).
+  nothing builds it there yet.
+- The design system links into such an image: `logos-design-system`
+  `nix build .#wasm-smoke` produces a 20,368,741 B wasm carrying
+  Logos.Theme/.Icons/.Controls with their QML plugins (asserted by reading the
+  plugins' RTTI names back off the image — a Release wasm link leaves 19 names
+  in the symbol table, so symbols prove nothing). The spike's note that the
+  `Logos::DesignSystem` umbrella collides with Qt's static-plugin auto-import is
+  confirmed and no longer needs working around: the umbrella's WHOLE_ARCHIVE and
+  Qt's plain link of the same plugins are reconciled by
+  `logos_design_system_resolve_static_plugins(<target>)`, which the design
+  system's package config now ships.
 - Budget per live QML runtime: ~26 MB wasm (6.8 MB brotli), 2.6–3.0 s cold
   start to first frame (1.3–2 s warm), 185–240 MB for the WebContent /
   renderer process. A phone therefore keeps the QML runtime alive only for
