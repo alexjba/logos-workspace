@@ -57,5 +57,21 @@ remain allowed because the container is a webview anyway. See
   WebViewAssetLoader is https and needs neither.
 - Two new transports: QtRO over MessagePort (QML runtime <-> Wasm host) and
   logos-protocol over the webview bridge (Wasm host <-> core).
+- The first of those two is built: `logos-view-module-runtime`'s
+  `logos_messageport` registers `messageport:` with QtRO's connection
+  factories, so both ends stay ordinary QtRO (`QRemoteObjectHost` on one side,
+  `connectToNode` on the other) and the node's reconnect timer covers a runtime
+  that comes up before its backend. A port name is PROCESS-LOCAL — "the port
+  this process was handed", never a rendezvous — because a browser has no
+  directory to look one up in and inventing one would be inventing an identity
+  a page could assert about itself (ADR 0005). Its behaviour is checked on the
+  desktop over a loopback port pair with the same four properties a MessagePort
+  has; `nix build .#messageport-wasm` covers what a desktop test cannot, and
+  weighs **24,618,084 B** for a Qt Quick image carrying the transport — 27 KB
+  over logos-nix' bare Qt Quick probe, so the transport costs the budget
+  nothing. One thing the port had to learn from the web platform: **delivery is
+  off until `start()`**, and everything before it is queued rather than dropped
+  — a backend writes QtRO's object list the instant it begins hosting, which is
+  routinely before the runtime has attached anything to its end.
 - Everything in the Web container is single-threaded; concurrency is
   "more workers", never pthreads.
