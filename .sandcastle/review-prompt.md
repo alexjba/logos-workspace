@@ -30,9 +30,14 @@ which appear as `--stat` only). Where a diff is cut off, run `git diff` yourself
 5. **Apply project standards**: @.sandcastle/CODING_STANDARDS.md
 6. **Preserve functionality**: never change what the code does, only how.
 
-# INDEPENDENT VERIFICATION
+# VERIFICATION
 
-Run `.sandcastle/adapter/verify.sh <repo...>` yourself for every touched sub-repo, even if you change nothing, and base your verdict on that run, not on results the implementer reported: several issues run on this machine at once, and an implementer's logs can be polluted by another agent's. Keep your own files in a private directory (`T=$(mktemp -d /tmp/review-XXXXXX)`), never fixed names under `/tmp`.
+Re-running every check is the most expensive part of a review (often most of it), so do it only when it can change the verdict:
+
+- **You changed code** (any commit, in the monorepo or a sub-repo): run `.sandcastle/adapter/verify.sh <repo...>` for the sub-repos you touched, after your last commit, and base your verdict on that run.
+- **You changed nothing**: check the implementer's verification instead of repeating it. It is enough when the issue comment names the `verify.sh` run, that run was against the branch's current sub-repo commits (compare with `git -C repos/<x> rev-parse --short HEAD`), its log exists and ends in the results it reports, and every FAIL it calls pre-existing is backed by a run from the unmodified pin. If any of that is missing, stale or doubtful, run `verify.sh` yourself for the affected repos.
+
+Keep your own files in a private directory (`T=$(mktemp -d /tmp/review-XXXXXX)`), never fixed names under `/tmp`: several issues run on this machine at once, and a shared file mixes their results.
 
 # EXECUTION
 
