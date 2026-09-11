@@ -942,6 +942,9 @@
         "nix-bundle-dir": [
           "nix-bundle-dir"
         ],
+        "nix-bundle-lgx": [
+          "nix-bundle-lgx"
+        ],
         "nix-bundle-logos-module-install": "nix-bundle-logos-module-install_7",
         "nix-bundle-macos-app": [
           "nix-bundle-macos-app"
@@ -951,17 +954,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1789106679,
-        "narHash": "sha256-WMxfT4yUHB7LHa1dyHJVipsetyqFdzl+YaGwqXDj3z8=",
+        "lastModified": 1789121450,
+        "narHash": "sha256-91zQnP6HNk/ys79xyxbGaCs/n1JeRAbxKzACvua7mPc=",
         "owner": "logos-fleet",
         "repo": "logos-basecamp",
-        "rev": "31905cb72e7ee70fdfac51a7faaef068e7a21e59",
+        "rev": "0952870201aa6f00d387513cf3afb4b9a6472ac3",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-basecamp",
-        "rev": "31905cb72e7ee70fdfac51a7faaef068e7a21e59",
+        "rev": "0952870201aa6f00d387513cf3afb4b9a6472ac3",
         "type": "github"
       }
     },
@@ -85420,17 +85423,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1788801608,
-        "narHash": "sha256-jOJRUcZOvKoOe04t2h1uJATdmFEOYyzxjZVIGlq2KJo=",
+        "lastModified": 1789121441,
+        "narHash": "sha256-zhcv0PHBS8WvClIta1nDkP5+fuVFkTwp5BUYVWf1at0=",
         "owner": "logos-fleet",
         "repo": "nix-bundle-lgx",
-        "rev": "d0828e0bf28f9714d066f260bad281681293686d",
+        "rev": "8423fc44de513bbd6f751fa14fe2889bc82f4575",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "nix-bundle-lgx",
-        "rev": "d0828e0bf28f9714d066f260bad281681293686d",
+        "rev": "8423fc44de513bbd6f751fa14fe2889bc82f4575",
         "type": "github"
       }
     },
