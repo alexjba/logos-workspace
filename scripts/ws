@@ -505,6 +505,41 @@ Arguments:
   log "${GREEN}Done.${NC} $(ls -d "$REPOS_DIR"/*/ 2>/dev/null | wc -l) repos under repos/"
 }
 
+
+# ── Mobile targets: --target / --bundle ─────────────────────────────────────
+# A target is named in logos-package's variant vocabulary (the spelling that is
+# a key inside a signed .lgx hash tree), and mapped here to the pseudo-system
+# logos-nix keys its cross package sets by. Two namespaces for one target, and
+# they are spelled differently, so the mapping lives in exactly one place --
+# this function and repos/logos-basecamp/nix/bundled-set.nix, which has to agree
+# with it.
+target_to_system() {
+  case "$1" in
+    ios-sim-arm64) echo "aarch64-ios-simulator" ;;
+    ios-arm64)     echo "aarch64-ios" ;;
+    android-arm64) echo "aarch64-android" ;;
+    *) return 1 ;;
+  esac
+}
+
+KNOWN_TARGETS="ios-sim-arm64 ios-arm64 android-arm64"
+
+# The runner that puts a build of <target> on a device or simulator.
+target_to_run_app() {
+  case "$1" in
+    ios-sim-arm64) echo "run-liblogos-smoke-ios-sim" ;;
+    ios-arm64)     echo "run-liblogos-smoke-ios-device" ;;
+    android-arm64) echo "run-liblogos-smoke-android" ;;
+    *) return 1 ;;
+  esac
+}
+
+die_unknown_target() {
+  echo -e "${RED}Error:${NC} unknown --target '$1'" >&2
+  echo "Known targets: $KNOWN_TARGETS" >&2
+  exit 1
+}
+
 cmd_build() {
   wants_help "$@" && show_help "Usage: ws build <repo[#output]...|--group name> [options]
 
@@ -515,12 +550,24 @@ For example: ws build logos-basecamp#portable
 
 Options:
   --group, -g <name...>         Use a named repo group (see 'ws groups')
+  --target, -T <variant>        Build for a mobile target instead of this host.
+                                One of: ios-sim-arm64, ios-arm64, android-arm64
+  --bundle, -B <app[,app...]>   Modules the app carries in its Bundled set.
+                                Resolved from the catalog with their dependency
+                                closure; needs --target
   --auto-local, -a              Auto-detect dirty repos and use as local overrides
   --local, -l <repo1> <repo2>   Use specific repos as local overrides
   --workspace, -w               Override all deps with local workspace repos
 
+With --target the default output is bundled-set: the modules named on
+--bundle, pulled from the catalog, signature- and Merkle-checked, and laid out
+for the app image. On iOS the .app itself is linked and signed by Xcode and so
+cannot be a nix build at all -- use ws run --target for that.
+
 Examples:
   ws build logos-basecamp
+  ws build logos-basecamp --target ios-sim-arm64 --bundle view_counter
+  ws build logos-basecamp --target android-arm64 --bundle bare_counter
   ws build logos-basecamp#portable
   ws build logos-basecamp logos-liblogos
   ws build --group core
@@ -534,6 +581,8 @@ Examples:
   local use_workspace=false
   local local_overrides=()
   local extra_args=()
+  local target=""
+  local bundle=""
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -544,6 +593,8 @@ Examples:
           while IFS= read -r r; do [[ -n "$r" ]] && repos+=("$r"); done <<< "$_gexp"
           shift
         done ;;
+      --target|-T) target="${2:?--target needs a variant name}"; shift 2 ;;
+      --bundle|-B) bundle="${2:?--bundle needs a module name}"; shift 2 ;;
       --auto-local|--autolocal|-a)
         auto_local=true; shift ;;
       --workspace|-w)
@@ -563,6 +614,28 @@ Examples:
   if [[ ${#repos[@]} -eq 0 ]]; then
     echo -e "${RED}Error:${NC} no repo specified" >&2
     echo "Usage: ws build <repo...> [options]" >&2
+    exit 1
+  fi
+
+  local target_system=""
+  if [[ -n "$target" ]]; then
+    target_system=$(target_to_system "$target") || die_unknown_target "$target"
+    if [[ ${#repos[@]} -ne 1 ]]; then
+      echo -e "${RED}Error:${NC} --target builds one repo at a time (got: ${repos[*]})" >&2
+      exit 1
+    fi
+    # `--bundle` names a LIST, and a list cannot be a flake attribute name, so
+    # it reaches the evaluation through the environment. `--impure` is what
+    # makes builtins.getEnv return it; without --bundle the build stays pure and
+    # the repo's own default set applies.
+    if [[ -n "$bundle" ]]; then
+      export LOGOS_BUNDLE_APPS="$bundle"
+      extra_args+=("--impure")
+      log "${CYAN}Bundled set:${NC} $bundle  ${CYAN}target:${NC} $target"
+    fi
+  elif [[ -n "$bundle" ]]; then
+    echo -e "${RED}Error:${NC} --bundle needs --target: a Bundled set is assembled for one variant" >&2
+    echo "Known targets: $KNOWN_TARGETS" >&2
     exit 1
   fi
 
@@ -610,14 +683,23 @@ Examples:
     fi
     # All repo outputs are exposed through the workspace flake:
     # default → .#<input_name>, non-default → .#<input_name>--<output>
+    #
+    # A mobile target lives under its own pseudo-system key, so it needs the
+    # full attribute path -- `.#x` always means packages.<thisHost>.x. Going
+    # through the workspace flake (rather than the repo's own) is what keeps
+    # --auto-local / --local working for a cross build.
     local nix_ref
-    if [[ -n "$output_suffix" ]]; then
+    if [[ -n "$target_system" ]]; then
+      local mobile_output="${output_suffix:-bundled-set}"
+      nix_ref="$WORKSPACE_ROOT#packages.$target_system.$input_name--$mobile_output"
+    elif [[ -n "$output_suffix" ]]; then
       nix_ref="$WORKSPACE_ROOT#$input_name--$output_suffix"
     else
       nix_ref="$WORKSPACE_ROOT#$input_name"
     fi
     local display_name="$input_name"
-    [[ -n "$output_suffix" ]] && display_name="$input_name#$output_suffix"
+    [[ -n "$target_system" ]] && display_name="$input_name#${output_suffix:-bundled-set} ($target)"
+    [[ -z "$target_system" && -n "$output_suffix" ]] && display_name="$input_name#$output_suffix"
     log "${BOLD}Building ${CYAN}$display_name${NC}${BOLD}...${NC}"
     if $VERBOSE; then
       exec nix build \
@@ -884,8 +966,22 @@ Build and run a repo via nix. Only one repo at a time.
 
 Options:
   --group, -g <name>            Use a named repo group (see 'ws groups')
+  --target, -T <variant>        Build and run on a mobile target instead of this
+                                host. One of: ios-sim-arm64, ios-arm64,
+                                android-arm64
+  --bundle, -B <app[,app...]>   Modules the app carries in its Bundled set.
+                                Resolved from the catalog with their dependency
+                                closure; needs --target
   --auto-local, -a              Auto-detect dirty repos and use as local overrides
   --local, -l <repo1> <repo2>   Use specific repos as local overrides
+
+With --target the app is built (Xcode / gradle, outside the nix sandbox --
+ADR 0002), installed and launched on the simulator or the attached device:
+
+  ws run logos-basecamp --target ios-sim-arm64 --bundle view_counter
+  ws run logos-basecamp --target android-arm64 --bundle bare_counter
+  LOGOS_IOS_TEAM_ID=... LOGOS_IOS_DEVICE=... \
+    ws run logos-basecamp --target ios-arm64 --bundle view_counter
 
 logos-standalone-app extras (passed after --):
   <ui-plugin-repo>              Repo name to bundle via nix-bundle-lgx and install
@@ -904,11 +1000,15 @@ Examples:
   local auto_local=false
   local local_overrides=()
   local extra_args=()
+  local target=""
+  local bundle=""
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --)
         shift; extra_args+=("$@"); break ;;
+      --target|-T) target="${2:?--target needs a variant name}"; shift 2 ;;
+      --bundle|-B) bundle="${2:?--bundle needs a module name}"; shift 2 ;;
       --group|-g)
         shift
         while [[ $# -gt 0 && "$1" != -* ]]; do
@@ -965,6 +1065,31 @@ Examples:
     done
     log ""
     flags=($(build_override_flags "${unique[@]}"))
+  fi
+
+  # A mobile target is not this host: the runner builds the app with Xcode or
+  # gradle (outside the nix sandbox, ADR 0002), installs it and launches it.
+  # `--bundle` reaches the evaluation through the environment for the same
+  # reason as in `ws build` -- a list cannot be a flake attribute name.
+  if [[ -n "$target" ]]; then
+    local run_app
+    run_app=$(target_to_run_app "$target") || die_unknown_target "$target"
+    if [[ -n "$bundle" ]]; then
+      export LOGOS_BUNDLE_APPS="$bundle"
+      flags+=("--impure")
+      log "${CYAN}Bundled set:${NC} $bundle  ${CYAN}target:${NC} $target"
+    fi
+    log "${BOLD}Running ${CYAN}$input_name${NC}${BOLD} on ${CYAN}$target${NC}${BOLD}...${NC}"
+    exec nix run \
+      --extra-experimental-features "nix-command flakes" \
+      "$WORKSPACE_ROOT#$input_name--$run_app" \
+      ${flags[@]+"${flags[@]}"} \
+      -- \
+      ${extra_args[@]+"${extra_args[@]}"}
+  elif [[ -n "$bundle" ]]; then
+    echo -e "${RED}Error:${NC} --bundle needs --target: a Bundled set is assembled for one variant" >&2
+    echo "Known targets: $KNOWN_TARGETS" >&2
+    exit 1
   fi
 
   log "${BOLD}Running ${CYAN}$input_name${NC}${BOLD}...${NC}"

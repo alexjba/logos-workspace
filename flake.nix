@@ -173,7 +173,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     logos-basecamp = {
-      url = "github:logos-fleet/logos-basecamp/70f0a974dd8c7ee70d57b129b6e25fd847cbc5af";
+      url = "github:logos-fleet/logos-basecamp/ad2cfa97d61948c1dd62b8bc891ee31aa17bf07d";
       inputs.logos-capability-module.follows = "logos-capability-module";
       inputs.logos-cpp-sdk.follows = "logos-cpp-sdk";
       inputs.logos-design-system.follows = "logos-design-system";
@@ -419,6 +419,19 @@
       systems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
       forAllSystems = fn: nixpkgs.lib.genAttrs systems fn;
 
+      # The mobile pseudo-systems logos-nix keys its cross package sets by. A
+      # cross derivation's `system` is its BUILD platform, so these evaluate
+      # anywhere; they are separate keys because an iOS host is
+      # stdenv.isDarwin and folding them into `systems` would misroute every
+      # `if isDarwin` inside the repos. Only `packages` carries them -- there is
+      # no devShell, app or check to run ON a phone.
+      #
+      # This is what lets `ws build <repo> --target <variant>` reach a mobile
+      # artifact THROUGH the workspace flake, so --auto-local / --local
+      # overrides propagate to it exactly as they do for a desktop build.
+      mobileSystems = [ "aarch64-ios" "aarch64-ios-simulator" "aarch64-android" ];
+      forAllPackageSystems = fn: nixpkgs.lib.genAttrs (systems ++ mobileSystems) fn;
+
       depGraph = import ./nix/dep-graph.nix;
 
       # Every logos flake input we iterate over for packages/apps/checks.
@@ -446,7 +459,7 @@
       # nix bundle --bundler .#nix-bundle-lgx .#logos-chat-module--lib
       # All repo package outputs are exposed: default as the repo name,
       # non-default as <repo>--<output>.
-      packages = forAllSystems (system:
+      packages = forAllPackageSystems (system:
         let
           # Collect all package outputs from all repos.
           # Each repo's packages are forwarded lazily — the value is not
