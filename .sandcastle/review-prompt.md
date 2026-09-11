@@ -38,6 +38,8 @@ If you find improvements to make:
 2. Re-run the adapter verification for touched sub-repos: `.sandcastle/adapter/verify.sh <repo...>`.
 3. Commit. For sub-repo commits, push: `git -C repos/<x> push origin {{BRANCH}}`, then re-pin in the monorepo with `.sandcastle/adapter/pin.sh <repo...>` and commit that too.
 
+If the branch tracks `.fleet/manifest.json` (`git ls-files .fleet`), untrack it (`git rm --cached .fleet/manifest.json`, keep the file) and commit: it is loop state and must never reach master.
+
 If the code is already clean and well-structured, do nothing.
 
 # HEADLESS SESSION
