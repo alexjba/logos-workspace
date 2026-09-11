@@ -1,0 +1,41 @@
+# hasTests detection — sourced by ws (used by `ws sync-graph`) and unit-tested
+# by scripts/tests/detect-tests.test.sh.
+#
+# Answers "does this repo's flake expose checks?" from flake.nix alone: a real
+# `nix eval` of checks.<system> would have to fetch every input of every repo,
+# which sync-graph (run on every pin) cannot afford.
+#
+# Three ways a repo gets checks:
+#   1. It writes `checks = ...` in its own flake.nix.
+#   2. It calls logos-module-builder's `mkLogosModule { tests = { dir = ...; } }`
+#      and the BUILDER turns that into checks.<system>.unit-tests
+#      (logos-module-builder/lib/mkLogosModule.nix, `optionalTests`).  Missing
+#      form 2 is what made `ws test` exit 0 having run nothing for every module
+#      repo whose tests live in tests/ — see logos-workspace#57.
+#   3. It calls `mkLogosQmlModule` and ships tests/*.mjs, which the builder
+#      auto-detects into checks.<system>.integration-test
+#      (logos-module-builder/lib/mkLogosQmlModule.nix, `hasUiTests`).  Nothing
+#      in the flake.nix says so, so this one is a directory probe.
+
+# flake_declares_tests <repo-dir> — 0 if the repo's flake exposes checks.
+flake_declares_tests() {
+  local flake_file="$1/flake.nix"
+  [[ -f "$flake_file" ]] || return 1
+
+  # 1. An explicit `checks = ` output (any nesting depth).
+  grep -qE '^[[:space:]]+checks[[:space:]]*=' "$flake_file" 2>/dev/null && return 0
+
+  # 2. A `tests = ` argument to mkLogosModule.  Anchored so that `unit-tests =`
+  # and `testsPackage =` do not match, and comments (`# tests =`) do not either.
+  grep -qE '^[[:space:]]*tests[[:space:]]*=' "$flake_file" 2>/dev/null && return 0
+
+  # 3. A QML module with UI tests: mkLogosQmlModule + at least one tests/*.mjs.
+  if grep -q 'mkLogosQmlModule' "$flake_file" 2>/dev/null; then
+    local mjs
+    for mjs in "$1"/tests/*.mjs; do
+      [[ -f "$mjs" ]] && return 0
+    done
+  fi
+
+  return 1
+}

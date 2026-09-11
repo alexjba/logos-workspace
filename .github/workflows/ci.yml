@@ -97,6 +97,13 @@ jobs:
           echo "- Changed repos: \`${changed:-none}\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Affected repos (+ dependents): \`${affected:-none}\`" >> "$GITHUB_STEP_SUMMARY"
 
+      # Guards the hasTests detection that decides whether `ws test` runs a
+      # repo's checks at all — a false negative there makes CI green by
+      # skipping (see #57).  Pure bash, no nix.
+      - name: Unit-test ws helpers
+        if: steps.filter.outputs.skip_build != 'true'
+        run: scripts/tests/detect-tests.test.sh
+
       - name: Validate dep-graph.nix is up to date
         if: steps.filter.outputs.skip_build != 'true'
         run: |
