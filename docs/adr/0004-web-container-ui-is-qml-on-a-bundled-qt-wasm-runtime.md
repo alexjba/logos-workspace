@@ -66,12 +66,21 @@ remain allowed because the container is a webview anyway. See
   directory to look one up in and inventing one would be inventing an identity
   a page could assert about itself (ADR 0005). Its behaviour is checked on the
   desktop over a loopback port pair with the same four properties a MessagePort
-  has; `nix build .#messageport-wasm` covers what a desktop test cannot, and
-  weighs **24,618,084 B** for a Qt Quick image carrying the transport — 27 KB
-  over logos-nix' bare Qt Quick probe, so the transport costs the budget
-  nothing. One thing the port had to learn from the web platform: **delivery is
-  off until `start()`**, and everything before it is queued rather than dropped
-  — a backend writes QtRO's object list the instant it begins hosting, which is
+  has. One thing the port had to learn from the web platform: **delivery is off
+  until `start()`**, and everything before it is queued rather than dropped — a
+  backend writes QtRO's object list the instant it begins hosting, which is
   routinely before the runtime has attached anything to its end.
+- **The runtime's shape links.** `nix build .#messageport-wasm` in
+  logos-view-module-runtime puts Qt Quick, the Logos design system and the
+  MessagePort transport into ONE static wasm image — this ADR's bundled runtime
+  minus the module QML it will load at install time — and weighs
+  **20,894,977 B** on aarch64-darwin, 526 KB over the design system's own
+  20,368,741 B smoke. So QtRO plus the transport cost the runtime half a
+  megabyte and the per-runtime budget above is unchanged. The build asserts
+  both things a successful static link can silently omit: the embind exports
+  the page hands a port through (nothing in C++ references them) and the design
+  system's QML plugins (Qt's static-plugin auto-import and the umbrella's
+  `WHOLE_ARCHIVE` compete for exactly those). Still nothing has run in a
+  browser.
 - Everything in the Web container is single-threaded; concurrency is
   "more workers", never pthreads.

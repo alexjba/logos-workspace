@@ -72561,6 +72561,9 @@
         "logos-cpp-sdk": [
           "logos-cpp-sdk"
         ],
+        "logos-design-system": [
+          "logos-design-system"
+        ],
         "logos-nix": [
           "logos-nix"
         ],
@@ -72575,17 +72578,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1789150774,
-        "narHash": "sha256-BDzbfPcHPVenQStVz3wxwf7NRyR4NJWpSUElCFqGgnc=",
+        "lastModified": 1789152920,
+        "narHash": "sha256-dOTEfhOVfiPC7G+lFQmtZrOQQbQvJZVyugNp2LSENQo=",
         "owner": "logos-fleet",
         "repo": "logos-view-module-runtime",
-        "rev": "f60a5eb770824576f88e0e3c21937af4da6133b8",
+        "rev": "8ce521cc7b133ad963c8e7d8f120f7338fc4a9eb",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-view-module-runtime",
-        "rev": "f60a5eb770824576f88e0e3c21937af4da6133b8",
+        "rev": "8ce521cc7b133ad963c8e7d8f120f7338fc4a9eb",
         "type": "github"
       }
     },

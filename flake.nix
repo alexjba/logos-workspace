@@ -51,8 +51,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     logos-view-module-runtime = {
-      url = "github:logos-fleet/logos-view-module-runtime/f60a5eb770824576f88e0e3c21937af4da6133b8";
+      url = "github:logos-fleet/logos-view-module-runtime/8ce521cc7b133ad963c8e7d8f120f7338fc4a9eb";
       inputs.logos-cpp-sdk.follows = "logos-cpp-sdk";
+      inputs.logos-design-system.follows = "logos-design-system";
       inputs.logos-nix.follows = "logos-nix";
       inputs.logos-plugin-qt.follows = "logos-plugin-qt";
       inputs.logos-protocol.follows = "logos-protocol";
