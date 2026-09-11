@@ -42211,17 +42211,17 @@
         "nixpkgs-windows": "nixpkgs-windows_394"
       },
       "locked": {
-        "lastModified": 1789115409,
-        "narHash": "sha256-MzcVTk875vjmMYFZztB9z3dNkRBr1i4rEHZyf3SmxCI=",
+        "lastModified": 1789146115,
+        "narHash": "sha256-im5ED9N9U9mXo/hQGlEkCPkQqz15U8fDkvNUsfBwV2A=",
         "owner": "logos-fleet",
         "repo": "logos-nix",
-        "rev": "d89b850225edea1ae49c2145e1d516d31f584753",
+        "rev": "9f3d4fa1296c25f681e1d12b537df80cfcf02594",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-nix",
-        "rev": "d89b850225edea1ae49c2145e1d516d31f584753",
+        "rev": "9f3d4fa1296c25f681e1d12b537df80cfcf02594",
         "type": "github"
       }
     },
