@@ -41,7 +41,7 @@ Analyze the open issues and build a dependency graph. For each issue, determine 
 An issue B is also **blocked by** issue A if:
 
 - B requires code or infrastructure that A introduces
-- B and A modify overlapping files, modules, or sub-repositories, making concurrent work likely to produce merge conflicts
+- B and A modify overlapping files or modules, making concurrent work likely to produce merge conflicts. Touching the same shared-infrastructure sub-repo (`logos-nix`, `logos-module-builder`, `logos-liblogos`) is NOT on its own an overlap: nearly every slice touches them, and the merger resolves lock-only conflicts itself. Hold B only when both issues will clearly edit the same files or the same subsystem inside such a repo; a source conflict costs at most one cycle, while holding the head of a long dependency chain costs a full cycle for every issue behind it.
 - B's requirements depend on a decision or API shape that A will establish
 - B has open fleet pull requests listed above
 

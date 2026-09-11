@@ -30,6 +30,10 @@ which appear as `--stat` only). Where a diff is cut off, run `git diff` yourself
 5. **Apply project standards**: @.sandcastle/CODING_STANDARDS.md
 6. **Preserve functionality**: never change what the code does, only how.
 
+# INDEPENDENT VERIFICATION
+
+Run `.sandcastle/adapter/verify.sh <repo...>` yourself for every touched sub-repo, even if you change nothing, and base your verdict on that run, not on results the implementer reported: several issues run on this machine at once, and an implementer's logs can be polluted by another agent's. Keep your own files in a private directory (`T=$(mktemp -d /tmp/review-XXXXXX)`), never fixed names under `/tmp`.
+
 # EXECUTION
 
 If you find improvements to make:
