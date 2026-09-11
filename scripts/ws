@@ -540,6 +540,12 @@ die_unknown_target() {
   exit 1
 }
 
+die_bundle_without_target() {
+  echo -e "${RED}Error:${NC} --bundle needs --target: a Bundled set is assembled for one variant" >&2
+  echo "Known targets: $KNOWN_TARGETS" >&2
+  exit 1
+}
+
 cmd_build() {
   wants_help "$@" && show_help "Usage: ws build <repo[#output]...|--group name> [options]
 
@@ -634,9 +640,7 @@ Examples:
       log "${CYAN}Bundled set:${NC} $bundle  ${CYAN}target:${NC} $target"
     fi
   elif [[ -n "$bundle" ]]; then
-    echo -e "${RED}Error:${NC} --bundle needs --target: a Bundled set is assembled for one variant" >&2
-    echo "Known targets: $KNOWN_TARGETS" >&2
-    exit 1
+    die_bundle_without_target
   fi
 
   # Override all workspace repos
@@ -688,18 +692,18 @@ Examples:
     # full attribute path -- `.#x` always means packages.<thisHost>.x. Going
     # through the workspace flake (rather than the repo's own) is what keeps
     # --auto-local / --local working for a cross build.
-    local nix_ref
+    local nix_ref display_name
     if [[ -n "$target_system" ]]; then
       local mobile_output="${output_suffix:-bundled-set}"
       nix_ref="$WORKSPACE_ROOT#packages.$target_system.$input_name--$mobile_output"
+      display_name="$input_name#$mobile_output ($target)"
     elif [[ -n "$output_suffix" ]]; then
       nix_ref="$WORKSPACE_ROOT#$input_name--$output_suffix"
+      display_name="$input_name#$output_suffix"
     else
       nix_ref="$WORKSPACE_ROOT#$input_name"
+      display_name="$input_name"
     fi
-    local display_name="$input_name"
-    [[ -n "$target_system" ]] && display_name="$input_name#${output_suffix:-bundled-set} ($target)"
-    [[ -z "$target_system" && -n "$output_suffix" ]] && display_name="$input_name#$output_suffix"
     log "${BOLD}Building ${CYAN}$display_name${NC}${BOLD}...${NC}"
     if $VERBOSE; then
       exec nix build \
@@ -1087,9 +1091,7 @@ Examples:
       -- \
       ${extra_args[@]+"${extra_args[@]}"}
   elif [[ -n "$bundle" ]]; then
-    echo -e "${RED}Error:${NC} --bundle needs --target: a Bundled set is assembled for one variant" >&2
-    echo "Known targets: $KNOWN_TARGETS" >&2
-    exit 1
+    die_bundle_without_target
   fi
 
   log "${BOLD}Running ${CYAN}$input_name${NC}${BOLD}...${NC}"
