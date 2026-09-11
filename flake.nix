@@ -51,7 +51,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     logos-view-module-runtime = {
-      url = "github:logos-fleet/logos-view-module-runtime/e569f46afdba6ed513628f33fbcc589308212997";
+      url = "github:logos-fleet/logos-view-module-runtime/03c26c41f77574ce4eee0537ccc4889c51dbfed5";
       inputs.logos-cpp-sdk.follows = "logos-cpp-sdk";
       inputs.logos-design-system.follows = "logos-design-system";
       inputs.logos-nix.follows = "logos-nix";

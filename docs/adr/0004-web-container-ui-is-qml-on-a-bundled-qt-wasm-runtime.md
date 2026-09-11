@@ -74,8 +74,8 @@ remain allowed because the container is a webview anyway. See
   logos-view-module-runtime is this ADR's bundled runtime as one static image:
   Qt Quick, the Logos design system, the MessagePort transport and
   `LogosWebRuntime` — a QML engine with `logos` in its root context and a
-  module's QML loaded into it as TEXT at install time. **25,888,796 B raw /
-  6,672,518 B brotli** on aarch64-darwin, against the ~26 MB / 6.8 MB this ADR
+  module's QML loaded into it as TEXT at install time. **25,888,755 B raw /
+  6,674,406 B brotli** on aarch64-darwin, against the ~26 MB / 6.8 MB this ADR
   was accepted with — so the spike's number is confirmed to within a percent by
   a from-source build. The build asserts both things a successful static link
   can silently omit: every page-facing embind export (nothing in C++ references
@@ -107,10 +107,12 @@ remain allowed because the container is a webview anyway. See
   PEER — nothing hosts a QtRO source on the far end of the port — so the replica
   half stays proven on the desktop against a real `QRemoteObjectHost` and a real
   `QQmlEngine`.
-- **A page's whole API is four embind calls**, and no Qt type crosses:
+- **A page's whole API is five embind calls**, and no Qt type crosses:
   `logosAdoptMessagePort(name, port)` for the wire,
   `logosInstallModuleView(name, qmlText)` for a module,
-  `logosRemoveModuleView(name)` and `logosRuntimeLastError()`. A second module is
+  `logosRemoveModuleView(name)`, `logosRuntimeLastError()`, and
+  `logosConnectBackend(name)` for a port published under a name other than the
+  `backend` the image connects to on its own. A second module is
   a second document on the same engine and the same node — the runtime is
   downloaded once, which is the load-path consequence this ADR asked for.
 - **A module's QML takes its backend on an edge, not on first paint.** Inside
