@@ -244,7 +244,7 @@
       inputs.logos-package-downloader.follows = "logos-package-downloader";
     };
     logos-package-manager-ui = {
-      url = "github:logos-fleet/logos-package-manager-ui/b557332a605e1920fbb025860d0446703c1ec82f";
+      url = "github:logos-fleet/logos-package-manager-ui/3f93b6a5f44eb79d48e8efd263e6c04e15fb2c14";
       inputs.logos-module-builder.follows = "logos-module-builder";
       inputs.logos-package.follows = "logos-package";
       inputs.package_downloader.follows = "logos-package-downloader-module";
