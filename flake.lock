@@ -9063,17 +9063,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1788789466,
-        "narHash": "sha256-PSCRnM8CxSylrdzmBZroa7GN5QLXXC6y3aiM7NhKg8k=",
+        "lastModified": 1789147781,
+        "narHash": "sha256-k5i7yaDekojmns3hcg9cD7TL/wSOpJQCQ17AZayNObA=",
         "owner": "logos-fleet",
         "repo": "logos-design-system",
-        "rev": "46324608062cc3c8d906b4ce91f4f20f4a3cd8cb",
+        "rev": "04de820037c4fca32697c8709f556ba82e284b27",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-design-system",
-        "rev": "46324608062cc3c8d906b4ce91f4f20f4a3cd8cb",
+        "rev": "04de820037c4fca32697c8709f556ba82e284b27",
         "type": "github"
       }
     },

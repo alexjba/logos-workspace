@@ -319,7 +319,7 @@
       inputs.logos-module-builder.follows = "logos-module-builder";
     };
     logos-design-system = {
-      url = "github:logos-fleet/logos-design-system/46324608062cc3c8d906b4ce91f4f20f4a3cd8cb";
+      url = "github:logos-fleet/logos-design-system/04de820037c4fca32697c8709f556ba82e284b27";
       inputs.logos-nix.follows = "logos-nix";
       inputs.nix-bundle-appimage.follows = "nix-bundle-appimage";
       inputs.nix-bundle-dir.follows = "nix-bundle-dir";
