@@ -16,6 +16,8 @@ Sub-repo work per issue (from each worktree's manifest):
 
 Run `gh auth setup-git` once so `git push` works over HTTPS. You operate on the HOST's bind-mounted monorepo checkout. If it has uncommitted changes, `git stash` them now and restore them at the end.
 
+Then `source .sandcastle/adapter/env.sh`: it sets `FLEET_ORG=logos-fleet`, without which any `ws` command that rewrites inputs points every `flake.nix` URL at `github:logos-co/*`. Before each push, `git diff origin/master -- flake.nix | grep "^+.*github:logos-co/"` must print nothing; if it does, fix `flake.nix` and relock first.
+
 **NEVER run builds or test suites in this phase.** Verification happened in the implementer and reviewer sandboxes; your job is update → push → PR → merge.
 
 # PER ISSUE, IN ORDER
