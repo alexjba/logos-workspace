@@ -650,9 +650,8 @@ Examples:
     exit 1
   fi
 
-  local target_system=""
   if [[ -n "$target" ]]; then
-    target_system=$(target_to_system "$target") || die_unknown_target "$target"
+    is_known_target "$target" || die_unknown_target "$target"
     if [[ ${#repos[@]} -ne 1 ]]; then
       echo -e "${RED}Error:${NC} --target builds one repo at a time (got: ${repos[*]})" >&2
       exit 1
@@ -715,15 +714,14 @@ Examples:
     # All repo outputs are exposed through the workspace flake:
     # default → .#<input_name>, non-default → .#<input_name>--<output>
     #
-    # A mobile target lives under its own pseudo-system key, so it needs the
-    # full attribute path -- `.#x` always means packages.<thisHost>.x. Going
-    # through the workspace flake (rather than the repo's own) is what keeps
-    # --auto-local / --local working for a cross build.
+    # A mobile target needs the full attribute path -- `.#x` always means
+    # packages.<thisHost>.x -- and WHICH path depends on the host as well as
+    # the target, so mobile_build_ref answers it (see scripts/_mobile-target).
+    # Going through the workspace flake (rather than the repo's own) is what
+    # keeps --auto-local / --local working for a cross build.
     local nix_ref display_name
-    if [[ -n "$target_system" ]]; then
+    if [[ -n "$target" ]]; then
       local mobile_output="${output_suffix:-bundled-set}"
-      # Which ATTRIBUTE a mobile artifact lives under depends on the host as
-      # well as the target -- see scripts/_mobile-target.
       local mobile_attr
       mobile_attr=$(mobile_build_ref "$input_name" "$target" "$mobile_output" "$(this_system)") || exit 1
       nix_ref="$WORKSPACE_ROOT#$mobile_attr"

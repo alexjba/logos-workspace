@@ -18,7 +18,7 @@ expect() {
   local label="$1" want="$2"; shift 2
   local got err
   err=$(mktemp)
-  if got=$("$@" 2>"$err"); then :; else got="die: $(head -1 "$err")"; fi
+  got=$("$@" 2>"$err") || got="die: $(head -1 "$err")"
   rm -f "$err"
   if [[ "$got" == "$want" ]]; then
     pass=$((pass + 1)); echo "  ok   $label"
@@ -45,11 +45,8 @@ expect "ios device on a mac" \
   "packages.aarch64-ios.logos-basecamp--bundled-set" \
   mobile_build_ref logos-basecamp ios-arm64 bundled-set aarch64-darwin
 
-# An Android cross derivation's `system` is its BUILD platform, and
-# packages.aarch64-android carries the canonical x86_64-linux one -- which a
-# Mac cannot realise even though the closure is identical. legacyPackages is
-# keyed by the platform that BUILDS, so it is the only route that works on
-# both hosts.
+# Why the two Android routes differ from the iOS one is in _mobile-target's
+# own header; what is asserted here is that the host is what picks the key.
 echo "mobile_build_ref — Android is keyed by the host that builds it"
 expect "android on a mac" \
   "legacyPackages.aarch64-darwin.logos-basecamp.mobile.aarch64-android.bundled-set" \
