@@ -65,6 +65,9 @@ const MAX_PARALLEL = Number(process.env.FLEET_MAX_PARALLEL ?? Infinity);
 const MAX_PIPELINES = Number(
   process.env.FLEET_MAX_PIPELINES ?? MAX_ITERATIONS * (Number.isFinite(MAX_PARALLEL) ? MAX_PARALLEL : 4),
 );
+// FLEET_REPLAN_INTERVAL (seconds) re-plans on a timer while a slot is free, so an issue filed
+// mid-run does not wait for the next pipeline to finish. 0 disables it.
+const REPLAN_INTERVAL_MS = Number(process.env.FLEET_REPLAN_INTERVAL ?? 600) * 1000;
 // FLEET_IDLE_TIMEOUT: seconds an agent may stay silent (a long nix build inside one Bash call) before
 // sandcastle kills it. Must exceed the agent's BASH_MAX_TIMEOUT_MS; sandcastle's default is 600.
 const IDLE_TIMEOUT = Number(process.env.FLEET_IDLE_TIMEOUT ?? 4500);
@@ -226,6 +229,7 @@ const runIssue = async (issue: Issue): Promise<void> => {
 const { started, rounds } = await runRolling<Issue>({
   limit: MAX_PARALLEL,
   budget: MAX_PIPELINES,
+  replanIntervalMs: REPLAN_INTERVAL_MS,
   plan,
   run: runIssue,
   onError: (issue, reason) => console.error(`  ✗ ${issue.id} (${issue.branch}) failed: ${reason}`),
