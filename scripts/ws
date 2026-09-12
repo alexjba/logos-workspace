@@ -10,6 +10,12 @@ DEP_GRAPH="$WORKSPACE_ROOT/nix/dep-graph.nix"
 
 # shellcheck source=scripts/_standalone-app
 source "$WORKSPACE_ROOT/scripts/_standalone-app"
+# shellcheck source=scripts/_detect-tests
+source "$WORKSPACE_ROOT/scripts/_detect-tests"
+# shellcheck source=scripts/_run-checks
+source "$WORKSPACE_ROOT/scripts/_run-checks"
+# shellcheck source=scripts/_repo-type
+source "$WORKSPACE_ROOT/scripts/_repo-type"
 
 # Show help text and exit. Usage: show_help "text"
 show_help() { echo -e "$1"; exit 0; }
@@ -525,13 +531,48 @@ target_to_system() {
 KNOWN_TARGETS="ios-sim-arm64 ios-arm64 android-arm64"
 
 # The runner that puts a build of <target> on a device or simulator.
+#
+# Two apps carry the same Bundled set, and `--app` picks which one runs:
+#
+#   smoke   liblogos_core with the set in it, a log on screen and the verdicts
+#           on the console. The bring-up probe, and the default -- it is what
+#           answers "did the set load" without a UI in the way.
+#   shell   Basecamp's real UI shell on top of the same host: main_ui linked
+#           in, the Modules tab listing the set. iOS only for now; Qt for
+#           Android is shared objects, so main_ui there is a different
+#           artifact (see repos/logos-basecamp/nix/shell-ui-ios.nix).
+KNOWN_APPS="smoke shell"
+
 target_to_run_app() {
-  case "$1" in
-    ios-sim-arm64) echo "run-liblogos-smoke-ios-sim" ;;
-    ios-arm64)     echo "run-liblogos-smoke-ios-device" ;;
-    android-arm64) echo "run-liblogos-smoke-android" ;;
+  case "$2:$1" in
+    smoke:ios-sim-arm64) echo "run-liblogos-smoke-ios-sim" ;;
+    smoke:ios-arm64)     echo "run-liblogos-smoke-ios-device" ;;
+    smoke:android-arm64) echo "run-liblogos-smoke-android" ;;
+    shell:ios-sim-arm64) echo "run-basecamp-shell-ios-sim" ;;
+    shell:ios-arm64)     echo "run-basecamp-shell-ios-device" ;;
     *) return 1 ;;
   esac
+}
+
+is_known_app() {
+  [[ " $KNOWN_APPS " == *" $1 "* ]]
+}
+
+is_known_target() {
+  [[ " $KNOWN_TARGETS " == *" $1 "* ]]
+}
+
+die_unknown_app() {
+  echo -e "${RED}Error:${NC} unknown --app '$1'" >&2
+  echo "Known apps: $KNOWN_APPS" >&2
+  exit 1
+}
+
+die_app_without_target() {
+  echo -e "${RED}Error:${NC} --app '$1' has no build for --target '$2'" >&2
+  echo "The Shell is iOS-only today: Qt for Android is a set of shared objects," >&2
+  echo "so main_ui there is the desktop plugin rather than a static import." >&2
+  exit 1
 }
 
 die_unknown_target() {
@@ -976,6 +1017,8 @@ Options:
   --bundle, -B <app[,app...]>   Modules the app carries in its Bundled set.
                                 Resolved from the catalog with their dependency
                                 closure; needs --target
+  --app, -A <smoke|shell>       Which app carries the set (default: smoke).
+                                `shell` is Basecamp's real UI shell; iOS only
   --auto-local, -a              Auto-detect dirty repos and use as local overrides
   --local, -l <repo1> <repo2>   Use specific repos as local overrides
 
@@ -995,6 +1038,7 @@ logos-standalone-app extras (passed after --):
 
 Examples:
   ws run logos-basecamp
+  ws run logos-basecamp --target ios-sim-arm64 --bundle bare_counter --app shell
   ws run logos-basecamp --auto-local
   ws run logos-basecamp --local logos-cpp-sdk
   ws run logos-standalone-app -- logos-accounts-ui --modules logos-accounts-module
@@ -1006,6 +1050,7 @@ Examples:
   local extra_args=()
   local target=""
   local bundle=""
+  local app="smoke"
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -1013,6 +1058,7 @@ Examples:
         shift; extra_args+=("$@"); break ;;
       --target|-T) target="${2:?--target needs a variant name}"; shift 2 ;;
       --bundle|-B) bundle="${2:?--bundle needs a module name}"; shift 2 ;;
+      --app|-A) app="${2:?--app needs a name}"; shift 2 ;;
       --group|-g)
         shift
         while [[ $# -gt 0 && "$1" != -* ]]; do
@@ -1076,14 +1122,18 @@ Examples:
   # `--bundle` reaches the evaluation through the environment for the same
   # reason as in `ws build` -- a list cannot be a flake attribute name.
   if [[ -n "$target" ]]; then
+    is_known_app "$app" || die_unknown_app "$app"
+    is_known_target "$target" || die_unknown_target "$target"
     local run_app
-    run_app=$(target_to_run_app "$target") || die_unknown_target "$target"
+    # Both names are known, so the only way left to have no runner is a
+    # combination with no build -- the Shell on Android, today.
+    run_app=$(target_to_run_app "$target" "$app") || die_app_without_target "$app" "$target"
     if [[ -n "$bundle" ]]; then
       export LOGOS_BUNDLE_APPS="$bundle"
       flags+=("--impure")
       log "${CYAN}Bundled set:${NC} $bundle  ${CYAN}target:${NC} $target"
     fi
-    log "${BOLD}Running ${CYAN}$input_name${NC}${BOLD} on ${CYAN}$target${NC}${BOLD}...${NC}"
+    log "${BOLD}Running ${CYAN}$input_name${NC} (${CYAN}$app${NC})${BOLD} on ${CYAN}$target${NC}${BOLD}...${NC}"
     exec nix run \
       --extra-experimental-features "nix-command flakes" \
       "$WORKSPACE_ROOT#$input_name--$run_app" \
@@ -1405,34 +1455,17 @@ _test_one_repo() {
   checks=$(_json_array_to_lines "$checks_json")
 
   if [[ -n "$checks" ]]; then
-    # If "tests" exists, run it first (convention)
-    if echo "$checks" | grep -qx "tests"; then
-      ran_something=true
-      log "  ${YELLOW}check${NC} tests"
-      # shellcheck disable=SC2086
-      if run_nix_test build --extra-experimental-features "nix-command flakes" \
-        "${check_ref}tests" $override_flags -L; then
-        echo -e "  ${GREEN}PASS${NC} ${dir_name} tests"
-      else
-        echo -e "  ${RED}FAIL${NC} ${dir_name} tests"
-        all_pass=false
-      fi
-    fi
-
-    # Run any other checks
+    # "tests" first (convention), then the rest in discovery order, all in one
+    # nix build (scripts/_run-checks).
+    local ordered=() check
+    if echo "$checks" | grep -qx "tests"; then ordered+=(tests); fi
     while IFS= read -r check; do
       [[ -z "$check" || "$check" == "tests" ]] && continue
-      ran_something=true
-      log "  ${YELLOW}check${NC} $check"
-      # shellcheck disable=SC2086
-      if run_nix_test build --extra-experimental-features "nix-command flakes" \
-        "${check_ref}${check}" $override_flags -L; then
-        echo -e "  ${GREEN}PASS${NC} ${dir_name} $check"
-      else
-        echo -e "  ${RED}FAIL${NC} ${dir_name} $check"
-        all_pass=false
-      fi
+      ordered+=("$check")
     done <<< "$checks"
+    ran_something=true
+    run_checks_batched "$check_ref" "$system" "$override_flags" "$dir_name" "${ordered[@]}" \
+      || all_pass=false
   fi
 
   # 2. If no checks, try test-like packages (build only)
@@ -1574,31 +1607,17 @@ Examples:
         continue
       fi
 
-      # Filter by type if specified
+      # Filter by type if specified (scripts/_repo-type)
       if [[ -n "$test_type" ]]; then
-        local repo_path="$REPOS_DIR/$dir_name"
-        local matches=false
-        case "$test_type" in
-          cpp|cmake)
-            [[ -f "$repo_path/CMakeLists.txt" ]] && matches=true ;;
-          rust|cargo)
-            [[ -f "$repo_path/Cargo.toml" ]] && matches=true ;;
-          nim|nimble)
-            ls "$repo_path"/*.nimble >/dev/null 2>&1 && matches=true ;;
-          js|node|npm)
-            [[ -f "$repo_path/package.json" ]] && matches=true ;;
-          qml)
-            ls "$repo_path"/*.qml >/dev/null 2>&1 && matches=true
-            [[ -f "$repo_path/CMakeLists.txt" ]] && grep -q "qml" "$repo_path/CMakeLists.txt" 2>/dev/null && matches=true ;;
-          *)
-            echo -e "${RED}Unknown type: $test_type${NC}" >&2
-            echo "Available types: cpp, rust, nim, js, qml" >&2
-            exit 1 ;;
+        local trc=0
+        repo_matches_type "$REPOS_DIR/$dir_name" "$test_type" || trc=$?
+        case $trc in
+          0) ;;
+          2) echo -e "${RED}Unknown type: $test_type${NC}" >&2
+             echo "Available types: $(repo_type_names)" >&2
+             exit 1 ;;
+          *) skipped=$((skipped + 1)); continue ;;
         esac
-        if ! $matches; then
-          skipped=$((skipped + 1))
-          continue
-        fi
       fi
 
       local rc=0
@@ -2691,7 +2710,9 @@ Examples:
 # deps:     unique workspace input names this repo depends on (= unique values
 #           of follows, in REPOS table order, with "nixpkgs" elided).  Used by
 #           `ws dirty`, `ws graph`, and CI to compute downstream dependents.
-# hasTests: whether this repo exposes checks or test packages in its flake.
+# hasTests: whether this repo exposes nix checks — either declared directly in
+#           its flake.nix, or generated by logos-module-builder from a `tests`
+#           argument or from tests/*.mjs.  See scripts/_detect-tests.
 #           Used by `ws test` to skip expensive nix eval for repos without tests.
 #
 # AUTO-GENERATED by `ws sync-graph`. To update: ws sync-graph
@@ -2858,9 +2879,11 @@ HEADER
       follows_str+=" }"
     fi
 
-    # ── Check hasTests: does the flake declare a checks output? ──────────
+    # ── Check hasTests: does the flake expose checks? ────────────────────
+    # The rules, and why they are greps rather than `nix eval`, live in
+    # scripts/_detect-tests.
     local has_tests="false"
-    if grep -qE '^[[:space:]]+checks[[:space:]]*=' "$flake_file" 2>/dev/null; then
+    if flake_declares_tests "$repo_dir"; then
       has_tests="true"
     fi
 

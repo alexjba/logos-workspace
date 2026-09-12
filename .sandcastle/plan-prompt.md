@@ -25,6 +25,14 @@ conflict, re-verify and push, so the PR becomes mergeable.
 
 </open-prs>
 
+# IN FLIGHT
+
+Issues an agent of this loop is working on right now:
+
+{{IN_FLIGHT}}
+
+Never plan an issue listed here. Count each one as open work for the blocking rules below: an issue that would edit the same files or subsystem as an in-flight issue is blocked until that one lands. The loop plans again every time a pipeline finishes, so an issue held now is reconsidered soon.
+
 # VENUE
 
 This loop runs on venue **{{VENUE}}**. An issue's venue is `mac` if and only if it carries the label `venue:mac`; every other issue is `linux`. Never infer `mac` from the issue text. Emit each issue's venue (`linux` or `mac`) in its planned entry.
@@ -57,6 +65,6 @@ Output your plan as a JSON object wrapped in `<plan>` tags:
 {"issues": [{"id": "42", "title": "Fix auth bug", "branch": "sandcastle/issue-42", "venue": "{{VENUE}}"}]}
 </plan>
 
-Include only unblocked issues. If every issue is blocked by another open issue (not by open PRs), include the single highest-priority candidate.
+Include only unblocked issues. If every issue is blocked by another open issue (not by open PRs) and nothing is in flight, include the single highest-priority candidate; while anything is in flight, an empty plan is fine.
 
 Always emit the `<plan>` tags, even when there is nothing to do: `<plan>{"issues": []}</plan>`.

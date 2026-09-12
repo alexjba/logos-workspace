@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# The `--type` filter behind `ws test --all --type cpp`.
+#
+#   repo_matches_type <repo-path> <type>
+#     0  this repo is of that type
+#     1  it is not
+#     2  the type is not one this workspace knows
+#
+# Sourced by scripts/ws; unit-tested by scripts/tests/repo-type.test.sh.
+#
+# WHY THIS IS NOT ONE `[[ -f ]]` PER TYPE. It was, and `cpp` meant "has a
+# CMakeLists.txt at the root", which is a statement about repository layout and
+# not about language. Seven of this workspace's C++ repos keep their build in a
+# subproject -- logos-basecamp, logos-cpp-sdk, logos-plugin-qt, logos-protocol,
+# logos-qt-sdk, logos-standalone-app and logos-test-modules -- so
+# `ws test --all --type cpp` skipped all seven and counted them as "skipped",
+# which reads exactly like "has no tests". Among them is the repo holding the
+# Native container suite, so the filter meant to select the C++ half of the
+# tree was excluding the thing a container CI run exists to catch.
+
+# A CMakeLists.txt at the root, or in a top-level subdirectory.
+#
+# One level, deliberately. A repo that vendors somebody else's C++ three levels
+# down is not a C++ repo, and a filter that walked the whole tree would drag in
+# every repo carrying a fixture.
+_repo_type_cmake_file() {
+  local repo_path="$1" f
+  if [[ -f "$repo_path/CMakeLists.txt" ]]; then
+    printf '%s\n' "$repo_path/CMakeLists.txt"
+    return 0
+  fi
+  local found=1
+  for f in "$repo_path"/*/CMakeLists.txt; do
+    [[ -f "$f" ]] || continue
+    printf '%s\n' "$f"
+    found=0
+  done
+  return $found
+}
+
+_repo_type_glob_exists() {
+  local f
+  for f in "$@"; do [[ -e "$f" ]] && return 0; done
+  return 1
+}
+
+repo_matches_type() {
+  local repo_path="$1" type="$2" f
+
+  case "$type" in
+    cpp|cmake)
+      _repo_type_cmake_file "$repo_path" >/dev/null
+      ;;
+    rust|cargo)
+      [[ -f "$repo_path/Cargo.toml" ]]
+      ;;
+    nim|nimble)
+      _repo_type_glob_exists "$repo_path"/*.nimble
+      ;;
+    js|node|npm)
+      [[ -f "$repo_path/package.json" ]]
+      ;;
+    qml)
+      # A .qml at the root, or any CMakeLists.txt this filter can see that
+      # mentions qml -- the same reach `cpp` has, or the two would disagree
+      # about the same repo.
+      _repo_type_glob_exists "$repo_path"/*.qml && return 0
+      while IFS= read -r f; do
+        grep -q "qml" "$f" 2>/dev/null && return 0
+      done < <(_repo_type_cmake_file "$repo_path")
+      return 1
+      ;;
+    *)
+      return 2
+      ;;
+  esac
+}
+
+# The types `repo_matches_type` knows, for an error message.
+repo_type_names() { echo "cpp, rust, nim, js, qml"; }

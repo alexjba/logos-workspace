@@ -1,4 +1,5 @@
-// Fleet loop: plan → (implement + review per issue, in parallel) → merge.
+// Fleet loop: keep up to FLEET_MAX_PARALLEL issue pipelines (implement → review → merge) in flight,
+// planning again whenever one finishes.
 // Installed by fleet-kit; install-time placeholders are substituted by fleet-init.
 //
 // Run: npm run sandcastle            (Docker sandboxes)
@@ -13,7 +14,7 @@ import { z } from "zod";
 import { readManifest, manifestsToMarkdown, type Manifest } from "./lib/manifest.mts";
 import { parseVenue, filterPlanByVenue, environmentVenue } from "./lib/venue.mts";
 import { parseLabels, scopeFlags } from "./lib/scope.mts";
-import { runPool } from "./lib/pool.mts";
+import { runRolling } from "./lib/rolling.mts";
 import { execSync } from "node:child_process";
 
 const planSchema = z.object({
@@ -57,8 +58,16 @@ const adoptFinishedBranch = (id: string, saved: string, worktreePath: string): {
 };
 // FLEET_LABELS=a,b (AND) and FLEET_MILESTONE narrow the board at runtime; default is the installed label.
 const SCOPE_FLAGS = scopeFlags(parseLabels(process.env.FLEET_LABELS, "fleet-smoke"), process.env.FLEET_MILESTONE);
-// FLEET_MAX_PARALLEL caps concurrent issue pipelines (implementer + reviewer); default unlimited.
+// FLEET_MAX_PARALLEL caps concurrent issue pipelines (implementer + reviewer + merge); default unlimited.
 const MAX_PARALLEL = Number(process.env.FLEET_MAX_PARALLEL ?? Infinity);
+// FLEET_MAX_PIPELINES caps how many issue pipelines a run starts in total; by default as many as
+// the old batch loop could (FLEET_MAX_ITERATIONS batches of FLEET_MAX_PARALLEL issues).
+const MAX_PIPELINES = Number(
+  process.env.FLEET_MAX_PIPELINES ?? MAX_ITERATIONS * (Number.isFinite(MAX_PARALLEL) ? MAX_PARALLEL : 4),
+);
+// FLEET_REPLAN_INTERVAL (seconds) re-plans on a timer while a slot is free, so an issue filed
+// mid-run does not wait for the next pipeline to finish. 0 disables it.
+const REPLAN_INTERVAL_MS = Number(process.env.FLEET_REPLAN_INTERVAL ?? 600) * 1000;
 // FLEET_IDLE_TIMEOUT: seconds an agent may stay silent (a long nix build inside one Bash call) before
 // sandcastle kills it. Must exceed the agent's BASH_MAX_TIMEOUT_MS; sandcastle's default is 600.
 const IDLE_TIMEOUT = Number(process.env.FLEET_IDLE_TIMEOUT ?? 4500);
@@ -95,124 +104,135 @@ const sandboxHooks = existsSync(".sandcastle/adapter/bootstrap.sh")
   ? { sandbox: { onSandboxReady: [{ command: "bash .sandcastle/adapter/bootstrap.sh" }] } }
   : undefined;
 
+// A lock runs its callers one at a time, in call order.
+const makeLock = () => {
+  let tail: Promise<unknown> = Promise.resolve();
+  return <T,>(fn: () => Promise<T>): Promise<T> => {
+    const next = tail.then(fn, fn);
+    tail = next.catch(() => undefined);
+    return next;
+  };
+};
 // Sandbox creation runs one at a time. Every createSandbox prunes "orphaned" worktree directories
 // (those `git worktree list` does not show), and a concurrent call can delete a sibling's worktree
 // while its `git worktree add` is still registering it: issue #53's pipeline lost its worktree this
 // way in the iteration-7 run and never got past "Setting up sandbox".
-let sandboxLock: Promise<unknown> = Promise.resolve();
-const serialized = <T,>(fn: () => Promise<T>): Promise<T> => {
-  const next = sandboxLock.then(fn, fn);
-  sandboxLock = next.catch(() => undefined);
-  return next;
-};
+const withSandboxLock = makeLock();
+// Planning and merging share the host checkout: the merger stashes, checks out and fast-forwards
+// it, and a plan made mid-merge would read a half-landed base. They take turns.
+const withHostLock = makeLock();
 
+type Issue = z.infer<typeof planSchema>["issues"][number];
 type Outcome = { commits: { sha: string }[]; manifest: Manifest | null };
 
-for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
-  console.log(`\n=== Iteration ${iteration}/${MAX_ITERATIONS} (venue: ${VENUE}, scope: ${SCOPE_FLAGS}) ===`);
-  console.log(`models: planner=${modelFor("PLANNER")} implementer=${modelFor("IMPLEMENTER")} reviewer=${modelFor("REVIEWER")} merger=${modelFor("MERGER")}\n`);
-  syncHostCheckout();
+const describeInFlight = (issues: Issue[]): string =>
+  issues.length ? issues.map((i) => `- #${i.id}: ${i.title} (${i.branch})`).join("\n") : "(none)";
 
-  const plan = await sandcastle.run({
-    sandbox: makeSandbox(),
-    name: "planner",
-    maxIterations: 1,
-    idleTimeoutSeconds: IDLE_TIMEOUT,
-    agent: makeAgent("PLANNER"),
-    promptFile: "./.sandcastle/plan-prompt.md",
-    promptArgs: { VENUE, SCOPE_FLAGS },
-    output: sandcastle.Output.object({ tag: "plan", schema: planSchema }),
-  });
-  const { kept: issues, dropped } = filterPlanByVenue(plan.output.issues, VENUE);
-  for (const d of dropped) console.warn(`  ! planner emitted issue ${d.id} for venue ${d.venue}; this loop is ${VENUE}, skipping`);
-  if (issues.length === 0) {
-    console.log("No unblocked issues to work on. Exiting.");
-    break;
-  }
-  console.log(`Planning complete. ${issues.length} issue(s):`);
-  for (const issue of issues) console.log(`  ${issue.id}: ${issue.title} → ${issue.branch}`);
-
-  const settled = await runPool(issues, MAX_PARALLEL, async (issue): Promise<Outcome> => {
-      const sandbox = await serialized(() =>
-        sandcastle.createSandbox({
-          branch: issue.branch,
-          sandbox: makeSandbox(),
-          hooks: sandboxHooks,
-        }),
-      );
-      try {
-        let commits: { sha: string }[];
-        const saved = savedManifest(issue.id);
-        if (saved) {
-          commits = adoptFinishedBranch(issue.id, saved, sandbox.worktreePath);
-        } else {
-          const implement = await sandbox.run({
-            name: "implementer",
-            maxIterations: 100,
-            idleTimeoutSeconds: IDLE_TIMEOUT,
-            agent: makeAgent("IMPLEMENTER"),
-            promptFile: "./.sandcastle/implement-prompt.md",
-            promptArgs: { TASK_ID: issue.id, ISSUE_TITLE: issue.title, BRANCH: issue.branch, VENUE: environmentVenue(VENUE) },
-          });
-          commits = implement.commits;
-        }
-        if (commits.length > 0) {
-          const review = await sandbox.run({
-            name: "reviewer",
-            maxIterations: 1,
-            idleTimeoutSeconds: IDLE_TIMEOUT,
-            agent: makeAgent("REVIEWER"),
-            promptFile: "./.sandcastle/review-prompt.md",
-            promptArgs: { BRANCH: issue.branch },
-          });
-          commits = [...commits, ...review.commits];
-        }
-        // Read before close(): the worktree may be torn down.
-        const manifest = readManifest(sandbox.worktreePath);
-        return { commits, manifest };
-      } finally {
-        await sandbox.close();
-      }
+let round = 0;
+const plan = (inFlight: Issue[]): Promise<Issue[]> =>
+  withHostLock(async () => {
+    round++;
+    const busy = inFlight.map((i) => `#${i.id}`).join(" ") || "none";
+    console.log(`\n=== Plan round ${round} (venue: ${VENUE}, scope: ${SCOPE_FLAGS}, in flight: ${busy}) ===`);
+    console.log(`models: planner=${modelFor("PLANNER")} implementer=${modelFor("IMPLEMENTER")} reviewer=${modelFor("REVIEWER")} merger=${modelFor("MERGER")}\n`);
+    syncHostCheckout();
+    const result = await sandcastle.run({
+      sandbox: makeSandbox(),
+      name: "planner",
+      maxIterations: 1,
+      idleTimeoutSeconds: IDLE_TIMEOUT,
+      agent: makeAgent("PLANNER"),
+      promptFile: "./.sandcastle/plan-prompt.md",
+      promptArgs: { VENUE, SCOPE_FLAGS, IN_FLIGHT: describeInFlight(inFlight) },
+      output: sandcastle.Output.object({ tag: "plan", schema: planSchema }),
+    });
+    const { kept, dropped } = filterPlanByVenue(result.output.issues, VENUE);
+    for (const d of dropped) console.warn(`  ! planner emitted issue ${d.id} for venue ${d.venue}; this loop is ${VENUE}, skipping`);
+    const fresh = kept.filter((i) => !inFlight.some((f) => f.id === i.id));
+    console.log(`Planning complete. ${fresh.length} candidate(s):`);
+    for (const issue of fresh) console.log(`  ${issue.id}: ${issue.title} → ${issue.branch}`);
+    return fresh;
   });
 
-  for (const [i, outcome] of settled.entries()) {
-    if (outcome.status === "rejected") {
-      console.error(`  ✗ ${issues[i]!.id} (${issues[i]!.branch}) failed: ${outcome.reason}`);
+const implementAndReview = async (issue: Issue): Promise<Outcome> => {
+  const sandbox = await withSandboxLock(() =>
+    sandcastle.createSandbox({
+      branch: issue.branch,
+      sandbox: makeSandbox(),
+      hooks: sandboxHooks,
+    }),
+  );
+  try {
+    let commits: { sha: string }[];
+    const saved = savedManifest(issue.id);
+    if (saved) {
+      commits = adoptFinishedBranch(issue.id, saved, sandbox.worktreePath);
+    } else {
+      const implement = await sandbox.run({
+        name: "implementer",
+        maxIterations: 100,
+        idleTimeoutSeconds: IDLE_TIMEOUT,
+        agent: makeAgent("IMPLEMENTER"),
+        promptFile: "./.sandcastle/implement-prompt.md",
+        promptArgs: { TASK_ID: issue.id, ISSUE_TITLE: issue.title, BRANCH: issue.branch, VENUE: environmentVenue(VENUE) },
+      });
+      commits = implement.commits;
     }
+    if (commits.length > 0) {
+      const review = await sandbox.run({
+        name: "reviewer",
+        maxIterations: 1,
+        idleTimeoutSeconds: IDLE_TIMEOUT,
+        agent: makeAgent("REVIEWER"),
+        promptFile: "./.sandcastle/review-prompt.md",
+        promptArgs: { BRANCH: issue.branch },
+      });
+      commits = [...commits, ...review.commits];
+    }
+    // Read before close(): the worktree may be torn down.
+    return { commits, manifest: readManifest(sandbox.worktreePath) };
+  } finally {
+    await sandbox.close();
   }
+};
 
-  const completed = settled.flatMap((outcome, i) =>
-    outcome.status === "fulfilled" && outcome.value.commits.length > 0
-      ? [{ issue: issues[i]!, manifest: outcome.value.manifest }]
-      : [],
+const merge = (issue: Issue, manifest: Manifest | null) =>
+  withHostLock(() =>
+    sandcastle.run({
+      sandbox: makeSandbox(),
+      name: "merger",
+      maxIterations: 1,
+      idleTimeoutSeconds: IDLE_TIMEOUT,
+      agent: makeAgent("MERGER"),
+      promptFile: "./.sandcastle/merge-prompt.md",
+      promptArgs: {
+        BRANCHES: `- ${issue.branch}`,
+        ISSUES: `- ${issue.id}: ${issue.title}`,
+        MANIFESTS: manifestsToMarkdown([{ issue: issue.id, branch: issue.branch, manifest }]),
+      },
+    }),
   );
 
-  console.log(`\nExecution complete. ${completed.length} branch(es) with commits:`);
-  for (const c of completed) {
-    const repos = c.manifest ? String(c.manifest.repos.length) : "no manifest";
-    console.log(`  ${c.issue.branch} (sub-repos: ${repos})`);
+// One issue end to end: implement and review in its own sandbox, then land it as soon as it is done.
+const runIssue = async (issue: Issue): Promise<void> => {
+  console.log(`  → starting #${issue.id} (${issue.branch})`);
+  const { commits, manifest } = await implementAndReview(issue);
+  if (commits.length === 0) {
+    console.log(`\n${issue.branch}: no commits produced; nothing to merge.`);
+    return;
   }
-  if (completed.length === 0) {
-    console.log("No commits produced. Nothing to merge.");
-    continue;
-  }
+  console.log(`\nExecution complete for ${issue.branch} (sub-repos: ${manifest ? manifest.repos.length : "no manifest"}).`);
+  await merge(issue, manifest);
+  console.log(`\nMerge phase finished (${issue.branch}).`);
+};
 
-  await sandcastle.run({
-    sandbox: makeSandbox(),
-    name: "merger",
-    maxIterations: 1,
-    idleTimeoutSeconds: IDLE_TIMEOUT,
-    agent: makeAgent("MERGER"),
-    promptFile: "./.sandcastle/merge-prompt.md",
-    promptArgs: {
-      BRANCHES: completed.map((c) => `- ${c.issue.branch}`).join("\n"),
-      ISSUES: completed.map((c) => `- ${c.issue.id}: ${c.issue.title}`).join("\n"),
-      MANIFESTS: manifestsToMarkdown(
-        completed.map((c) => ({ issue: c.issue.id, branch: c.issue.branch, manifest: c.manifest })),
-      ),
-    },
-  });
-  console.log("\nMerge phase finished.");
-}
+const { started, rounds } = await runRolling<Issue>({
+  limit: MAX_PARALLEL,
+  budget: MAX_PIPELINES,
+  replanIntervalMs: REPLAN_INTERVAL_MS,
+  plan,
+  run: runIssue,
+  onError: (issue, reason) => console.error(`  ✗ ${issue.id} (${issue.branch}) failed: ${reason}`),
+});
 
-console.log("\nAll done.");
+console.log(`\nAll done: ${started} pipeline(s) over ${rounds} plan round(s).`);
