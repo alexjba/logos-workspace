@@ -74,8 +74,8 @@ remain allowed because the container is a webview anyway. See
   logos-view-module-runtime is this ADR's bundled runtime as one static image:
   Qt Quick, the Logos design system, the MessagePort transport and
   `LogosWebRuntime` — a QML engine with `logos` in its root context and a
-  module's QML loaded into it as TEXT at install time. **25,888,755 B raw /
-  6,674,406 B brotli** on aarch64-darwin, against the ~26 MB / 6.8 MB this ADR
+  module's QML loaded into it as TEXT at install time. **25,890,460 B raw /
+  6,673,607 B brotli** on aarch64-darwin, against the ~26 MB / 6.8 MB this ADR
   was accepted with — so the spike's number is confirmed to within a percent by
   a from-source build. The build asserts both things a successful static link
   can silently omit: every page-facing embind export (nothing in C++ references
