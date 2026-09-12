@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# The mobile target vocabulary, and the flake attribute a target resolves to.
+# The mobile target and app vocabularies, and the flake attributes a target
+# resolves to.
 #
 # Sourced by scripts/ws; unit-tested by scripts/tests/mobile-target.test.sh.
 # It is its own file because the answer is not one mapping but two, and the
@@ -43,6 +44,49 @@ target_to_system() {
 
 is_known_target() {
   [[ " $KNOWN_TARGETS " == *" $1 "* ]]
+}
+
+# ── The app vocabulary ──────────────────────────────────────────────────────
+# Two apps carry the same Bundled set, and `ws run --app` picks which one runs:
+#
+#   smoke   liblogos_core with the set in it, a log on screen and the verdicts
+#           on the console. The bring-up probe, and the default -- it is what
+#           answers "did the set load" without a UI in the way.
+#   shell   Basecamp's real UI shell on top of the same host: main_ui linked
+#           in, the Modules tab listing the set. Both phones: main_ui is a
+#           static archive imported with Q_IMPORT_PLUGIN on either, so the
+#           host is one file (repos/logos-basecamp/nix/shell-ui-ios.nix and
+#           nix/shell-ui-android.nix).
+KNOWN_APPS="smoke shell"
+
+is_known_app() {
+  [[ " $KNOWN_APPS " == *" $1 "* ]]
+}
+
+# run_app_for <app> <target> — the flake output that puts a build of <app> for
+# <target> on a device or simulator. Non-zero when the pair has no build; every
+# pair has one today, so that is what a new target hits before its apps exist.
+run_app_for() {
+  case "$1:$2" in
+    smoke:ios-sim-arm64) echo "run-liblogos-smoke-ios-sim" ;;
+    smoke:ios-arm64)     echo "run-liblogos-smoke-ios-device" ;;
+    smoke:android-arm64) echo "run-liblogos-smoke-android" ;;
+    shell:ios-sim-arm64) echo "run-basecamp-shell-ios-sim" ;;
+    shell:ios-arm64)     echo "run-basecamp-shell-ios-device" ;;
+    shell:android-arm64) echo "run-basecamp-shell-android" ;;
+    *) return 1 ;;
+  esac
+}
+
+# targets_for_app <app> — the targets <app> has a build for, space separated
+# and empty when it has none. Derived from run_app_for rather than listed, so
+# the refusal a command prints cannot disagree with the table above it.
+targets_for_app() {
+  local app="$1" target builds=""
+  for target in $KNOWN_TARGETS; do
+    run_app_for "$app" "$target" >/dev/null && builds="${builds:+$builds }$target"
+  done
+  echo "$builds"
 }
 
 # host_to_system <uname -s> <uname -m> — this machine, as a nix system.

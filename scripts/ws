@@ -514,39 +514,11 @@ Arguments:
 }
 
 
-# ── Mobile targets: --target / --bundle ─────────────────────────────────────
-# The target vocabulary, the pseudo-systems it maps to and the flake attribute
-# a build resolves through are scripts/_mobile-target (sourced above, and unit
-# tested). What is left here is what only a command knows: which app runs a
-# target, and what to say when a combination has no build.
-
-# The runner that puts a build of <target> on a device or simulator.
-#
-# Two apps carry the same Bundled set, and `--app` picks which one runs:
-#
-#   smoke   liblogos_core with the set in it, a log on screen and the verdicts
-#           on the console. The bring-up probe, and the default -- it is what
-#           answers "did the set load" without a UI in the way.
-#   shell   Basecamp's real UI shell on top of the same host: main_ui linked
-#           in, the Modules tab listing the set. iOS only for now; Qt for
-#           Android is shared objects, so main_ui there is a different
-#           artifact (see repos/logos-basecamp/nix/shell-ui-ios.nix).
-KNOWN_APPS="smoke shell"
-
-target_to_run_app() {
-  case "$2:$1" in
-    smoke:ios-sim-arm64) echo "run-liblogos-smoke-ios-sim" ;;
-    smoke:ios-arm64)     echo "run-liblogos-smoke-ios-device" ;;
-    smoke:android-arm64) echo "run-liblogos-smoke-android" ;;
-    shell:ios-sim-arm64) echo "run-basecamp-shell-ios-sim" ;;
-    shell:ios-arm64)     echo "run-basecamp-shell-ios-device" ;;
-    *) return 1 ;;
-  esac
-}
-
-is_known_app() {
-  [[ " $KNOWN_APPS " == *" $1 "* ]]
-}
+# ── Mobile targets: --target / --app / --bundle ─────────────────────────────
+# The target and app vocabularies -- which targets and apps exist, which pairs
+# of them have a build, and the flake attribute a build resolves through -- are
+# scripts/_mobile-target (sourced above, and unit tested). What is left here is
+# only how a command REFUSES: the colours, the hint and the exit.
 
 die_unknown_app() {
   echo -e "${RED}Error:${NC} unknown --app '$1'" >&2
@@ -555,9 +527,10 @@ die_unknown_app() {
 }
 
 die_app_without_target() {
-  echo -e "${RED}Error:${NC} --app '$1' has no build for --target '$2'" >&2
-  echo "The Shell is iOS-only today: Qt for Android is a set of shared objects," >&2
-  echo "so main_ui there is the desktop plugin rather than a static import." >&2
+  local app="$1" target="$2" builds
+  builds=$(targets_for_app "$app")
+  echo -e "${RED}Error:${NC} --app '$app' has no build for --target '$target'" >&2
+  echo "Targets '$app' builds for: ${builds:-none}" >&2
   exit 1
 }
 
@@ -1006,12 +979,14 @@ Options:
                                 Resolved from the catalog with their dependency
                                 closure; needs --target
   --app, -A <smoke|shell>       Which app carries the set (default: smoke).
-                                'shell' is Basecamp's real UI shell; iOS only
+                                'shell' is Basecamp's real UI shell, on either
+                                phone; 'smoke' is the bring-up probe
   --auto-local, -a              Auto-detect dirty repos and use as local overrides
   --local, -l <repo1> <repo2>   Use specific repos as local overrides
 
-With --target the app is built (Xcode / gradle, outside the nix sandbox --
-ADR 0002), installed and launched on the simulator or the attached device:
+With --target the app is built, installed and launched on the simulator or the
+attached device. On iOS the link and the signing run outside the nix sandbox
+(ADR 0002); on Android androiddeployqt and gradle run inside it:
 
   ws run logos-basecamp --target ios-sim-arm64 --bundle view_counter
   ws run logos-basecamp --target android-arm64 --bundle bare_counter
@@ -1105,8 +1080,9 @@ Examples:
     flags=($(build_override_flags "${unique[@]}"))
   fi
 
-  # A mobile target is not this host: the runner builds the app with Xcode or
-  # gradle (outside the nix sandbox, ADR 0002), installs it and launches it.
+  # A mobile target is not this host: the runner builds the app, installs it and
+  # launches it -- the iOS link and signing outside the nix sandbox (ADR 0002),
+  # Android's androiddeployqt and gradle inside it.
   # `--bundle` reaches the evaluation through the environment for the same
   # reason as in `ws build` -- a list cannot be a flake attribute name.
   if [[ -n "$target" ]]; then
@@ -1114,8 +1090,8 @@ Examples:
     is_known_target "$target" || die_unknown_target "$target"
     local run_app
     # Both names are known, so the only way left to have no runner is a
-    # combination with no build -- the Shell on Android, today.
-    run_app=$(target_to_run_app "$target" "$app") || die_app_without_target "$app" "$target"
+    # combination with no build.
+    run_app=$(run_app_for "$app" "$target") || die_app_without_target "$app" "$target"
     if [[ -n "$bundle" ]]; then
       export LOGOS_BUNDLE_APPS="$bundle"
       flags+=("--impure")
