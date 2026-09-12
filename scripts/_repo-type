@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# The `--type` filter behind `ws test --all --type cpp` (and `ws loc`).
+# The `--type` filter behind `ws test --all --type cpp`.
 #
 #   repo_matches_type <repo-path> <type>
 #     0  this repo is of that type

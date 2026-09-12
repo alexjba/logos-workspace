@@ -1611,15 +1611,13 @@ Examples:
       if [[ -n "$test_type" ]]; then
         local trc=0
         repo_matches_type "$REPOS_DIR/$dir_name" "$test_type" || trc=$?
-        if [[ $trc -eq 2 ]]; then
-          echo -e "${RED}Unknown type: $test_type${NC}" >&2
-          echo "Available types: $(repo_type_names)" >&2
-          exit 1
-        fi
-        if [[ $trc -ne 0 ]]; then
-          skipped=$((skipped + 1))
-          continue
-        fi
+        case $trc in
+          0) ;;
+          2) echo -e "${RED}Unknown type: $test_type${NC}" >&2
+             echo "Available types: $(repo_type_names)" >&2
+             exit 1 ;;
+          *) skipped=$((skipped + 1)); continue ;;
+        esac
       fi
 
       local rc=0

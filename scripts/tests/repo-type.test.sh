@@ -19,10 +19,16 @@ mkrepo() {
   for f in "$@"; do mkdir -p "$(dirname "$REPO_DIR/$f")"; : > "$REPO_DIR/$f"; done
 }
 
-# expect <label> <type> <want yes|no>
+# expect <label> <type> <want yes|no|unknown> -- the three answers
+# repo_matches_type has, named rather than spelled as exit statuses.
 expect() {
-  local label="$1" type="$2" want="$3" got=no
-  repo_matches_type "$REPO_DIR" "$type" && got=yes
+  local label="$1" type="$2" want="$3" rc=0 got
+  repo_matches_type "$REPO_DIR" "$type" || rc=$?
+  case $rc in
+    0) got=yes ;;
+    2) got=unknown ;;
+    *) got=no ;;
+  esac
   if [[ "$got" == "$want" ]]; then
     pass=$((pass + 1)); echo "  ok   $label"
   else
@@ -36,12 +42,9 @@ mkrepo cpp-root CMakeLists.txt src/main.cpp
 expect "a CMakeLists.txt at the root" cpp yes
 
 # THE ONE THIS FILE WAS WRITTEN FOR. A repo whose C++ is in subprojects has no
-# root CMakeLists.txt, and `--type cpp` used to skip it in silence: with it,
-# logos-basecamp, logos-cpp-sdk, logos-plugin-qt, logos-protocol, logos-qt-sdk,
-# logos-standalone-app and logos-test-modules -- seven C++ repos with checks,
-# including the one holding the Native container suite -- were not in
-# `ws test --all --type cpp` at all, and the run said "skipped" as if they had
-# no tests.
+# root CMakeLists.txt, and `--type cpp` used to skip it in silence -- seven of
+# this workspace's C++ repos, named in scripts/_repo-type, among them the one
+# holding the Native container suite.
 mkrepo cpp-subproject cpp/CMakeLists.txt cpp/src/main.cpp README.md
 expect "a CMakeLists.txt one level down" cpp yes
 
@@ -90,17 +93,10 @@ expect "a CMakeLists.txt with no qml in it" qml no
 
 echo "unknown types"
 
+# Its own answer, not "no": a typo has to reach the caller as an error rather
+# than as a run that quietly tested nothing.
 mkrepo whatever CMakeLists.txt
-if repo_matches_type "$REPO_DIR" "cobol" 2>/dev/null; then
-  fail=$((fail + 1)); echo "  FAIL an unknown type matches nothing (it matched)"
-else
-  rc=$?
-  if [[ "$rc" -eq 2 ]]; then
-    pass=$((pass + 1)); echo "  ok   an unknown type is rejected with status 2, not silently skipped"
-  else
-    fail=$((fail + 1)); echo "  FAIL an unknown type is rejected with status 2 (got $rc)"
-  fi
-fi
+expect "an unknown type is rejected, not silently skipped" cobol unknown
 
 echo ""
 echo "$pass passed, $fail failed"
