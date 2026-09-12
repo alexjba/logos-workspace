@@ -14,6 +14,8 @@ source "$WORKSPACE_ROOT/scripts/_standalone-app"
 source "$WORKSPACE_ROOT/scripts/_detect-tests"
 # shellcheck source=scripts/_run-checks
 source "$WORKSPACE_ROOT/scripts/_run-checks"
+# shellcheck source=scripts/_repo-type
+source "$WORKSPACE_ROOT/scripts/_repo-type"
 
 # Show help text and exit. Usage: show_help "text"
 show_help() { echo -e "$1"; exit 0; }
@@ -1605,28 +1607,16 @@ Examples:
         continue
       fi
 
-      # Filter by type if specified
+      # Filter by type if specified (scripts/_repo-type)
       if [[ -n "$test_type" ]]; then
-        local repo_path="$REPOS_DIR/$dir_name"
-        local matches=false
-        case "$test_type" in
-          cpp|cmake)
-            [[ -f "$repo_path/CMakeLists.txt" ]] && matches=true ;;
-          rust|cargo)
-            [[ -f "$repo_path/Cargo.toml" ]] && matches=true ;;
-          nim|nimble)
-            ls "$repo_path"/*.nimble >/dev/null 2>&1 && matches=true ;;
-          js|node|npm)
-            [[ -f "$repo_path/package.json" ]] && matches=true ;;
-          qml)
-            ls "$repo_path"/*.qml >/dev/null 2>&1 && matches=true
-            [[ -f "$repo_path/CMakeLists.txt" ]] && grep -q "qml" "$repo_path/CMakeLists.txt" 2>/dev/null && matches=true ;;
-          *)
-            echo -e "${RED}Unknown type: $test_type${NC}" >&2
-            echo "Available types: cpp, rust, nim, js, qml" >&2
-            exit 1 ;;
-        esac
-        if ! $matches; then
+        local trc=0
+        repo_matches_type "$REPOS_DIR/$dir_name" "$test_type" || trc=$?
+        if [[ $trc -eq 2 ]]; then
+          echo -e "${RED}Unknown type: $test_type${NC}" >&2
+          echo "Available types: $(repo_type_names)" >&2
+          exit 1
+        fi
+        if [[ $trc -ne 0 ]]; then
           skipped=$((skipped + 1))
           continue
         fi

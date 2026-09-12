@@ -88,7 +88,7 @@
       inputs.process-stats.follows = "process-stats";
     };
     logos-logoscore-cli = {
-      url = "github:logos-fleet/logos-logoscore-cli/c5f54ee85e63a319555307fe8a3e7845f122c413";
+      url = "github:logos-fleet/logos-logoscore-cli/e64ae572d172c8014dbec42590368048c890c237";
       inputs.logos-capability-module.follows = "logos-capability-module";
       inputs.logos-cpp-sdk.follows = "logos-cpp-sdk";
       inputs.logos-js-sdk.follows = "logos-js-sdk";

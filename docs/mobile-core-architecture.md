@@ -148,7 +148,9 @@ Store shell (App Store / Play)                  Desktop / non-store Android
 ## Open items
 
 - Status ADR 0007 amendment: frameworks carry no Qt and no protocol; the
-  Bundled set is catalog-driven.
+  Bundled set is catalog-driven. **Drafted** (#20):
+  `docs/status-adr-0007-amendment.md`. Still to be applied to
+  status-desktop by whoever owns ADR 0007 there.
 - Whether Apple's October 2025 wording change to 3.3.1(B) altered anything
   beyond wording (not diffed).
 - Emscripten toolchain pinned in nix for Qt-wasm and Rust `wasm32`.
