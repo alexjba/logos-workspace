@@ -557,8 +557,12 @@ die_unknown_app() {
 }
 
 die_app_without_target() {
-  echo -e "${RED}Error:${NC} --app '$1' has no build for --target '$2'" >&2
-  echo "Known targets for an app: $KNOWN_TARGETS, minus the pairs with no build." >&2
+  local app="$1" target="$2" t builds=()
+  for t in $KNOWN_TARGETS; do
+    target_to_run_app "$t" "$app" >/dev/null && builds+=("$t")
+  done
+  echo -e "${RED}Error:${NC} --app '$app' has no build for --target '$target'" >&2
+  echo "Targets '$app' builds for: ${builds[*]:-none}" >&2
   exit 1
 }
 
@@ -1116,7 +1120,8 @@ Examples:
     is_known_target "$target" || die_unknown_target "$target"
     local run_app
     # Both names are known, so the only way left to have no runner is a
-    # combination with no build -- the Shell on Android, today.
+    # combination with no build. Every pair has one today; this is what a new
+    # target would hit before its apps exist.
     run_app=$(target_to_run_app "$target" "$app") || die_app_without_target "$app" "$target"
     if [[ -n "$bundle" ]]; then
       export LOGOS_BUNDLE_APPS="$bundle"
