@@ -528,9 +528,10 @@ Arguments:
 #           on the console. The bring-up probe, and the default -- it is what
 #           answers "did the set load" without a UI in the way.
 #   shell   Basecamp's real UI shell on top of the same host: main_ui linked
-#           in, the Modules tab listing the set. iOS only for now; Qt for
-#           Android is shared objects, so main_ui there is a different
-#           artifact (see repos/logos-basecamp/nix/shell-ui-ios.nix).
+#           in, the Modules tab listing the set. Both phones: main_ui is a
+#           static archive imported with Q_IMPORT_PLUGIN on either, so the
+#           host is one file (repos/logos-basecamp/nix/shell-ui-ios.nix and
+#           nix/shell-ui-android.nix).
 KNOWN_APPS="smoke shell"
 
 target_to_run_app() {
@@ -540,6 +541,7 @@ target_to_run_app() {
     smoke:android-arm64) echo "run-liblogos-smoke-android" ;;
     shell:ios-sim-arm64) echo "run-basecamp-shell-ios-sim" ;;
     shell:ios-arm64)     echo "run-basecamp-shell-ios-device" ;;
+    shell:android-arm64) echo "run-basecamp-shell-android" ;;
     *) return 1 ;;
   esac
 }
@@ -556,8 +558,7 @@ die_unknown_app() {
 
 die_app_without_target() {
   echo -e "${RED}Error:${NC} --app '$1' has no build for --target '$2'" >&2
-  echo "The Shell is iOS-only today: Qt for Android is a set of shared objects," >&2
-  echo "so main_ui there is the desktop plugin rather than a static import." >&2
+  echo "Known targets for an app: $KNOWN_TARGETS, minus the pairs with no build." >&2
   exit 1
 }
 
@@ -1006,7 +1007,8 @@ Options:
                                 Resolved from the catalog with their dependency
                                 closure; needs --target
   --app, -A <smoke|shell>       Which app carries the set (default: smoke).
-                                'shell' is Basecamp's real UI shell; iOS only
+                                'shell' is Basecamp's real UI shell, on either
+                                phone; 'smoke' is the bring-up probe
   --auto-local, -a              Auto-detect dirty repos and use as local overrides
   --local, -l <repo1> <repo2>   Use specific repos as local overrides
 
