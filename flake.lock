@@ -891,6 +891,9 @@
         "logos-chat-module": [
           "logos-chat-module"
         ],
+        "logos-chat-ui": [
+          "logos-chat-ui"
+        ],
         "logos-cpp-sdk": [
           "logos-cpp-sdk"
         ],
@@ -963,17 +966,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1789200177,
-        "narHash": "sha256-gcT7dPKjedKzZQusY66ArdmvVXx0epVACWjzBoJ+RbY=",
+        "lastModified": 1789226418,
+        "narHash": "sha256-16eZDhSNn8pZNnEmdQZAm3LwrW3/f9kTIT9NRq3PxhI=",
         "owner": "logos-fleet",
         "repo": "logos-basecamp",
-        "rev": "43fb6fc3ca5672f368f9755caf6f6d40aa79c599",
+        "rev": "ee845b554d51e454125cdd6c40465bfb9fb93469",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-basecamp",
-        "rev": "43fb6fc3ca5672f368f9755caf6f6d40aa79c599",
+        "rev": "ee845b554d51e454125cdd6c40465bfb9fb93469",
         "type": "github"
       }
     },
