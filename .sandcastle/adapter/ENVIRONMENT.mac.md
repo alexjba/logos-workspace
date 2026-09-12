@@ -1,13 +1,31 @@
 This is the Mac venue: macOS with Xcode, iOS simulators, `xcrun simctl`, and adb. Run `source .sandcastle/devices.env` first; it exports `FLEET_ANDROID_SERIALS`, `FLEET_IOS_UDIDS`, and `ANDROID_SERIAL`.
 
 Rules:
-- **Pick your own device, do not take the first.** Several issue pipelines run at once and
-  `FLEET_IOS_UDIDS`/`FLEET_ANDROID_SERIALS` are shared, so two agents that both default to entry
-  0 install the same bundle id over each other on one device and read each other's app. Choose
-  the entry at `(<your issue number> mod <list length>)`, export it as `LOGOS_IOS_SIM` (simulator)
-  or `LOGOS_IOS_DEVICE` (physical), and state in the issue which device the evidence came from.
-  If that entry is the wrong kind for what you need (a simulator when only a device will do), take
-  the next one of the right kind rather than entry 0.
+- **Claim a device before you use it; never assume the first entry.** Several issue
+  pipelines run at once and `FLEET_IOS_UDIDS`/`FLEET_ANDROID_SERIALS` are shared, so two
+  agents on one device install the same bundle id over each other and read each other's
+  app. Do NOT derive your device from your issue number: two issues can share a remainder
+  (17 and 11 both give 2 of 3). Claim one atomically instead — `mkdir` succeeds for exactly
+  one caller:
+
+  ```bash
+  claim() {  # claim <space-separated ids>; echoes the id it got, or nothing
+    mkdir -p /tmp/fleet-devices
+    for id in $1; do
+      if mkdir "/tmp/fleet-devices/$id" 2>/dev/null; then
+        echo "$ISSUE_NUMBER" > "/tmp/fleet-devices/$id/owner"; echo "$id"; return 0
+      fi
+    done
+    return 1
+  }
+  source .sandcastle/devices.env
+  SIM=$(claim "$FLEET_IOS_UDIDS") || { echo "no iOS device free"; }
+  ```
+
+  Release it when you are done (`rm -rf /tmp/fleet-devices/<id>`), and release it before
+  you finish even if your run failed. If nothing is free, wait and retry a few times; if it
+  stays busy, build only and say so in the issue rather than sharing a device. State in the
+  issue which device the evidence came from.
 - Only touch devices in those allowlists (`adb -s $ANDROID_SERIAL`, simulators by listed UDID). If a list is empty, that platform has no device available to you: build only, and say so in the issue.
 - Never `adb reboot/root/sideload`, `fastboot`, `simctl delete/erase`, `sudo`, keychain (`security`), `defaults write`, `launchctl`. A guard hook blocks them.
 - Simulators: `xcrun simctl boot <UDID>`, `xcrun simctl install/launch`, `xcrun simctl io <UDID> screenshot out.png`; shut down what you booted.
