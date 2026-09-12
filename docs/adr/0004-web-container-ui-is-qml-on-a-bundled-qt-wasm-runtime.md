@@ -117,7 +117,7 @@ remain allowed because the container is a webview anyway. See
   downloaded once, which is the load-path consequence this ADR asked for.
 - **A module's QML takes its backend on an edge, not on first paint.** Inside
   the Web container `logos.module(name)` answers null until the backend's source
-  meta has arrived, and the view re-takes it on `moduleReadyChanged`. Forced,
+  meta has arrived, and the view re-takes it on `viewModuleReadyChanged` — the same edge, and the same NAME, the desktop bridge emits, so one document runs in both containers. Forced,
   not chosen: a page cannot dlopen the generated factory plugin that gives a
   desktop host a TYPED replica, so the replica is dynamic and builds its
   metaobject from the wire — and Qt's QML engine caches a property cache for an
@@ -127,5 +127,47 @@ remain allowed because the container is a webview anyway. See
   is refused in this container for a related reason: its reply crosses a
   MessagePort, which delivers through the event loop a blocking caller has
   stopped running.
+- **A `ui_qml` module's `web` variant is built.** logos-module-builder's
+  `nix build .#web` on a view module emits its QML plus a SECOND Qt-wasm image
+  holding the module's `.rep` backend on a `QRemoteObjectHost` over
+  `messageport:`, and a loader page that joins the two with one
+  `MessageChannel`. On aarch64-darwin the counter's backend image is
+  **4,027,668 B raw / 920,329 B brotli** — 15% of the runtime it plugs into,
+  which is the number that makes "one runtime, many modules" worth the 26 MB.
+  Three consequences the shape forces:
+  - **It is a different image from slice 26's Wasm host and cannot be merged
+    with it.** That one IS a Bare module: no Qt, the module-impl C ABI, the web
+    transport as its whole surface. This one hosts a QObject generated from a
+    `.rep` and is reached by a REPLICA, which only QtRO speaks. Putting Qt in
+    the Bare host would put Qt in every headless module.
+  - **It runs on the page thread, not in a Worker.** Qt for WebAssembly is
+    loaded by `qtloader.js`, which is DOM-bound. The crash boundary a Worker
+    buys a Bare module is not available; what replaces it is that the image
+    holds no other module's credentials and can take down only its own webview.
+  - **The page must be SERVED.** It fetches its own QML document and loads the
+    runtime out of another directory, and `file://` gives neither — unlike the
+    Bare variant, whose image is base64-embedded in its glue for exactly that
+    reason. The container puts the package behind a scheme, which it does for
+    every variant anyway.
+- **`logos.callModuleAsync` from a module's QML reaches a native module by
+  leaving the page.** The runtime remotes the call to `LogosWebCallRouter` in
+  the module's OWN backend image, which makes a real logos-protocol call over
+  the container's channel (`window.logosChannelReady`). The runtime is the
+  app's, shared by every module, and must not grow a protocol client or a token
+  store; the module's image already has one.
+- **One document, both containers.** `logos.module(name)` answers null until the
+  backend is there in the Web container and the view re-takes it on
+  `viewModuleReadyChanged` — which is the name `LogosQmlBridge` emits on the
+  desktop too, so a module's QML is the same file either way. Two spellings of
+  one edge would have made the container an author's problem.
+- **Measured end to end in a browser.** `wasm/browser-e2e/run.mjs` in
+  logos-module-builder serves a built variant against the built runtime in
+  headless Chrome and asserts 14 things: both images boot, the replica reaches
+  the view over the MessagePort, a REAL pointer event on the button drives the
+  backend (its own `count` goes 0 → 1) and the property change comes back and
+  repaints the view, `callModuleAsync` leaves the page as a logos-protocol Call
+  and its answer reaches the view, a second module's document installs into the
+  same runtime, and the SERVER saw exactly one request for the runtime image.
+  Like the runtime's own smoke it is not a nix check and cannot be one.
 - Everything in the Web container is single-threaded; concurrency is
   "more workers", never pthreads.
