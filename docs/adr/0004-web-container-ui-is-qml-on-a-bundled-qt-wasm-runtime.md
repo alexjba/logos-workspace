@@ -117,7 +117,7 @@ remain allowed because the container is a webview anyway. See
   downloaded once, which is the load-path consequence this ADR asked for.
 - **A module's QML takes its backend on an edge, not on first paint.** Inside
   the Web container `logos.module(name)` answers null until the backend's source
-  meta has arrived, and the view re-takes it on `viewModuleReadyChanged` — the same edge, and the same NAME, the desktop bridge emits, so one document runs in both containers. Forced,
+  meta has arrived, and the view re-takes it on `viewModuleReadyChanged`. Forced,
   not chosen: a page cannot dlopen the generated factory plugin that gives a
   desktop host a TYPED replica, so the replica is dynamic and builds its
   metaobject from the wire — and Qt's QML engine caches a property cache for an
