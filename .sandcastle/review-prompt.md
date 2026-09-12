@@ -34,7 +34,7 @@ which appear as `--stat` only). Where a diff is cut off, run `git diff` yourself
 
 Re-running every check is the most expensive part of a review (often most of it), so do it only when it can change the verdict:
 
-- **You changed code** (any commit, in the monorepo or a sub-repo): run `.sandcastle/adapter/verify.sh <repo...>` for the sub-repos you touched, after your last commit, and base your verdict on that run.
+- **You changed code** (any commit, in the monorepo or a sub-repo): run `.sandcastle/adapter/verify.sh <repo...>` for the sub-repos you touched, after your last commit, and base your verdict on that run. Re-pin first (`pin.sh <repo>` + commit) when the change is in a sub-repo: otherwise the run tests the old pin, and for `logos-basecamp` a path override fails four of its own checks regardless of content.
 - **You changed nothing**: check the implementer's verification instead of repeating it. It is enough when the issue comment names the `verify.sh` run, that run was against the branch's current sub-repo commits (compare with `git -C repos/<x> rev-parse --short HEAD`), its log exists and ends in the results it reports, and every FAIL it calls pre-existing is backed by a run from the unmodified pin. If any of that is missing, stale or doubtful, run `verify.sh` yourself for the affected repos.
 
 Keep your own files in a private directory (`T=$(mktemp -d /tmp/review-XXXXXX)`), never fixed names under `/tmp`: several issues run on this machine at once, and a shared file mixes their results.
