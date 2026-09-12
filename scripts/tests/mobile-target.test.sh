@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Unit tests for scripts/_mobile-target — the variant vocabulary and the flake
-# attribute `ws build --target` resolves a mobile artifact through.
+# Unit tests for scripts/_mobile-target — the variant and app vocabularies, and
+# the flake attribute `ws build --target` resolves a mobile artifact through.
 # Run: scripts/tests/mobile-target.test.sh
 set -uo pipefail
 
@@ -60,6 +60,30 @@ expect "android on a host with no Android build set" \
 expect "a non-default output" \
   "legacyPackages.aarch64-darwin.logos-basecamp.mobile.aarch64-android.liblogos-smoke-android" \
   mobile_build_ref logos-basecamp android-arm64 liblogos-smoke-android aarch64-darwin
+
+# `ws run --app` picks which of the two apps carries the Bundled set. Every
+# pair has a build today, so what the table asserts is the NAMES -- a runner
+# renamed on one side of the flake and not here is the failure this catches.
+echo "run_app_for"
+expect "smoke on the simulator" "run-liblogos-smoke-ios-sim"    run_app_for smoke ios-sim-arm64
+expect "smoke on an iOS device" "run-liblogos-smoke-ios-device" run_app_for smoke ios-arm64
+expect "smoke on Android"       "run-liblogos-smoke-android"    run_app_for smoke android-arm64
+expect "shell on the simulator" "run-basecamp-shell-ios-sim"    run_app_for shell ios-sim-arm64
+expect "shell on an iOS device" "run-basecamp-shell-ios-device" run_app_for shell ios-arm64
+expect "shell on Android"       "run-basecamp-shell-android"    run_app_for shell android-arm64
+expect "an app with no build for the target" "die: " run_app_for shell wear-arm64
+
+# What `ws run` prints when a pair has no build. Derived from run_app_for, so
+# this is also the assertion that both apps build for every known target.
+echo "targets_for_app"
+expect "smoke" "$KNOWN_TARGETS" targets_for_app smoke
+expect "shell" "$KNOWN_TARGETS" targets_for_app shell
+expect "an app nothing builds" "" targets_for_app ghost
+
+echo "is_known_app"
+expect "smoke"      "" is_known_app smoke
+expect "shell"      "" is_known_app shell
+expect "a typo" "die: " is_known_app shel
 
 echo
 echo "$pass passed, $fail failed"
