@@ -169,5 +169,53 @@ remain allowed because the container is a webview anyway. See
   and its answer reaches the view, a second module's document installs into the
   same runtime, and the SERVER saw exactly one request for the runtime image.
   Like the runtime's own smoke it is not a nix check and cannot be one.
+- **The desktop container renders it, and the browser is IN the shell.**
+  logos-basecamp fills liblogos' `WebModuleView` seam with a `QWebEngineView`:
+  `logos://module/` serves the module's package, `/logos-runtime/` inside that
+  same origin serves the app's one bundled runtime (25 MB at
+  `share/logos-runtime`), and the page is handed the same five-method
+  `window.logosChannelReady` that logoscore-webhost gives it. Two origins would
+  have meant CORS on every fetch of a 26 MB image for no isolation the
+  per-module profile does not already give.
+  - **In-process, unlike logoscore's page host, and that is forced.** A shell
+    has to put the page inside its OWN window and a widget cannot come from
+    another process. What made logoscore spawn a child — that the load path and
+    every inbound call block on the thread the page delivers on — is answered
+    inside liblogos, where both waits pump. What is genuinely given up is crash
+    containment: a renderer death is still reported, but it happens inside the
+    shell's process tree.
+  - **A `ui_qml` module's `web` variant is BOTH a view and a module**, and
+    discovery had to learn it. The package manager's module scan accepts
+    `type: "core"` and nothing else, so the artifact this ADR describes was
+    invisible to the core; it is now admitted when its resolved `main` is a
+    page, which leaves an ordinary `ui_qml` package (a QML document plus a Qt
+    plugin) exactly where it was — a UI plugin the shell loads itself.
+  - **Asking a page whether it is serving can stop the page.** The contract
+    query is a blocking call and an unready page does not answer "no", it does
+    not answer at all — so on the thread the in-process renderer delivers on,
+    the wait prevented the very thing it was waiting for. The query runs on a
+    worker now while the container's thread turns the event loop. The deadline
+    moved with it: 10 s is a subprocess's budget, and a browser cold-starting a
+    26 MB image needs a multiple of the query's own timeout.
+  - **Measured as a NIX CHECK**, which the browser end-to-end above cannot be:
+    Qt WebEngine is a Qt package the build already has.
+    `logos-basecamp#web-container-test` loads the instrumented variant through
+    the real core into a real webview and puts a REAL Qt mouse click on the
+    mounted widget at the coordinates the view reports for its own button —
+    through Chromium's input pipeline and Qt-for-WebAssembly's, exactly as a
+    user's would — and watches `count` go 0 → 1 and come back. Ten assertions,
+    the last of which is the call OUT of the page.
+  - **A call out of the page is a capability-gated call like any other**, and
+    that is what makes "reaches a native module" a fact about the system rather
+    than about the container. The page calls as the MODULE's own identity, on a
+    token store that is born empty, so its first call to any target runs
+    `capability_module.requestModule`: the same handshake a native caller makes,
+    brokered by the same module, with the container granting nothing of its own.
+    So the check loads THREE modules — the variant, a native `greeter` Bare
+    module for the view to call by name, and the broker — and all three are Bare
+    or web artifacts, which keeps it to one process with no subprocess host to
+    find. Take the broker out and the call dies at its deadline with the page
+    reporting a timeout: worth knowing, because nothing in the container is
+    broken when that happens.
 - Everything in the Web container is single-threaded; concurrency is
   "more workers", never pthreads.
