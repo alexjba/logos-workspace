@@ -1006,7 +1006,7 @@ Options:
                                 Resolved from the catalog with their dependency
                                 closure; needs --target
   --app, -A <smoke|shell>       Which app carries the set (default: smoke).
-                                `shell` is Basecamp's real UI shell; iOS only
+                                'shell' is Basecamp's real UI shell; iOS only
   --auto-local, -a              Auto-detect dirty repos and use as local overrides
   --local, -l <repo1> <repo2>   Use specific repos as local overrides
 
