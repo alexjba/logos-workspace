@@ -72,6 +72,7 @@ Read `CLAUDE.md` for the `ws` CLI. Key facts: `--auto-local` overrides flake inp
 # FEEDBACK LOOPS
 
 - Verify touched sub-repos: `.sandcastle/adapter/verify.sh <repo...>` (runs `ws test <repo...> --auto-local`). Also test at least one direct dependent (`ws graph <repo>`).
+- **Pin before you verify.** `--auto-local` overrides a sub-repo only while its work is uncommitted or unpushed, so once you have committed and pushed, `verify.sh` would test the OLD pin and report PASS for code you did not change. And for `logos-basecamp` a `path:` override fails four of its own checks whatever the content. So the order is: push the sub-repo branch, `.sandcastle/adapter/pin.sh <repo>`, commit the pin, then `verify.sh <repo>` on a clean tree — that tests your commit. verify.sh refuses outright when a repo it cannot override safely is ahead of its pin.
 - Report verification so a reviewer can check it without re-running it: in your final issue comment give the `verify.sh` command, the sub-repo commits it ran against (`git -C repos/<x> rev-parse --short HEAD`), each PASS/FAIL line, and the path of the full log. Run it after your last sub-repo commit; a run against an earlier commit does not count.
 - First builds are slow (minutes); do not abort them. Cache hits make later builds fast.
 - A single Bash call may run for up to 60 minutes (pass `timeout` in ms, max 3600000). For anything
