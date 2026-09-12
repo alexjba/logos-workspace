@@ -16,6 +16,8 @@ source "$WORKSPACE_ROOT/scripts/_detect-tests"
 source "$WORKSPACE_ROOT/scripts/_run-checks"
 # shellcheck source=scripts/_repo-type
 source "$WORKSPACE_ROOT/scripts/_repo-type"
+# shellcheck source=scripts/_mobile-target
+source "$WORKSPACE_ROOT/scripts/_mobile-target"
 
 # Show help text and exit. Usage: show_help "text"
 show_help() { echo -e "$1"; exit 0; }
@@ -513,22 +515,10 @@ Arguments:
 
 
 # ── Mobile targets: --target / --bundle ─────────────────────────────────────
-# A target is named in logos-package's variant vocabulary (the spelling that is
-# a key inside a signed .lgx hash tree), and mapped here to the pseudo-system
-# logos-nix keys its cross package sets by. Two namespaces for one target, and
-# they are spelled differently, so the mapping lives in exactly one place --
-# this function and repos/logos-basecamp/nix/bundled-set.nix, which has to agree
-# with it.
-target_to_system() {
-  case "$1" in
-    ios-sim-arm64) echo "aarch64-ios-simulator" ;;
-    ios-arm64)     echo "aarch64-ios" ;;
-    android-arm64) echo "aarch64-android" ;;
-    *) return 1 ;;
-  esac
-}
-
-KNOWN_TARGETS="ios-sim-arm64 ios-arm64 android-arm64"
+# The target vocabulary, the pseudo-systems it maps to and the flake attribute
+# a build resolves through are scripts/_mobile-target (sourced above, and unit
+# tested). What is left here is what only a command knows: which app runs a
+# target, and what to say when a combination has no build.
 
 # The runner that puts a build of <target> on a device or simulator.
 #
@@ -556,10 +546,6 @@ target_to_run_app() {
 
 is_known_app() {
   [[ " $KNOWN_APPS " == *" $1 "* ]]
-}
-
-is_known_target() {
-  [[ " $KNOWN_TARGETS " == *" $1 "* ]]
 }
 
 die_unknown_app() {
@@ -736,7 +722,11 @@ Examples:
     local nix_ref display_name
     if [[ -n "$target_system" ]]; then
       local mobile_output="${output_suffix:-bundled-set}"
-      nix_ref="$WORKSPACE_ROOT#packages.$target_system.$input_name--$mobile_output"
+      # Which ATTRIBUTE a mobile artifact lives under depends on the host as
+      # well as the target -- see scripts/_mobile-target.
+      local mobile_attr
+      mobile_attr=$(mobile_build_ref "$input_name" "$target" "$mobile_output" "$(this_system)") || exit 1
+      nix_ref="$WORKSPACE_ROOT#$mobile_attr"
       display_name="$input_name#$mobile_output ($target)"
     elif [[ -n "$output_suffix" ]]; then
       nix_ref="$WORKSPACE_ROOT#$input_name--$output_suffix"
