@@ -7,6 +7,10 @@
 // issue's whole pipeline; a rejection is reported through onError and frees the slot like a success.
 // After a plan that starts nothing, the next plan waits for a pipeline to finish.
 //
+// With `replanIntervalMs`, a plan also runs on a timer while slots sit free, so an issue that
+// appears mid-run (a follow-up filed by an agent, or by the operator) does not wait for the next
+// pipeline to finish — on 2026-09-12 issue 75 sat unplanned for an hour with two slots idle.
+//
 // Stops when a plan starts nothing and nothing is in flight, or once `budget` pipelines have
 // started and all of them have finished.
 export type Plannable = { id: string };
@@ -17,8 +21,10 @@ export const runRolling = async <I extends Plannable>(opts: {
   plan: (inFlight: I[]) => Promise<I[]>;
   run: (issue: I) => Promise<void>;
   onError: (issue: I, reason: unknown) => void;
+  /** Re-plan this often while a slot is free; 0 or undefined waits for a pipeline instead. */
+  replanIntervalMs?: number;
 }): Promise<{ started: number; rounds: number }> => {
-  const { limit, budget, plan, run, onError } = opts;
+  const { limit, budget, plan, run, onError, replanIntervalMs = 0 } = opts;
   const inFlight = new Map<string, { issue: I; done: Promise<void> }>();
   const failed = new Set<string>();
   let started = 0;
@@ -46,7 +52,16 @@ export const runRolling = async <I extends Plannable>(opts: {
       }
     }
     if (inFlight.size === 0) break;
-    await Promise.race([...inFlight.values()].map((f) => f.done));
+    const waits: Promise<unknown>[] = [...inFlight.values()].map((f) => f.done);
+    if (replanIntervalMs > 0 && limit - inFlight.size > 0 && budget - started > 0) {
+      waits.push(
+        new Promise((resolve) => {
+          const timer = setTimeout(resolve, replanIntervalMs);
+          timer.unref?.(); // a pending timer must not hold the process open after the loop ends
+        }),
+      );
+    }
+    await Promise.race(waits);
   }
   return { started, rounds };
 };

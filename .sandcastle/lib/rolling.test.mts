@@ -53,6 +53,45 @@ test("runRolling never runs more than `limit` pipelines at once", async () => {
   assert.equal(peak, 2);
 });
 
+test("runRolling re-plans on the timer while a slot is free, without waiting for the running pipeline", async () => {
+  const open = new Set(["slow"]);
+  const started: string[] = [];
+  // "late" appears only after the first plan, the way an issue filed mid-run does.
+  setTimeout(() => open.add("late"), 20);
+  await runRolling<I>({
+    limit: 2,
+    budget: 5,
+    replanIntervalMs: 10,
+    plan: async () => [...open].map((id) => ({ id })),
+    run: async ({ id }) => {
+      started.push(id);
+      await sleep(id === "slow" ? 200 : 5);
+      open.delete(id);
+    },
+    onError: () => assert.fail("no errors expected"),
+  });
+  assert.deepEqual(started, ["slow", "late"]);
+});
+
+test("without an interval, a mid-run issue waits for a pipeline to finish", async () => {
+  const open = new Set(["slow"]);
+  const order: string[] = [];
+  setTimeout(() => open.add("late"), 20);
+  await runRolling<I>({
+    limit: 2,
+    budget: 5,
+    plan: async () => [...open].map((id) => ({ id })),
+    run: async ({ id }) => {
+      order.push(`start ${id}`);
+      await sleep(id === "slow" ? 60 : 5);
+      open.delete(id);
+      order.push(`end ${id}`);
+    },
+    onError: () => {},
+  });
+  assert.ok(order.indexOf("start late") > order.indexOf("end slow"), order.join(", "));
+});
+
 test("runRolling stops when a plan starts nothing and nothing is in flight", async () => {
   const r = await runRolling<I>({
     limit: 4,
