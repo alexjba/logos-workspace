@@ -203,6 +203,19 @@ remain allowed because the container is a webview anyway. See
     the real core into a real webview and puts a REAL Qt mouse click on the
     mounted widget at the coordinates the view reports for its own button —
     through Chromium's input pipeline and Qt-for-WebAssembly's, exactly as a
-    user's would — and watches `count` go 0 → 1 and come back.
+    user's would — and watches `count` go 0 → 1 and come back. Ten assertions,
+    the last of which is the call OUT of the page.
+  - **A call out of the page is a capability-gated call like any other**, and
+    that is what makes "reaches a native module" a fact about the system rather
+    than about the container. The page calls as the MODULE's own identity, on a
+    token store that is born empty, so its first call to any target runs
+    `capability_module.requestModule`: the same handshake a native caller makes,
+    brokered by the same module, with the container granting nothing of its own.
+    So the check loads THREE modules — the variant, a native `greeter` Bare
+    module for the view to call by name, and the broker — and all three are Bare
+    or web artifacts, which keeps it to one process with no subprocess host to
+    find. Take the broker out and the call dies at its deadline with the page
+    reporting a timeout: worth knowing, because nothing in the container is
+    broken when that happens.
 - Everything in the Web container is single-threaded; concurrency is
   "more workers", never pthreads.
