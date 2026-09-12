@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# The mobile target vocabulary, and the flake attribute a target resolves to.
+#
+# Sourced by scripts/ws; unit-tested by scripts/tests/mobile-target.test.sh.
+# It is its own file because the answer is not one mapping but two, and the
+# second one is a fact about the machine you are standing on rather than about
+# the target:
+#
+#   target -> pseudo-system   ios-arm64 -> aarch64-ios.  One namespace for the
+#                             spelling inside a signed .lgx hash tree, another
+#                             for the key logos-nix hangs its cross package sets
+#                             off. Kept here and in
+#                             repos/logos-basecamp/nix/bundled-set.nix, which
+#                             has to agree with it.
+#
+#   target -> flake attribute An Android cross derivation's `system` is its
+#                             BUILD platform, and `packages.aarch64-android`
+#                             carries the canonical x86_64-linux one -- which a
+#                             Mac cannot realise even though it builds the
+#                             identical closure ("platform mismatch. Required
+#                             system: 'x86_64-linux'"). A repo publishes the
+#                             same artifacts under
+#                             `legacyPackages.<buildSystem>.mobile.<target>`,
+#                             so THAT is the route for Android on either host.
+#                             iOS cross-builds only on a Mac and has one build
+#                             platform, so it stays on `packages`.
+
+# The build platforms an Android cross set exists for; logos-nix's
+# `lib.androidBuildSystems`, restated because a shell script cannot evaluate it
+# and a host that is on neither list has to be told so by name.
+MOBILE_ANDROID_BUILD_SYSTEMS="x86_64-linux aarch64-darwin"
+
+KNOWN_TARGETS="ios-sim-arm64 ios-arm64 android-arm64"
+
+target_to_system() {
+  case "$1" in
+    ios-sim-arm64) echo "aarch64-ios-simulator" ;;
+    ios-arm64)     echo "aarch64-ios" ;;
+    android-arm64) echo "aarch64-android" ;;
+    *) return 1 ;;
+  esac
+}
+
+is_known_target() {
+  [[ " $KNOWN_TARGETS " == *" $1 "* ]]
+}
+
+# host_to_system <uname -s> <uname -m> — this machine, as a nix system.
+host_to_system() {
+  local os="$1" machine="$2"
+  case "$machine" in
+    arm64|aarch64) machine=aarch64 ;;
+    x86_64|amd64)  machine=x86_64 ;;
+  esac
+  case "$os" in
+    Darwin) echo "$machine-darwin" ;;
+    Linux)  echo "$machine-linux" ;;
+    *) return 1 ;;
+  esac
+}
+
+# The system this shell is running on.
+this_system() { host_to_system "$(uname -s)" "$(uname -m)"; }
+
+# mobile_build_ref <input> <target> <output> <host system>
+# The flake attribute path (no flake ref) that builds <output> of <input> for
+# <target> from <host system>.
+mobile_build_ref() {
+  local input="$1" target="$2" output="$3" host="$4"
+  local target_system
+  target_system=$(target_to_system "$target") || return 1
+  if [[ "$target_system" != "aarch64-android" ]]; then
+    echo "packages.$target_system.$input--$output"
+    return 0
+  fi
+  if [[ " $MOBILE_ANDROID_BUILD_SYSTEMS " != *" $host "* ]]; then
+    echo "Error: no Android build set for '$host'" >&2
+    echo "Android cross-builds from: $MOBILE_ANDROID_BUILD_SYSTEMS" >&2
+    return 1
+  fi
+  echo "legacyPackages.$host.$input.mobile.$target_system.$output"
+}

@@ -174,7 +174,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     logos-basecamp = {
-      url = "github:logos-fleet/logos-basecamp/f95b94a62674468d58fa9b690ae8868ce7475d51";
+      url = "github:logos-fleet/logos-basecamp/43fb6fc3ca5672f368f9755caf6f6d40aa79c599";
       inputs.logos-capability-module.follows = "logos-capability-module";
       inputs.logos-chat-module.follows = "logos-chat-module";
       inputs.logos-cpp-sdk.follows = "logos-cpp-sdk";
@@ -484,6 +484,27 @@
           ) {} repoInputNames;
         in allPkgs
       );
+
+      # ── legacyPackages ────────────────────────────────────────────────────
+      # Every repo's own legacyPackages, forwarded under the repo name and
+      # keyed by the system that BUILDS. That is what Android needs and
+      # `packages` cannot give it: an Android cross derivation's `system` is
+      # its build platform, and `packages.aarch64-android` carries the
+      # canonical x86_64-linux one, which a Mac refuses with "platform
+      # mismatch" even though the closure is identical. A repo publishes the
+      # same artifacts under `legacyPackages.<buildSystem>.mobile.<target>`,
+      # and `ws build --target android-arm64` resolves through here (see
+      # scripts/_mobile-target).
+      #
+      # Forwarded through the WORKSPACE flake rather than reached in the repo's
+      # own, for the same reason `packages` is: --auto-local / --local override
+      # inputs of this flake, and a build that went straight at the sub-repo
+      # would not see them.
+      legacyPackages = forAllSystems (system:
+        builtins.listToAttrs (map (name: {
+          inherit name;
+          value = inputs.${name}.legacyPackages.${system} or { };
+        }) repoInputNames));
 
       # ── Apps ──────────────────────────────────────────────────────────────
       # nix run .#logos-standalone-app -- --plugin ./result/lib/

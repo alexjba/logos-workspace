@@ -16,6 +16,8 @@ source "$WORKSPACE_ROOT/scripts/_detect-tests"
 source "$WORKSPACE_ROOT/scripts/_run-checks"
 # shellcheck source=scripts/_repo-type
 source "$WORKSPACE_ROOT/scripts/_repo-type"
+# shellcheck source=scripts/_mobile-target
+source "$WORKSPACE_ROOT/scripts/_mobile-target"
 
 # Show help text and exit. Usage: show_help "text"
 show_help() { echo -e "$1"; exit 0; }
@@ -513,22 +515,10 @@ Arguments:
 
 
 # ── Mobile targets: --target / --bundle ─────────────────────────────────────
-# A target is named in logos-package's variant vocabulary (the spelling that is
-# a key inside a signed .lgx hash tree), and mapped here to the pseudo-system
-# logos-nix keys its cross package sets by. Two namespaces for one target, and
-# they are spelled differently, so the mapping lives in exactly one place --
-# this function and repos/logos-basecamp/nix/bundled-set.nix, which has to agree
-# with it.
-target_to_system() {
-  case "$1" in
-    ios-sim-arm64) echo "aarch64-ios-simulator" ;;
-    ios-arm64)     echo "aarch64-ios" ;;
-    android-arm64) echo "aarch64-android" ;;
-    *) return 1 ;;
-  esac
-}
-
-KNOWN_TARGETS="ios-sim-arm64 ios-arm64 android-arm64"
+# The target vocabulary, the pseudo-systems it maps to and the flake attribute
+# a build resolves through are scripts/_mobile-target (sourced above, and unit
+# tested). What is left here is what only a command knows: which app runs a
+# target, and what to say when a combination has no build.
 
 # The runner that puts a build of <target> on a device or simulator.
 #
@@ -556,10 +546,6 @@ target_to_run_app() {
 
 is_known_app() {
   [[ " $KNOWN_APPS " == *" $1 "* ]]
-}
-
-is_known_target() {
-  [[ " $KNOWN_TARGETS " == *" $1 "* ]]
 }
 
 die_unknown_app() {
@@ -664,9 +650,8 @@ Examples:
     exit 1
   fi
 
-  local target_system=""
   if [[ -n "$target" ]]; then
-    target_system=$(target_to_system "$target") || die_unknown_target "$target"
+    is_known_target "$target" || die_unknown_target "$target"
     if [[ ${#repos[@]} -ne 1 ]]; then
       echo -e "${RED}Error:${NC} --target builds one repo at a time (got: ${repos[*]})" >&2
       exit 1
@@ -729,14 +714,17 @@ Examples:
     # All repo outputs are exposed through the workspace flake:
     # default → .#<input_name>, non-default → .#<input_name>--<output>
     #
-    # A mobile target lives under its own pseudo-system key, so it needs the
-    # full attribute path -- `.#x` always means packages.<thisHost>.x. Going
-    # through the workspace flake (rather than the repo's own) is what keeps
-    # --auto-local / --local working for a cross build.
+    # A mobile target needs the full attribute path -- `.#x` always means
+    # packages.<thisHost>.x -- and WHICH path depends on the host as well as
+    # the target, so mobile_build_ref answers it (see scripts/_mobile-target).
+    # Going through the workspace flake (rather than the repo's own) is what
+    # keeps --auto-local / --local working for a cross build.
     local nix_ref display_name
-    if [[ -n "$target_system" ]]; then
+    if [[ -n "$target" ]]; then
       local mobile_output="${output_suffix:-bundled-set}"
-      nix_ref="$WORKSPACE_ROOT#packages.$target_system.$input_name--$mobile_output"
+      local mobile_attr
+      mobile_attr=$(mobile_build_ref "$input_name" "$target" "$mobile_output" "$(this_system)") || exit 1
+      nix_ref="$WORKSPACE_ROOT#$mobile_attr"
       display_name="$input_name#$mobile_output ($target)"
     elif [[ -n "$output_suffix" ]]; then
       nix_ref="$WORKSPACE_ROOT#$input_name--$output_suffix"
