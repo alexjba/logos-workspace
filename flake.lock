@@ -966,17 +966,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1789274965,
-        "narHash": "sha256-XrGbK+L2LJm6TsKU7sCr8DwgccYehWShr/Sxyx6yJ/s=",
+        "lastModified": 1789282452,
+        "narHash": "sha256-QNcvHN+dQ7VDSJ92iJZWX4NJhqVe+Tn5RA3aLl5XYro=",
         "owner": "logos-fleet",
         "repo": "logos-basecamp",
-        "rev": "da7991a5f2d37f9f1f5db56955d6e0a2c8843b6b",
+        "rev": "eaa15b49fbd137d3b14e6b736efb52ceb6bb60c5",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-basecamp",
-        "rev": "da7991a5f2d37f9f1f5db56955d6e0a2c8843b6b",
+        "rev": "eaa15b49fbd137d3b14e6b736efb52ceb6bb60c5",
         "type": "github"
       }
     },
@@ -51383,17 +51383,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1789270873,
-        "narHash": "sha256-72NSdhfI+h1YVfLMmKFAaVY8CRexx7/vtDvu/kuu3So=",
+        "lastModified": 1789282455,
+        "narHash": "sha256-BDCTHyUK0fRuxCdnmt1fTIIXAS00iskrV0v731KrhP0=",
         "owner": "logos-fleet",
         "repo": "logos-package-manager",
-        "rev": "b613227561aa0190f7553b40b2f3abb735384b0b",
+        "rev": "75018d8e7e278687bd2ad4f880b69c0945323f70",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-package-manager",
-        "rev": "b613227561aa0190f7553b40b2f3abb735384b0b",
+        "rev": "75018d8e7e278687bd2ad4f880b69c0945323f70",
         "type": "github"
       }
     },
