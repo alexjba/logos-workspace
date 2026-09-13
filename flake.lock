@@ -9178,17 +9178,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1789288425,
-        "narHash": "sha256-xsjaGmkfEfOUxH5PfUVjDlZUkGLhFEoT0H46Sbb/itw=",
+        "lastModified": 1789291950,
+        "narHash": "sha256-ATPADJTiGcBKcNyp2xZ9pI8kx2rQDV+YYls/G8kCn34=",
         "owner": "logos-fleet",
         "repo": "logos-evm-keystore-module",
-        "rev": "55b59058ddebeffce15c8cc04c56086107b08f50",
+        "rev": "8e98878f37231efd91c58bfc0c65f4c481d9d1e7",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-evm-keystore-module",
-        "rev": "55b59058ddebeffce15c8cc04c56086107b08f50",
+        "rev": "8e98878f37231efd91c58bfc0c65f4c481d9d1e7",
         "type": "github"
       }
     },
@@ -17842,17 +17842,17 @@
         "rust-overlay": "rust-overlay_15"
       },
       "locked": {
-        "lastModified": 1789288425,
-        "narHash": "sha256-SWcqd1dWUVQTUJx8miDReObGkSLZpcj2GDBVjPfGJEk=",
+        "lastModified": 1789291925,
+        "narHash": "sha256-StuXKOGsoIHs3Vv/45XIMoDyu0rU3BcQnThYNE9eEz4=",
         "owner": "logos-fleet",
         "repo": "logos-module-builder",
-        "rev": "c5d79a642d0cd552b162d6a074450130bc6b0630",
+        "rev": "7cac8f100a01758825796a80daa34a30e0e1a2c0",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-module-builder",
-        "rev": "c5d79a642d0cd552b162d6a074450130bc6b0630",
+        "rev": "7cac8f100a01758825796a80daa34a30e0e1a2c0",
         "type": "github"
       }
     },
@@ -68761,17 +68761,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1789288410,
+        "lastModified": 1789289775,
         "narHash": "sha256-El7e1ejahHmnASYz5I7+/39rMD5zgdEQ4/vhFUTWsak=",
         "owner": "logos-fleet",
         "repo": "logos-rust-sdk",
-        "rev": "05578de26b862747804a06d12d07b0026109dd57",
+        "rev": "661d43431f4bd13ab50869e305e1eaba49579e8a",
         "type": "github"
       },
       "original": {
         "owner": "logos-fleet",
         "repo": "logos-rust-sdk",
-        "rev": "05578de26b862747804a06d12d07b0026109dd57",
+        "rev": "661d43431f4bd13ab50869e305e1eaba49579e8a",
         "type": "github"
       }
     },
