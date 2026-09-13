@@ -74,7 +74,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     logos-liblogos = {
-      url = "github:logos-fleet/logos-liblogos/f82960fa9a9d92e1a2189a88b4892c98d796b086";
+      url = "github:logos-fleet/logos-liblogos/fe234f3a6ff089af98bb53e4f83b3b19ef82586c";
       inputs.logos-capability-module.follows = "logos-capability-module";
       inputs.logos-cpp-sdk.follows = "logos-cpp-sdk";
       inputs.logos-module.follows = "logos-module";
@@ -88,7 +88,7 @@
       inputs.process-stats.follows = "process-stats";
     };
     logos-logoscore-cli = {
-      url = "github:logos-fleet/logos-logoscore-cli/de7e75367ec623797071f9eb2e221ec33ed1d441";
+      url = "github:logos-fleet/logos-logoscore-cli/1bd240ac3ab27bd579b07b87756e976007647c45";
       inputs.logos-capability-module.follows = "logos-capability-module";
       inputs.logos-cpp-sdk.follows = "logos-cpp-sdk";
       inputs.logos-js-sdk.follows = "logos-js-sdk";
