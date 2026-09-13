@@ -24,7 +24,7 @@
     # generated follows below.
     # fleet-kit: pinned to the logos-fleet fork at an explicit rev; pin.sh moves the rev
     # to the repos/logos-nix gitlink (this manual input is skipped by `ws sync-graph`).
-    logos-nix.url = "github:logos-fleet/logos-nix/a3a960598c9ee318200415bb074d2cc70b27e0dd";
+    logos-nix.url = "github:logos-fleet/logos-nix/1a1ba66071a5d46bf2b33e0f4a9728af65d0035d";
     nixpkgs.follows = "logos-nix/nixpkgs";
     # Pinned explicitly because logos-blockchain-module's upstream lock
     # currently references an invalid commit-ish via /0.2.1.
@@ -109,7 +109,7 @@
       inputs.logos-module-builder.follows = "logos-module-builder";
     };
     logos-package = {
-      url = "github:logos-fleet/logos-package/b719fb89cdb2933b52d04644311e3a6713b94810";
+      url = "github:logos-fleet/logos-package/5fa73a032e7d0fce1fc22a725910acb4003669b5";
       inputs.logos-nix.follows = "logos-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -121,7 +121,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     logos-module-builder = {
-      url = "github:logos-fleet/logos-module-builder/7f00fc403a9e8fa9dfaa404244c119699b8948bc";
+      url = "github:logos-fleet/logos-module-builder/b559af6387165f76f15464e6466b6a64f906a2e0";
       inputs.logos-cpp-sdk.follows = "logos-cpp-sdk";
       inputs.logos-design-system.follows = "logos-design-system";
       inputs.logos-module.follows = "logos-module";
@@ -174,7 +174,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     logos-basecamp = {
-      url = "github:logos-fleet/logos-basecamp/82b1c343c7e3e7fd4bf4ff7245546c9e6c11ab67";
+      url = "github:logos-fleet/logos-basecamp/a40df962b06416497fb004f6210f07ea5878b3e1";
       inputs.logos-capability-module.follows = "logos-capability-module";
       inputs.logos-chat-module.follows = "logos-chat-module";
       inputs.logos-chat-ui.follows = "logos-chat-ui";
@@ -222,7 +222,7 @@
       inputs.logos-module-builder.follows = "logos-module-builder";
     };
     logos-package-manager = {
-      url = "github:logos-fleet/logos-package-manager/3ac6bbb63fb6c2179efd3ee0ee3b40bab70b7bf8";
+      url = "github:logos-fleet/logos-package-manager/1dd61b512f788d1f258af58448d9d90342c89bb0";
       inputs.logos-nix.follows = "logos-nix";
       inputs.logos-package.follows = "logos-package";
       inputs.nix-bundle-appimage.follows = "nix-bundle-appimage";
@@ -230,7 +230,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     logos-package-downloader = {
-      url = "github:logos-fleet/logos-package-downloader/2a3146a1a8166a4613d069b1f5a930c1f1beb029";
+      url = "github:logos-fleet/logos-package-downloader/97558c4224e3b5e178249fd045f98e5400c22aa2";
       inputs.logos-nix.follows = "logos-nix";
       inputs.logos-package.follows = "logos-package";
       inputs.nix-bundle-appimage.follows = "nix-bundle-appimage";
@@ -238,12 +238,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     logos-package-manager-module = {
-      url = "github:logos-fleet/logos-package-manager-module/67d105901897cbff102cacaa0b3a2c88f9bf045f";
+      url = "github:logos-fleet/logos-package-manager-module/729b90eca6599f03e2c4b9641c4341537c04aeb3";
       inputs.logos-module-builder.follows = "logos-module-builder";
       inputs.logos-package-manager.follows = "logos-package-manager";
     };
     logos-package-downloader-module = {
-      url = "github:logos-fleet/logos-package-downloader-module/e5ae1f0cc1e988f20c6d66ddf3691b41465c7de2";
+      url = "github:logos-fleet/logos-package-downloader-module/337b30b03bcafedd2a9d09f1ca94c147fc1380bd";
       inputs.logos-module-builder.follows = "logos-module-builder";
       inputs.logos-package-downloader.follows = "logos-package-downloader";
     };
